@@ -1,0 +1,19 @@
+Intake Flow Test Results:
+
+Step 1: "What is the client's full name?"
+- Typed "John Smith" → User bubble appeared on right (gold-tinted)
+- AI confirmation: 'I heard: "John Smith" — Is that correct? (Yes / No)'
+- Typed "Yes" → Confirmed
+- Progress bar moved to "QUESTION 2 OF 9"
+- Next question asked: "What is the client's phone number?"
+
+CONFIRMED WORKING:
+- Question flow advancing correctly
+- User messages appear as gold-tinted bubbles on right
+- AI messages appear as dark bubbles with gold left border on left
+- Confirmation step works (Yes/No)
+- Progress bar updates correctly
+- Input clears after each submission
+- Mic button and Send button visible and styled correctly
+
+All core intake mechanics verified.

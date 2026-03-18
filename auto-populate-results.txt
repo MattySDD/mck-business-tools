@@ -1,0 +1,15 @@
+AUTO-POPULATE VERIFICATION - Calculator Tab:
+
+Gold banner visible at top: "AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING"
+
+Surface 1: Microcement — Floor | Type: Floor | System: Solidro | SQM: 80 | Levelled: checked
+Surface 2: Microcement — Bathroom | Type: Wet Area | System: Solidro | SQM: 12 | Levelled: checked
+
+Crew: Standard (Patty + Hayden/Micky $120/hr) - highlighted correctly
+Prep: Standard - highlighted correctly
+
+Job Cost Summary showing:
+- Total Material Cost: $9,225.22
+- Total Labour Cost: $7,680.00
+
+All fields correctly auto-populated from the voice intake interview.

@@ -1,0 +1,13 @@
+AI Agent Tab Visual Verification:
+1. Voice-Guided Job Intake card visible at top with gold "SPEECH + TEXT" badge
+2. Gold callout explaining how it works - visible and readable
+3. "START JOB INTAKE" button - gold, prominent, centered with mic icon
+4. Intake section hidden (correct - only shows after clicking start)
+5. AI Quote Assistant (Free Chat) card below with "FREE CHAT" badge
+6. Free chat area with textarea and buttons visible
+7. Both sections properly styled in dark theme with gold accents
+8. Layout looks clean and premium
+
+Issues found:
+- The free-chat section shows "Ready. Describe the job details..." message in the same chat area as intake
+  This is because both use id="ai-chat-area" - need to fix the free chat to use a different ID

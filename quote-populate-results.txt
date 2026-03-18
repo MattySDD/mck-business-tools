@@ -1,0 +1,23 @@
+QUOTE TAB AUTO-POPULATE VERIFICATION:
+
+Gold banner visible: "AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING"
+
+Client Details (all populated correctly):
+- Client Name: John Smith
+- Phone Number: 0412 345 678
+- Email Address: john@smith.com.au
+- Project Address: 42 Marine Parade, Burleigh Heads QLD 4220
+- Site Contact: John Smith
+
+Project Scope (all populated correctly):
+- Colour/Finish: Solidro System
+- Substrate: levelled and good condition
+- Scope of Works: Microcement — Floor (80 sqm), Microcement — Bathroom (12 sqm). Natural grey finish, matte sealer
+
+Pricing Schedule:
+- Line 1: Microcement — Floor | 80 sqm
+- Line 2: Microcement — Bathroom | 12 sqm
+
+Inclusions and Exclusions auto-populated with standard MCK items.
+
+EVERYTHING WORKING CORRECTLY.

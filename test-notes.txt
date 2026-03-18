@@ -1,0 +1,7 @@
+Visual Inspection Notes:
+1. Calculator tab - looks good: dark background, gold accents, Inter font, proper card styling
+2. Nav bar: gold brand text, gold underline on active tab - CORRECT
+3. Crew grid: standard crew highlighted with gold border - CORRECT
+4. Surface line items: proper dark cards with gold title - CORRECT
+5. Need to test: enter 100sqm floor to verify Solidro top coat calculation
+6. Need to check: Quote tab, Terms tab, AI tab visuals

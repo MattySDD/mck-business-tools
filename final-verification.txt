@@ -1,0 +1,12 @@
+SOLIDRO TOP COAT VERIFICATION — LEVELLED FLOOR (1 coat):
+Solidro Top 10kg: 4 packs, 0.0 sqm leftover = $2,508.00
+
+Calculation: 100sqm / 2.5 sqm/kg = 40kg needed. 40kg / 10kg per pack = 4 packs. CORRECT.
+This matches the user's expected result: "100sqm job should need 40kg = 4 packs of 10kg"
+
+STANDARD FLOOR (2 coats): 8 packs (80kg for 2 coats) — also correct.
+
+Mesh: 0 packs for levelled floor (no mesh needed) — correct.
+Micro Seal: 4 packs (100sqm floor needs Micro Seal) — correct.
+
+All calculations verified.

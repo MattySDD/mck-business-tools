@@ -1,0 +1,17 @@
+Intake Flow Test - Visual Verification:
+
+1. START JOB INTAKE button clicked - intake section appeared correctly
+2. Controls visible: "SPEAK QUESTIONS: OFF" toggle + "CANCEL INTAKE" button
+3. Progress bar showing "QUESTION 1 OF 9" in gold text
+4. Progress track with fill bar visible
+5. Chat area shows:
+   - System message: "Starting MCK Job Intake. I'll ask you a series of questions..."
+   - AI question: "What is the client's full name?" (in response bubble with gold left border)
+6. Input area at bottom with:
+   - Textarea placeholder "Type your answer or tap the mic to speak..."
+   - Mic button (circular with mic icon)
+   - Send button (gold with arrow icon)
+7. Free-chat section visible below the intake section
+8. All styling consistent with dark/gold theme
+
+Everything working correctly. Now testing the answer flow.

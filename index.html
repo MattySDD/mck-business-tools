@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MICRO CEMENT KING — Business Tools</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ═══ TOP NAV BAR ═══ -->
+<nav class="topnav">
+  <div class="nav-brand">MICRO CEMENT KING</div>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-tab="calculator" onclick="switchTab('calculator')">MARGIN CALCULATOR</button>
+    <button class="nav-tab" data-tab="quote" onclick="switchTab('quote')">QUOTE GENERATOR</button>
+    <button class="nav-tab" data-tab="terms" onclick="switchTab('terms')">TERMS &amp; CONDITIONS</button>
+    <button class="nav-tab" data-tab="ai" onclick="switchTab('ai')">AI AGENT</button>
+  </div>
+</nav>
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 1: MARGIN CALCULATOR                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-calculator" class="tab-content active">
+  <div class="page">
+
+    <!-- SURFACE LINES -->
+    <div class="card">
+      <div class="card-header">
+        <h2>SURFACE LINE ITEMS</h2>
+        <span class="badge">UP TO 10 SURFACES</span>
+      </div>
+      <div class="card-body">
+        <div id="surface-lines" class="surface-lines"></div>
+        <button id="add-surface-btn" class="add-surface-btn" onclick="addSurfaceLine()">+ ADD SURFACE</button>
+      </div>
+    </div>
+
+    <!-- CREW & PREP -->
+    <div class="card">
+      <div class="card-header"><h2>CREW &amp; PREP CONFIGURATION</h2></div>
+      <div class="card-body">
+        <div class="section-label">CREW SIZE</div>
+        <div id="crew-grid" class="crew-grid">
+          <div class="crew-option" onclick="selectCrew(this,'solo')" data-key="solo">
+            <div class="crew-label">PATTY ONLY</div>
+            <div class="crew-rate">$65/hr</div>
+          </div>
+          <div class="crew-option active" onclick="selectCrew(this,'standard')" data-key="standard">
+            <div class="crew-label">PATTY + HAYDEN/MICKY</div>
+            <div class="crew-rate">$120/hr combined</div>
+          </div>
+          <div class="crew-option" onclick="selectCrew(this,'full')" data-key="full">
+            <div class="crew-label">PATTY + HAYDEN/MICKY + LABOURER</div>
+            <div class="crew-rate">$155/hr combined</div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+        <div class="section-label">PREP COMPLEXITY</div>
+        <div id="prep-grid" class="crew-grid">
+          <div class="crew-option active" onclick="selectPrep(this,'standard',1.0)" data-mult="1.0">
+            <div class="crew-label">STANDARD</div>
+            <div class="crew-rate">No adjustment</div>
+          </div>
+          <div class="crew-option" onclick="selectPrep(this,'complex',1.2)" data-mult="1.2">
+            <div class="crew-label">COMPLEX PREP</div>
+            <div class="crew-rate">+20% labour</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="empty-state" class="empty-state" style="display:none;">
+      <div style="font-size:28px;color:var(--border-light);margin-bottom:8px;">&#9633;</div>
+      <div>Add surface lines above to see calculations</div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results-content">
+
+      <!-- SUMMARY -->
+      <div class="card">
+        <div class="card-header"><h2>JOB COST SUMMARY — SOLIDRO</h2><span class="badge">INTERNAL ONLY</span></div>
+        <div class="card-body">
+          <div class="results-grid">
+            <div class="stat-card"><div class="stat-label">TOTAL MATERIAL COST</div><div class="stat-value" id="r-mat-cost">—</div><div class="stat-sub" id="r-mat-sub">Solidro system (pooled materials)</div></div>
+            <div class="stat-card"><div class="stat-label">TOTAL LABOUR COST</div><div class="stat-value" id="r-lab-cost">—</div><div class="stat-sub" id="r-lab-sub">—</div></div>
+            <div class="stat-card" style="border-color:var(--gold);"><div class="stat-label">TOTAL JOB COST</div><div class="stat-value gold" id="r-job-cost">—</div><div class="stat-sub" id="r-sqm-cost">—</div></div>
+            <div class="stat-card"><div class="stat-label">TOTAL SQM</div><div class="stat-value" id="r-total-sqm">—</div><div class="stat-sub">All surfaces combined</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMMENDED SELL PRICE -->
+      <div class="card">
+        <div class="card-header"><h2>MCK RECOMMENDED SELL PRICE</h2><span class="badge">ALL SYSTEMS — EX GST</span></div>
+        <div class="card-body" id="rec-sell-wrap"></div>
+      </div>
+
+      <!-- CUSTOM SELL PRICE -->
+      <div class="card">
+        <div class="card-header"><h2>CUSTOM SELL PRICE CHECK</h2></div>
+        <div class="card-body">
+          <div class="sell-price-wrap">
+            <label>ENTER SELL PRICE (EX GST):</label>
+            <input type="number" id="custom-sell" placeholder="0.00" oninput="recalc()">
+            <div class="sp-result" id="custom-margin-display">Enter a sell price to see your actual margin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARGIN BANDS -->
+      <div class="card">
+        <div class="card-header"><h2>MARGIN BANDS — SOLIDRO</h2></div>
+        <div class="card-body" id="margin-bands-wrap"></div>
+      </div>
+
+      <!-- MATERIAL BREAKDOWN — SOLIDRO -->
+      <div class="card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN — SOLIDRO</h2><span class="badge">POOLED CORRECTLY</span></div>
+        <div class="card-body" id="mat-table-wrap"></div>
+      </div>
+
+      <!-- MATERIAL BREAKDOWN — MICROTOPPING -->
+      <div class="card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN — MICROTOPPING</h2><span class="badge">COMPARISON</span></div>
+        <div class="card-body" id="mt-table-wrap"></div>
+      </div>
+
+      <!-- SURFACE BREAKDOWN -->
+      <div class="card">
+        <div class="card-header"><h2>PER-SURFACE BREAKDOWN</h2></div>
+        <div class="card-body" id="surface-breakdown-wrap"></div>
+      </div>
+
+      <!-- LABOUR BREAKDOWN -->
+      <div class="card">
+        <div class="card-header"><h2>LABOUR BREAKDOWN</h2></div>
+        <div class="card-body" id="labour-wrap"></div>
+      </div>
+
+      <!-- SOLIDRO vs MICROTOPPING COMPARISON -->
+      <div class="card">
+        <div class="card-header"><h2>SOLIDRO VS MICROTOPPING COMPARISON</h2></div>
+        <div class="card-body">
+          <div class="compare-grid">
+            <div class="compare-card solidro">
+              <div class="compare-title">SYSTEM A — SOLIDRO</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-sol-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-sol-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-sol-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40% Margin</span><span class="cr-value" id="cmp-sol-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 45% Margin</span><span class="cr-value" id="cmp-sol-45">—</span></div>
+            </div>
+            <div class="compare-card microtopping">
+              <div class="compare-title">SYSTEM B — MICROTOPPING</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-mt-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-mt-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-mt-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40% Margin</span><span class="cr-value" id="cmp-mt-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 45% Margin</span><span class="cr-value" id="cmp-mt-45">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKET SANITY CHECK -->
+      <div class="card">
+        <div class="card-header"><h2>MARKET SANITY CHECK — GOLD COAST</h2></div>
+        <div class="card-body" id="market-check-wrap"></div>
+      </div>
+
+    </div><!-- /results-content -->
+  </div><!-- /page -->
+</div><!-- /tab-calculator -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 2: QUOTE GENERATOR                                      -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-quote" class="tab-content">
+  <div class="doc">
+
+    <!-- HEADER -->
+    <div class="doc-header">
+      <div class="header-row">
+        <div class="brand-block">
+          <div class="doc-label">FORMAL QUOTATION</div>
+          <h1>MICRO CEMENT KING</h1>
+          <div class="tagline">Gold Coast's Premium Seamless Surfaces Specialist</div>
+        </div>
+        <div class="contact-block">
+          <div class="cl"><strong>PHONE</strong> 0468 053 819</div>
+          <div class="cl"><strong>EMAIL</strong> projects@microcementking.com.au</div>
+          <div class="cl"><strong>WEB</strong> microcementking.com.au</div>
+          <div class="cl"><strong>INSTAGRAM</strong> @microcementking</div>
+          <div class="cl" style="margin-top:8px;font-size:10px;color:var(--grey-mid);">All prices ex GST unless stated</div>
+        </div>
+      </div>
+      <div class="quote-meta">
+        <div class="meta-cell">
+          <div class="meta-label">QUOTE NUMBER</div>
+          <div class="meta-value"><span contenteditable="true" id="q-quote-number">MCK-2026-</span></div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">DATE ISSUED</div>
+          <div class="meta-value" id="q-date-display"></div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">QUOTE VALIDITY</div>
+          <select class="validity-select" id="q-validity-select" onchange="updateQuoteValidity()">
+            <option value="24">24 Hours</option>
+            <option value="48" selected>48 Hours</option>
+            <option value="120">5 Days</option>
+            <option value="168">7 Days</option>
+            <option value="336">14 Days</option>
+            <option value="720">30 Days</option>
+          </select>
+          <div class="expiry-note" id="q-expiry-note"></div>
+        </div>
+        <div class="meta-cell">
+          <div class="meta-label">PREPARED BY</div>
+          <div class="meta-value"><span contenteditable="true" id="q-prepared-by">King Mannion</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="validity-banner" id="q-validity-banner">QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE</div>
+
+    <!-- BODY -->
+    <div class="doc-body">
+
+      <!-- 01 CLIENT DETAILS -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">01</div><h2>CLIENT DETAILS</h2></div>
+        <div class="g2">
+          <div>
+            <div class="field"><div class="field-lbl">CLIENT NAME</div><div class="field-val" contenteditable="true" id="q-client-name">&nbsp;</div></div>
+            <div class="field"><div class="field-lbl">PHONE NUMBER</div><div class="field-val" contenteditable="true" id="q-client-phone">&nbsp;</div></div>
+            <div class="field"><div class="field-lbl">EMAIL ADDRESS</div><div class="field-val" contenteditable="true" id="q-client-email">&nbsp;</div></div>
+          </div>
+          <div>
+            <div class="field"><div class="field-lbl">PROJECT ADDRESS</div><div class="field-val" contenteditable="true" id="q-project-address">&nbsp;</div></div>
+            <div class="field"><div class="field-lbl">SITE CONTACT</div><div class="field-val" contenteditable="true" id="q-site-contact">&nbsp;</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 02 PROJECT SCOPE -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">02</div><h2>PROJECT SCOPE</h2></div>
+        <div class="g2">
+          <div class="field"><div class="field-lbl">COLOUR / FINISH</div><div class="field-val" contenteditable="true" id="q-colour-finish">&nbsp;</div></div>
+          <div class="field"><div class="field-lbl">SUBSTRATE</div><div class="field-val" contenteditable="true" id="q-substrate">&nbsp;</div></div>
+        </div>
+        <div class="field"><div class="field-lbl">SCOPE OF WORKS</div><div class="field-val tall" contenteditable="true" id="q-scope">&nbsp;</div></div>
+      </div>
+
+      <!-- 03 PRICING -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">03</div><h2>PRICING SCHEDULE</h2></div>
+        <div class="pricing-wrap">
+          <table class="pricing-table" id="q-pricing-table">
+            <colgroup><col style="width:42%"><col style="width:10%"><col style="width:12%"><col style="width:16%"><col style="width:16%"><col style="width:4%"></colgroup>
+            <thead><tr><th>DESCRIPTION</th><th class="right">QTY</th><th>UNIT</th><th class="right">RATE (EX GST)</th><th class="right">TOTAL (EX GST)</th><th></th></tr></thead>
+            <tbody id="q-pricing-body"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td colspan="4">SUBTOTAL (EX GST)</td><td class="right" id="q-subtotal-cell">&mdash;</td><td></td></tr>
+              <tr class="gst-row"><td colspan="4">GST (10%)</td><td class="right" id="q-gst-cell">&mdash;</td><td></td></tr>
+              <tr class="grand-total-row"><td colspan="4">TOTAL (INC GST)</td><td class="right" id="q-grand-total-cell">&mdash;</td><td></td></tr>
+            </tfoot>
+          </table>
+        </div>
+        <button class="add-line-btn" onclick="addQuoteLine()">+ ADD LINE ITEM</button>
+        <div class="callout callout-info" style="margin-top:14px;">
+          <strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$220 ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance of this quote and signing of the formal agreement.
+        </div>
+      </div>
+
+      <!-- 04 INCLUSIONS / EXCLUSIONS -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">04</div><h2>INCLUSIONS &amp; EXCLUSIONS</h2></div>
+        <div class="inc-exc">
+          <div class="inc-col">
+            <h4>INCLUSIONS</h4>
+            <ul class="ie-list" id="q-inclusions" contenteditable="true">
+              <li>All Ideal Works / Solidro microcement materials</li>
+              <li>Professional surface preparation</li>
+              <li>Base coat application (1 coat)</li>
+              <li>Finish coat application (2 coats)</li>
+              <li>Fibreglass mesh reinforcement (floors/wet areas/bench tops)</li>
+              <li>IDEALPU-WB-PRIMER sealer primer</li>
+              <li>PU100 polyurethane sealer</li>
+              <li>Micro Seal protective topcoat (floors/bench tops/wet areas)</li>
+              <li>Full clean-up and site protection</li>
+              <li>Workmanship warranty as per statutory requirements</li>
+              <li>Manufacturer product warranties passed through</li>
+            </ul>
+          </div>
+          <div class="exc-col">
+            <h4>EXCLUSIONS</h4>
+            <ul class="ie-list" id="q-exclusions" contenteditable="true">
+              <li>Structural repairs or substrate rectification</li>
+              <li>Waterproofing (unless specified in scope)</li>
+              <li>Plumbing, electrical, or other trade work</li>
+              <li>Furniture removal or storage</li>
+              <li>Floor levelling or grinding (unless specified)</li>
+              <li>Colour changes after application has commenced</li>
+              <li>Damage caused by other trades after completion</li>
+              <li>Ongoing maintenance products</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- 05 PAYMENT SCHEDULE -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
+        <div class="callout callout-gold" style="margin-bottom:14px;">
+          <strong>PAYMENT STRUCTURE:</strong> Booking deposit is <strong>5% if contract value exceeds $20,000</strong> or <strong>10% if contract value is under $20,000</strong>. Material payment is due before commencement. Works do not start until cleared funds are received.
+        </div>
+        <table class="payment-table">
+          <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th style="width:22%">AMOUNT (EX GST)</th><th style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
+          <tbody>
+            <tr><td class="stage-num">1</td><td><strong>Booking Deposit</strong><br><span style="font-size:11px;color:var(--grey-mid);">Secures your place in the schedule</span></td><td id="q-deposit-amt">&nbsp;</td><td id="q-deposit-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">On acceptance</td></tr>
+            <tr><td class="stage-num">2</td><td><strong>Material Payment</strong><br><span style="font-size:11px;color:var(--grey-mid);">Works do not start until paid</span></td><td id="q-material-amt">&nbsp;</td><td>50%</td><td style="font-style:italic;color:var(--grey-mid);">Prior to start date</td></tr>
+            <tr><td class="stage-num">3</td><td><strong>Final Claim</strong><br><span style="font-size:11px;color:var(--grey-mid);">On practical completion and sign-off</span></td><td id="q-final-amt">&nbsp;</td><td id="q-final-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">Within 3 business days</td></tr>
+          </tbody>
+          <tfoot><tr><td colspan="2">TOTAL CONTRACT VALUE (EX GST)</td><td id="q-payment-total">&nbsp;</td><td>100%</td><td>&nbsp;</td></tr></tfoot>
+        </table>
+        <div class="callout callout-gold" style="margin-top:12px;">
+          <strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>5% discount</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Contact us to arrange.
+        </div>
+      </div>
+
+      <!-- 06 TIMELINE -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">06</div><h2>PROJECT TIMELINE</h2></div>
+        <div class="g3">
+          <div class="field"><div class="field-lbl">ESTIMATED START DATE</div><div class="field-val" contenteditable="true" id="q-start-date">&nbsp;</div></div>
+          <div class="field"><div class="field-lbl">ESTIMATED DURATION</div><div class="field-val" contenteditable="true" id="q-duration">&nbsp;</div></div>
+          <div class="field"><div class="field-lbl">ESTIMATED COMPLETION</div><div class="field-val" contenteditable="true" id="q-completion">&nbsp;</div></div>
+        </div>
+        <div class="callout callout-info">
+          <strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Timeline assumes unobstructed site access, no other trades in the same area, and standard environmental conditions. Delays caused by other trades, wet weather, or restricted access will be communicated promptly.
+        </div>
+      </div>
+
+      <!-- 07 T&C SUMMARY -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
+        <div class="tc-grid">
+          <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue. After expiry, pricing must be reconfirmed in writing.</div>
+          <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing before work commences. Rate: <strong>$150/hr (2-hour minimum)</strong>.</div>
+          <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
+          <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
+          <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
+          <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $220 admin fee. Interest accrues at <strong>3% per week</strong> from Day 4. External recovery at Day 30.</div>
+          <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration. Restricted access may incur additional charges.</div>
+          <div class="tc-item"><div class="tc-head">Termination</div>Micro Cement King reserves the right to terminate if payment terms are repeatedly breached. All work completed to date is invoiced and immediately payable.</div>
+          <div class="tc-item"><div class="tc-head">Colour &amp; Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions. Samples are indicative only.</div>
+          <div class="tc-item"><div class="tc-head">Substrate Responsibility</div>The client is responsible for ensuring the substrate is structurally sound, clean, and free from contamination prior to commencement.</div>
+        </div>
+        <div class="callout callout-gold" style="margin-top:12px;">
+          <strong>FULL TERMS &amp; CONDITIONS:</strong> The above is a summary only. Full Payment Terms &amp; Conditions are set out in the companion document. Click the <strong>Terms &amp; Conditions</strong> tab above to view the full document. By signing below, the client acknowledges they have read, understood, and agree to the full terms.
+        </div>
+      </div>
+
+      <!-- 08 SIGNATURE -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
+        <div class="callout callout-gold" style="margin-bottom:20px;">
+          <strong>HOW TO ACCEPT:</strong> Option A — sign digitally in the box below and click "Accept &amp; Sign". Option B — print this page, sign, and return. In both cases, pay the booking deposit to confirm your start date.
+        </div>
+        <div class="digital-sig-block" id="q-digital-sig-block">
+          <div class="digital-sig-title">DIGITAL SIGNATURE</div>
+          <div class="digital-sig-subtitle">Draw your signature below using your mouse (desktop) or finger (mobile/tablet)</div>
+          <div class="sig-accepted-banner" id="q-sig-accepted-banner">
+            <div class="acc-label">QUOTE ACCEPTED — DIGITALLY SIGNED</div>
+            <img id="q-sig-image" src="" alt="Client Signature" style="max-width:300px;margin-top:8px;display:none;">
+          </div>
+          <div class="canvas-wrap" id="q-canvas-wrap">
+            <canvas id="q-sig-canvas"></canvas>
+            <div class="canvas-hint" id="q-canvas-hint">SIGN HERE</div>
+          </div>
+          <div class="sig-btn-row" id="q-sig-btn-row">
+            <button class="sig-btn sig-btn-clear" onclick="clearQuoteSig()">CLEAR</button>
+            <button class="sig-btn sig-btn-accept" id="q-accept-btn" onclick="acceptQuoteSig()" disabled>ACCEPT &amp; SIGN</button>
+          </div>
+        </div>
+        <div class="print-sig-grid">
+          <div>
+            <div class="print-sig-lbl">CLIENT SIGNATURE (PRINT &amp; SIGN)</div>
+            <div class="print-sig-line"></div>
+            <div class="print-sig-sub">Full Name: ___________________________</div>
+            <div class="print-sig-sub" style="margin-top:5px;">Date: ___________________________</div>
+          </div>
+          <div>
+            <div class="print-sig-lbl">MICRO CEMENT KING</div>
+            <div class="print-sig-line"></div>
+            <div class="print-sig-sub">Name: King Mannion</div>
+            <div class="print-sig-sub" style="margin-top:5px;">Title: Director</div>
+            <div class="print-sig-sub" style="margin-top:5px;">Date: ___________________________</div>
+          </div>
+        </div>
+        <div style="margin-top:24px;padding:14px 18px;background:var(--panel);border:1px solid var(--border);font-size:11px;color:var(--grey-mid);text-align:center;line-height:1.9;border-radius:4px;">
+          By signing this document (digitally or in print), the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>
+          This quote is a formal offer to perform the described works. It does not constitute a binding contract until signed by both parties and the booking deposit is received.<br>
+          <strong style="color:var(--gold);">Micro Cement King &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</strong>
+        </div>
+      </div>
+
+    </div><!-- /doc-body -->
+
+    <div class="doc-footer">
+      <div><span class="gold">MICRO CEMENT KING</span> — Formal Quotation — All prices ex GST</div>
+      <div>0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au</div>
+    </div>
+
+  </div><!-- /doc -->
+
+  <!-- QUOTE TOOLBAR -->
+  <div class="quote-toolbar no-print">
+    <button class="tb-btn" onclick="window.print()">PRINT / SAVE PDF</button>
+    <button class="tb-btn ghost" onclick="clearQuoteForm()">CLEAR FORM</button>
+  </div>
+</div><!-- /tab-quote -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 3: TERMS & CONDITIONS                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-terms" class="tab-content">
+  <div class="doc" id="tc-doc">
+    <div class="doc-header">
+      <div class="header-row">
+        <div class="brand-block">
+          <h1>RENDER RENDER PTY LTD /<br>MICRO CEMENT KING</h1>
+          <div class="doc-label" style="margin-top:12px;">PAYMENT TERMS &amp; CONDITIONS</div>
+        </div>
+        <div class="contact-block">
+          <div class="cl"><strong>RENDER KING</strong> 0468 041 477</div>
+          <div class="cl"><strong>MICRO CEMENT KING</strong> 0468 053 819</div>
+          <div class="cl"><strong>EMAIL</strong> projects@microcementking.com.au</div>
+          <div class="cl"><strong>WEB</strong> renderking.com.au | microcementking.com.au</div>
+          <div class="cl" style="margin-top:8px;font-size:10px;color:var(--grey-mid);">All prices ex GST unless stated</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="doc-body" id="tc-body">
+      <!-- Section 1 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">1</div><h2>FORMATION OF CONTRACT</h2></div>
+          <div class="clause"><span class="clause-num">1.1</span><span class="clause-text">Acceptance of a quote, payment of a deposit, or written confirmation constitutes a legally binding agreement/contract with Render Render Pty Ltd/Micro Cement King.</span></div>
+          <div class="clause"><span class="clause-num">1.2</span><span class="clause-text">This agreement is governed by the Queensland Building and Construction Commission Act 1991 (QBCC Act) and the Building Industry Fairness (Security of Payment) Act 2017 (BIF Act) where applicable.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 2 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">2</div><h2>DEPOSIT &amp; PAYMENT TERMS</h2></div>
+          <div class="clause"><span class="clause-num">2.1</span><span class="clause-text">A deposit payment of 5-10% is required to secure your project.</span></div>
+          <div class="clause"><span class="clause-num">2.2</span><span class="clause-text"><strong><u>50% material invoice</u></strong> will be issued following contract acceptance and approval.</span></div>
+          <div class="clause"><span class="clause-num">2.3</span><span class="clause-text">Works will not commence until cleared funds for the deposit and material claim are received.</span></div>
+          <div class="clause"><span class="clause-num">2.4</span><span class="clause-text">The remaining balance is payable upon practical completion and must be paid within <strong>3 business days</strong> of the final invoice date, unless otherwise stated.</span></div>
+          <div class="clause"><span class="clause-num">2.5</span><span class="clause-text">Time for payment is of the essence.</span></div>
+          <div class="clause"><span class="clause-num">2.6</span><span class="clause-text">If the full contract amount is paid prior to commencement, a 5% discount (capped at $1000) will be applied to the contract sum.</span></div>
+          <div class="clause"><span class="clause-num">2.7</span><span class="clause-text">If the deposit and material payment is not received in full within the 14-day timeframe, the scheduled start date may be released or delayed without further notice.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 3 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">3</div><h2>CREDIT LIMIT PAYMENTS AND RECOVERY</h2></div>
+          <div class="clause"><span class="clause-num">3.1</span><span class="clause-text">A maximum credit limit of $10,000 AUD is extended at the sole discretion of Render Render Pty Ltd/Micro Cement King.</span></div>
+          <div class="clause"><span class="clause-num">3.2</span><span class="clause-text">Once the value of work completed and/or outstanding invoices exceeds this credit threshold, a progress claim will be issued in accordance with the BIF Act and must be paid within 1 business day before further work continues.</span></div>
+          <div class="clause"><span class="clause-num">3.3</span><span class="clause-text">Progress payments help maintain the pace and continuity of the job and ensure delivery schedules are upheld.</span></div>
+          <div class="clause"><span class="clause-num">3.4</span><span class="clause-text">All invoices are due strictly by the date stated on the invoice.</span></div>
+          <div class="clause"><span class="clause-num">3.5</span><span class="clause-text">Any invoice unpaid after the due date is considered overdue.</span></div>
+          <div class="clause"><span class="clause-num">3.6</span><span class="clause-text">An administrative fee of $220 (including GST) will be applied to overdue accounts to cover recovery administration.</span></div>
+          <div class="clause"><span class="clause-num">3.7</span><span class="clause-text">A 3-day grace period may be applied at the discretion of the Director to waive the administrative fee. If payment remains outstanding after this period, interest will accrue on overdue amounts at a rate of <strong>3% per week</strong>, calculated and invoiced weekly until paid in full.</span></div>
+          <div class="clause"><span class="clause-num">3.8</span><span class="clause-text">All payment claims issued under these terms are legally compliant with the Building Industry Fairness (Security of Payment) Act 2017 (QLD).</span></div>
+          <div class="clause"><span class="clause-num">3.9</span><span class="clause-text">The client is liable for all debt recovery costs associated with overdue accounts, including legal fees, adjudication applications, enforcement costs, and collection agency commissions.</span></div>
+          <div class="clause"><span class="clause-num">3.10</span><span class="clause-text">Accounts unpaid beyond <strong>30 days</strong> from the due date will be:</span></div>
+          <div class="sub-clauses">
+            <div class="sub-clause"><span class="sub-num">3.10.1</span><span class="clause-text">Registered as a formal debt with Creditor Watch</span></div>
+            <div class="sub-clause"><span class="sub-num">3.10.2</span><span class="clause-text">Referred to Creditor Watch recovery agents</span></div>
+            <div class="sub-clause"><span class="sub-num">3.10.3</span><span class="clause-text">Listed with recognised credit reporting agencies with Creditor Watch</span></div>
+            <div class="sub-clause"><span class="sub-num">3.10.4</span><span class="clause-text">Subject to legal proceedings without further notice</span></div>
+          </div>
+          <div class="clause"><span class="clause-num">3.11</span><span class="clause-text">Render Render Pty Ltd/Micro Cement King reserves all rights available under the Building Industry Fairness (Security of Payment) Act 2017 (QLD), including the right to lodge a subcontractor's charge, submit a payment withholding request, or take any other lawful recovery action until full settlement is received.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 4 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">4</div><h2>SUSPENSION OF WORKS</h2></div>
+          <div class="clause"><span class="clause-num">4.1</span><span class="clause-text">Render Render Pty Ltd/Micro Cement King reserves the right to suspend works immediately if payment terms are breached.</span></div>
+          <div class="clause"><span class="clause-num">4.2</span><span class="clause-text">Any suspension due to non-payment may result in rescheduling and additional costs.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 5 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">5</div><h2>OWNERSHIP OF MATERIALS AND WORKS</h2></div>
+          <div class="clause"><span class="clause-num">5.1</span><span class="clause-text">All materials, finishes, and works supplied by Render Render Pty Ltd/Micro Cement King remain the property of the contractor until payment is received in full for all claims associated with the contract.</span></div>
+          <div class="clause"><span class="clause-num">5.2</span><span class="clause-text">Legal ownership transfers only once full settlement is cleared and confirmed.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 6 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">6</div><h2>WORK SUSPENSION AND SUBCONTRACTING LIMITATIONS</h2></div>
+          <div class="clause"><span class="clause-num">6.1</span><span class="clause-text">If any invoice remains unpaid beyond its due date or the agreed credit limit is exceeded, Render Render Pty Ltd/Micro Cement King reserves the right to stop work immediately.</span></div>
+          <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">In the event of a payment dispute or unresolved claim, no third-party contractors, builders, or suppliers are to be engaged for continuation, rectification, or substitution of the contracted works until a written resolution is agreed upon by both parties.</span></div>
+          <div class="clause"><span class="clause-num">6.3</span><span class="clause-text">This clause ensures the integrity of the job and allows for proper dispute handling without interference or miscommunication.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 7 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">7</div><h2>VARIATIONS AND DELAYS</h2></div>
+          <div class="clause"><span class="clause-num">7.1</span><span class="clause-text">Any changes to the original scope of work must be submitted in writing and confirmed by both parties prior to execution.</span></div>
+          <div class="clause"><span class="clause-num">7.2</span><span class="clause-text">Additional work or alterations will be costed accordingly and billed as a variation, which may be invoiced separately or included in the final claim.</span></div>
+          <div class="clause"><span class="clause-num">7.3</span><span class="clause-text">Delays caused by weather, site restrictions, or other trades may require rescheduling or additional charges, which will be communicated clearly at the time.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 8 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">8</div><h2>WORKMANSHIP WARRANTY</h2></div>
+          <div class="clause"><span class="clause-num">8.1</span><span class="clause-text">All workmanship is covered under statutory warranties as required by Queensland law.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 9 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">9</div><h2>SUPPLIER PRODUCT WARRANTY</h2></div>
+          <div class="clause"><span class="clause-num">9.1</span><span class="clause-text">Render Render Pty Ltd/Micro Cement King uses only premium, industry-leading products and materials supplied by trusted manufacturers with proven quality.</span></div>
+          <div class="clause"><span class="clause-num">9.2</span><span class="clause-text">All finishes, sealers, coatings, and specialised products used in your project are backed by the warranties of their respective suppliers.</span></div>
+          <div class="clause"><span class="clause-num">9.3</span><span class="clause-text">We confidently pass these protections on to you, ensuring that your investment is safeguarded by both our workmanship and the quality of the materials we use.</span></div>
+        </div>
+      </div>
+
+      <!-- Section 10 -->
+      <div class="section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">10</div><h2>TERMINATION</h2></div>
+          <div class="clause"><span class="clause-num">10.1</span><span class="clause-text">Render Render Pty Ltd/Micro Cement King reserves the right to terminate this agreement if payment terms are repeatedly breached, site conditions become unworkable, or if outside contractors are engaged before a written dispute is resolved.</span></div>
+          <div class="clause"><span class="clause-num">10.2</span><span class="clause-text">Upon termination, any work completed up to that point will be invoiced and is payable immediately.</span></div>
+        </div>
+      </div>
+
+      <div class="end-mark">— END OF TERMS —</div>
+
+      <!-- SIGNATURE -->
+      <div class="tc-sig-section">
+        <div class="tc-sig-title">ACKNOWLEDGEMENT &amp; ACCEPTANCE</div>
+        <div class="callout callout-gold" style="margin-bottom:24px;">
+          <strong>By signing below, the client acknowledges they have read, understood, and agree to all Payment Terms &amp; Conditions set out in this document. These terms form part of the contract between the client and Render Render Pty Ltd / Micro Cement King.</strong>
+        </div>
+        <div style="margin-bottom:20px;">
+          <div class="field-lbl" style="margin-bottom:4px;">PROJECT / QUOTE REFERENCE</div>
+          <div class="field-val" contenteditable="true">&nbsp;</div>
+        </div>
+        <div class="print-sig-grid">
+          <div>
+            <div class="print-sig-lbl">CLIENT SIGNATURE</div>
+            <div class="print-sig-line"></div>
+            <div class="print-sig-sub">Full Name: ___________________________</div>
+            <div class="print-sig-sub">Date: ___________________________</div>
+            <div class="print-sig-sub">Print Name: ___________________________</div>
+          </div>
+          <div>
+            <div class="print-sig-lbl">RENDER RENDER PTY LTD / MICRO CEMENT KING</div>
+            <div class="print-sig-line"></div>
+            <div class="print-sig-sub">Name: King Mannion</div>
+            <div class="print-sig-sub">Title: Director</div>
+            <div class="print-sig-sub">Date: ___________________________</div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /doc-body -->
+
+    <div class="doc-footer">
+      <div><span class="gold">RENDER RENDER PTY LTD / MICRO CEMENT KING</span> — Payment Terms &amp; Conditions</div>
+      <div>RK: 0468 041 477 | MCK: 0468 053 819</div>
+    </div>
+  </div><!-- /doc -->
+
+  <div class="quote-toolbar no-print">
+    <button class="tb-btn" onclick="window.print()">PRINT / SAVE PDF</button>
+  </div>
+</div><!-- /tab-terms -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 4: AI AGENT                                             -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-ai" class="tab-content">
+  <div class="page">
+
+    <!-- ═══ VOICE-GUIDED JOB INTAKE ═══ -->
+    <div class="card">
+      <div class="card-header">
+        <h2>VOICE-GUIDED JOB INTAKE</h2>
+        <span class="badge">SPEECH + TEXT</span>
+      </div>
+      <div class="card-body">
+
+        <div class="callout callout-gold" style="margin-bottom:16px;">
+          <strong>HOW IT WORKS:</strong> Click the button below to start a guided job intake. The AI will ask you a series of questions to collect all job details. Speak your answers using the microphone or type them. Once complete, all fields in the Calculator and Quote tabs are auto-populated.
+        </div>
+
+        <!-- Start Button -->
+        <div style="text-align:center;margin-bottom:16px;">
+          <button id="intake-start-btn" class="intake-start-btn" onclick="startIntake()">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+            START JOB INTAKE
+          </button>
+        </div>
+
+        <!-- Intake Section (hidden until started) -->
+        <div id="intake-section" style="display:none;">
+
+          <!-- Controls Row -->
+          <div class="intake-controls">
+            <button id="speak-toggle-btn" class="intake-toggle-btn" onclick="toggleSpeakQuestions()">SPEAK QUESTIONS: OFF</button>
+            <button class="intake-cancel-btn" onclick="cancelIntake()">CANCEL INTAKE</button>
+          </div>
+
+          <!-- Progress Bar -->
+          <div id="intake-progress" class="intake-progress" style="display:none;">
+            <div id="intake-progress-label" class="intake-progress-label">QUESTION 1 OF 10</div>
+            <div class="intake-progress-track">
+              <div id="intake-progress-bar" class="intake-progress-fill"></div>
+            </div>
+          </div>
+
+          <!-- Chat Area -->
+          <div class="ai-chat-area intake-chat" id="intake-chat-area"></div>
+
+          <!-- Input Area -->
+          <div id="intake-input-area" class="intake-input-area" style="display:none;">
+            <div class="intake-input-row">
+              <textarea id="ai-input" placeholder="Type your answer or tap the mic to speak..." rows="2"></textarea>
+              <button id="intake-mic-btn" class="intake-mic-btn" onclick="toggleMic()" title="Tap to speak">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </button>
+              <button class="intake-send-btn" onclick="handleIntakeAnswer()" title="Send">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Populate Button (shown after intake complete) -->
+          <div id="intake-populate-area" class="intake-populate-area" style="display:none;">
+            <button class="intake-populate-btn" onclick="populateAllFields()">
+              &#9889; POPULATE ALL FIELDS
+            </button>
+          </div>
+
+        </div><!-- /intake-section -->
+
+      </div>
+    </div>
+
+    <!-- ═══ EXISTING FREE-CHAT AI ═══ -->
+    <div class="card">
+      <div class="card-header"><h2>AI QUOTE ASSISTANT</h2><span class="badge">FREE CHAT</span></div>
+      <div class="card-body">
+        <div class="callout callout-info" style="margin-bottom:16px;">
+          <strong>QUICK MODE:</strong> Type job details in plain English below. The AI will extract client name, address, surfaces (type + sqm), and system preference, then auto-populate the Quote Generator tab. You can also paste an existing quote and click "Check My Quote" to verify margins.
+        </div>
+
+        <div class="ai-chat-area" id="ai-chat-area-free">
+          <div class="ai-message ai-system">Ready. Describe the job details or paste a quote to check.</div>
+        </div>
+
+        <div class="ai-input-area">
+          <textarea id="ai-input-free" placeholder="e.g. New job for John Smith at 42 Marine Parade Burleigh Heads. Bathroom floor 12sqm, ensuite walls 8sqm, kitchen bench 4sqm. Solidro system." rows="3"></textarea>
+          <div class="ai-btn-row">
+            <button class="tb-btn" onclick="aiProcessJobFree()">EXTRACT &amp; POPULATE QUOTE</button>
+            <button class="tb-btn ghost" onclick="aiCheckQuoteFree()">CHECK MY QUOTE</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /tab-ai -->
+
+<script src="calculator.js"></script>
+<script src="quote.js"></script>
+<script src="ai-agent.js"></script>
+
+</body>
+</html>

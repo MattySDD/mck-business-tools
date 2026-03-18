@@ -1,0 +1,10 @@
+Dynamic Surface Questions Test:
+
+Surfaces entered: "floors and bathroom"
+AI parsed: Floor, Bathroom
+AI response: "Got it — Floor, Bathroom. Now I'll ask the sqm for each."
+Dynamic questions injected: "How many square metres is the Floor?" and "How many square metres is the Bathroom?"
+Progress updated from "QUESTION 5 OF 9" to "QUESTION 6 OF 11" (2 dynamic questions added)
+
+This confirms the dynamic question injection is working correctly.
+Now asking for Floor sqm.
