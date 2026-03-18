@@ -793,23 +793,400 @@ button { font-family:'Inter',sans-serif; }
 .btn-remove-line:hover { color:var(--red) !important; }
 
 /* ═══ PRINT ═══ */
-.no-print {}
+/* Force all colours to print — never strip backgrounds or gold accents */
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+}
+
+.no-print { display:none !important; }
+
 @media print {
-  .topnav, .add-surface-btn, .remove-btn, .quote-toolbar, .no-print,
-  .ai-input-area, .ai-btn-row, .sig-btn-row, .digital-sig-block,
-  .btn-remove-line, .add-line-btn { display:none !important; }
-  body { background:white; color:#111; }
-  .page, .doc { margin:0; padding:0; max-width:100%; }
-  .card, .section { border:none; box-shadow:none; margin:0; background:white; }
-  .card-header { background:#111; }
-  .tab-content { display:none; }
-  .tab-content.active, .tab-content.print-active { display:block; }
-  .print-sig-grid { display:grid !important; }
-  @page { margin:1.5cm; }
-  /* Reset colors for print */
-  .stat-value, .field-val, .clause-text, .tc-item, .compare-row .cr-value,
-  .pricing-table td, .payment-table td { color:#111 !important; }
-  .stat-label, .field-lbl, .clause-num, .tc-head { color:#555 !important; }
+  /* ── Global colour-force ── */
+  html, body, * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    color-adjust: exact !important;
+  }
+
+  @page {
+    margin: 1.5cm;
+    size: A4 portrait;
+  }
+
+  /* ── Hide interactive / screen-only elements ── */
+  .topnav,
+  .nav-tabs,
+  .add-surface-btn,
+  .remove-btn,
+  .quote-toolbar,
+  .no-print,
+  .ai-input-area,
+  .ai-intake-section,
+  .ai-free-section,
+  .ai-btn-row,
+  .sig-btn-row,
+  .digital-sig-block,
+  .btn-remove-line,
+  .add-line-btn,
+  #intake-start-btn,
+  #intake-mic-btn,
+  #speak-toggle-btn,
+  .intake-mic-btn,
+  .auto-populate-banner,
+  .crew-card,
+  .prep-card,
+  button:not(.print-keep) { display: none !important; }
+
+  /* ── Show only the active tab ── */
+  .tab-content { display: none !important; }
+  .tab-content.active,
+  .tab-content.print-active { display: block !important; }
+
+  /* ── Body & page base ── */
+  html, body {
+    background: #0a0a0a !important;
+    color: #ffffff !important;
+    font-family: 'Inter', sans-serif !important;
+    font-size: 11pt;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* ── Layout containers ── */
+  .page, .doc {
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: 100% !important;
+    box-shadow: none !important;
+  }
+
+  /* ── Cards & sections — keep dark backgrounds ── */
+  .card {
+    background: #111111 !important;
+    border: 1px solid #c9a84c !important;
+    box-shadow: none !important;
+    margin-bottom: 12pt !important;
+    border-radius: 4px !important;
+  }
+
+  .card-header,
+  .section-header,
+  .card-head {
+    background: #1a1a1a !important;
+    color: #c9a84c !important;
+    border-bottom: 1px solid #c9a84c !important;
+    padding: 8pt 12pt !important;
+    font-weight: 700 !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+  }
+
+  .card-body,
+  .section {
+    background: #111111 !important;
+    color: #ffffff !important;
+    padding: 10pt 12pt !important;
+  }
+
+  /* ── Quote document header ── */
+  .quote-header {
+    background: #111111 !important;
+    border-bottom: 2px solid #c9a84c !important;
+    color: #ffffff !important;
+  }
+
+  .quote-brand {
+    color: #ffffff !important;
+  }
+
+  .quote-tagline {
+    color: #aaaaaa !important;
+  }
+
+  .contact-block {
+    color: #aaaaaa !important;
+  }
+
+  .contact-block strong,
+  .contact-block span {
+    color: #c9a84c !important;
+  }
+
+  /* ── Quote meta bar ── */
+  .quote-meta {
+    background: #1a1a1a !important;
+    border-bottom: 1px solid #c9a84c !important;
+  }
+
+  .meta-label {
+    color: #c9a84c !important;
+    font-size: 7pt !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+  }
+
+  .meta-value,
+  .meta-value span {
+    color: #ffffff !important;
+    font-size: 10pt !important;
+  }
+
+  /* ── Validity banner ── */
+  .validity-banner {
+    background: #c9a84c !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    text-align: center !important;
+    padding: 6pt !important;
+  }
+
+  /* ── Section numbering & headings ── */
+  .section-num {
+    background: #c9a84c !important;
+    color: #000000 !important;
+    font-weight: 700 !important;
+    border-radius: 3px !important;
+    padding: 2pt 6pt !important;
+  }
+
+  .section-title,
+  h1, h2, h3, h4 {
+    color: #c9a84c !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+  }
+
+  /* ── Field labels & values ── */
+  .field-lbl,
+  .stat-label,
+  .form-label,
+  label {
+    color: #c9a84c !important;
+    font-size: 7pt !important;
+    letter-spacing: 1px !important;
+    text-transform: uppercase !important;
+  }
+
+  .field-val,
+  .stat-value,
+  [contenteditable] {
+    color: #ffffff !important;
+    background: transparent !important;
+    border: none !important;
+    outline: none !important;
+  }
+
+  /* ── Tables ── */
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+    background: #111111 !important;
+  }
+
+  thead tr,
+  .pricing-table thead tr,
+  .payment-table thead tr,
+  .material-table thead tr {
+    background: #1a1a1a !important;
+  }
+
+  th {
+    background: #1a1a1a !important;
+    color: #c9a84c !important;
+    border: 1px solid #c9a84c !important;
+    padding: 6pt 8pt !important;
+    font-size: 8pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  td {
+    background: #111111 !important;
+    color: #ffffff !important;
+    border: 1px solid #333333 !important;
+    padding: 5pt 8pt !important;
+    font-size: 9pt !important;
+  }
+
+  tr:nth-child(even) td {
+    background: #0d0d0d !important;
+  }
+
+  .pricing-table tfoot td,
+  .total-row td {
+    background: #1a1a1a !important;
+    color: #c9a84c !important;
+    font-weight: 700 !important;
+    border-top: 2px solid #c9a84c !important;
+  }
+
+  /* ── Inclusions / Exclusions lists ── */
+  .inc-exc {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 12pt !important;
+  }
+
+  .inc-block,
+  .exc-block {
+    background: #111111 !important;
+    border: 1px solid #333333 !important;
+    padding: 8pt !important;
+    border-radius: 4px !important;
+  }
+
+  .inc-block h4 {
+    color: #c9a84c !important;
+  }
+
+  .exc-block h4 {
+    color: #aaaaaa !important;
+  }
+
+  .inc-block li,
+  .exc-block li {
+    color: #ffffff !important;
+    font-size: 8.5pt !important;
+    margin-bottom: 3pt !important;
+  }
+
+  /* ── Payment schedule ── */
+  .payment-row {
+    background: #111111 !important;
+    border-bottom: 1px solid #333333 !important;
+  }
+
+  .payment-row .pay-label {
+    color: #c9a84c !important;
+  }
+
+  .payment-row .pay-amount {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── Terms & Conditions ── */
+  .tc-section {
+    background: #111111 !important;
+    border-left: 3px solid #c9a84c !important;
+    padding: 8pt 12pt !important;
+    margin-bottom: 8pt !important;
+  }
+
+  .tc-head,
+  .clause-num {
+    color: #c9a84c !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+  }
+
+  .clause-text,
+  .tc-item {
+    color: #ffffff !important;
+  }
+
+  /* ── Signature block ── */
+  .print-sig-grid {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 20pt !important;
+  }
+
+  .print-sig-lbl {
+    color: #c9a84c !important;
+    font-size: 7pt !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    margin-bottom: 4pt !important;
+  }
+
+  .print-sig-line {
+    border-bottom: 1px solid #c9a84c !important;
+    height: 30pt !important;
+    background: transparent !important;
+  }
+
+  .print-sig-sub {
+    color: #aaaaaa !important;
+    font-size: 8pt !important;
+    margin-top: 4pt !important;
+  }
+
+  /* ── Acceptance / acknowledgement block ── */
+  .ack-block {
+    background: #1a1a1a !important;
+    border: 1px solid #c9a84c !important;
+    padding: 10pt 12pt !important;
+    border-radius: 4px !important;
+    color: #ffffff !important;
+  }
+
+  /* ── Page breaks ── */
+  .section-break,
+  .section[data-section="inclusions"],
+  .section[data-section="payment"],
+  .section[data-section="terms"],
+  .tc-section:nth-child(5) {
+    page-break-before: auto;
+  }
+
+  .quote-header { page-break-after: avoid; }
+  .section { page-break-inside: avoid; }
+  table { page-break-inside: auto; }
+  tr { page-break-inside: avoid; }
+  thead { display: table-header-group; }
+  tfoot { display: table-footer-group; }
+
+  /* ── Inputs & contenteditable in print ── */
+  input[type="text"],
+  input[type="number"],
+  input[type="email"],
+  textarea,
+  select {
+    background: transparent !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-bottom: 1px solid #444 !important;
+    box-shadow: none !important;
+    outline: none !important;
+    -webkit-appearance: none !important;
+    appearance: none !important;
+  }
+
+  /* ── Stat/summary boxes ── */
+  .stat-box,
+  .result-box,
+  .summary-box {
+    background: #1a1a1a !important;
+    border: 1px solid #c9a84c !important;
+    color: #ffffff !important;
+  }
+
+  .stat-value,
+  .result-value {
+    color: #c9a84c !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── Recommended sell price section ── */
+  .sell-price-section,
+  .rsp-card {
+    background: #111111 !important;
+    border: 1px solid #c9a84c !important;
+  }
+
+  .rsp-total {
+    color: #c9a84c !important;
+    font-weight: 700 !important;
+  }
+
+  /* ── Gold borders on dividers ── */
+  hr {
+    border: none !important;
+    border-top: 1px solid #c9a84c !important;
+  }
 }
 
 /* ═══ RESPONSIVE ═══ */
