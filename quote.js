@@ -4,6 +4,14 @@
 //           WhatsApp, Revision History, PDF Generation
 // ═══════════════════════════════════════════════════════════
 
+// Helper: format YYYY-MM-DD date to DD/MM/YYYY for display
+function formatDateForPDF(dateStr) {
+  if (!dateStr) return '';
+  const parts = dateStr.split('-');
+  if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+  return dateStr;
+}
+
 function initQuote() {
   const year = new Date().getFullYear();
   const rand = Math.floor(1000 + Math.random() * 9000);
@@ -147,6 +155,14 @@ function updateQuoteTotals() {
 function initSignature() {
   initSigCanvas('q-sig-canvas', 'q-canvas-wrap', 'q-canvas-hint', 'q-accept-btn');
   initSigCanvas('q-mck-sig-canvas', 'q-mck-canvas-wrap', 'q-mck-canvas-hint', 'q-mck-accept-btn');
+  initSigCanvas('tc-sig-canvas', 'tc-canvas-wrap', 'tc-canvas-hint', 'tc-accept-btn');
+
+  // Set default dates to today
+  const today = new Date().toISOString().split('T')[0];
+  ['q-sig-date', 'q-mck-sig-date', 'tc-sig-date', 'tc-mck-sig-date'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.value) el.value = today;
+  });
 }
 
 function initSigCanvas(canvasId, wrapId, hintId, acceptBtnId) {
@@ -213,6 +229,14 @@ function clearQuoteSig() {
 
 function clearMCKSig() {
   clearSigCanvas('q-mck-sig-canvas', 'q-mck-canvas-hint', 'q-mck-sig-accepted-banner', 'q-mck-accept-btn');
+}
+
+function clearTcSig() {
+  clearSigCanvas('tc-sig-canvas', 'tc-canvas-hint', 'tc-sig-accepted-banner', 'tc-accept-btn');
+}
+
+function acceptTcSig() {
+  acceptSigCanvas('tc-sig-canvas', 'tc-sig-accepted-banner', 'tc-sig-image', 'CLIENT (T&Cs)');
 }
 
 function clearSigCanvas(canvasId, hintId, bannerId, acceptBtnId) {
@@ -361,6 +385,13 @@ function extractQuoteData() {
     if (mckSigCanvas.toDataURL() !== blank.toDataURL()) mckSigDataURL = mckSigCanvas.toDataURL();
   }
 
+  // Typed names and dates
+  const clientTypedName = (document.getElementById('q-sig-typed-name') || {}).value || '';
+  const clientSigDate = (document.getElementById('q-sig-date') || {}).value || '';
+  const mckTypedName = (document.getElementById('q-mck-typed-name') || {}).value || 'King Mannion';
+  const mckTypedTitle = (document.getElementById('q-mck-typed-title') || {}).value || 'Director';
+  const mckSigDate = (document.getElementById('q-mck-sig-date') || {}).value || '';
+
   return {
     quoteNumber, dateIssued, validityLabel, validityHours, validityBanner, preparedBy,
     clientName, clientPhone, clientEmail, projectAddress, siteContact,
@@ -370,6 +401,7 @@ function extractQuoteData() {
     creditLimit, upfrontDiscPct, upfrontDiscCap, upfrontDisc, upfrontTotal,
     variationRate, variationMinHrs, overdueAdminFee, overdueInterest, measureFee,
     inclusions, exclusions, sigDataURL, mckSigDataURL,
+    clientTypedName, clientSigDate, mckTypedName, mckTypedTitle, mckSigDate,
     createdAt: new Date().toISOString(),
   };
 }
@@ -617,15 +649,15 @@ ${statusBanner}
     <div class="sig-block">
       <div class="sig-label">CLIENT SIGNATURE</div>
       <div class="sig-line">${d.sigDataURL ? `<img src="${d.sigDataURL}" alt="Client Signature">` : ''}</div>
-      <div class="sig-sub">Full Name: ${d.clientName || '___________________________'}</div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: ___________________________</div>
+      <div class="sig-sub">Full Name: <strong style="color:#fff;">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : '___________________________'}</strong></div>
     </div>
     <div class="sig-block">
       <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
       <div class="sig-line">${d.mckSigDataURL ? `<img src="${d.mckSigDataURL}" alt="MCK Signature">` : ''}</div>
-      <div class="sig-sub">Name: King Mannion</div>
-      <div class="sig-sub" style="margin-top:4pt;">Title: Director</div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: ___________________________</div>
+      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.mckSigDate ? formatDateForPDF(d.mckSigDate) : '___________________________'}</strong></div>
     </div>
   </div>
   <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>

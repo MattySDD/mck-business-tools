@@ -510,6 +510,33 @@ body {
   letter-spacing:1px; text-transform:uppercase;
 }
 
+/* ═══ SIGNATURE FIELD ROWS (typed name + date) ═══ */
+.sig-fields-row {
+  display:flex; gap:16px; margin-top:16px; flex-wrap:wrap;
+}
+.sig-field {
+  flex:1; min-width:180px;
+}
+.sig-field-label {
+  display:block; font-size:9px; font-weight:700; text-transform:uppercase;
+  letter-spacing:1.5px; color:var(--gold); margin-bottom:6px;
+}
+.sig-field-input {
+  width:100%; padding:10px 14px; background:var(--dark); border:1px solid var(--border);
+  border-radius:3px; color:var(--white); font-family:inherit; font-size:13px;
+  transition:border-color .2s;
+}
+.sig-field-input:focus {
+  outline:none; border-color:var(--gold); box-shadow:0 0 0 2px var(--gold-dim);
+}
+.sig-field-input[readonly] {
+  cursor:default; opacity:0.85;
+}
+/* Date picker colour fix for dark theme */
+.sig-field-input[type="date"]::-webkit-calendar-picker-indicator {
+  filter:invert(1); cursor:pointer;
+}
+
 .print-sig-grid {
   display:grid; grid-template-columns:1fr 1fr; gap:40px; margin-top:24px;
 }

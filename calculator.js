@@ -10,6 +10,23 @@ function switchTab(tabId) {
   const tab = document.getElementById('tab-' + tabId);
   if (tab) { tab.classList.add('active','print-active'); }
   document.querySelector(`[data-tab="${tabId}"]`)?.classList.add('active');
+
+  // Resize signature canvases when their tab becomes visible
+  if (tabId === 'quote' || tabId === 'terms') {
+    setTimeout(() => {
+      const pairs = tabId === 'quote'
+        ? [['q-sig-canvas','q-canvas-wrap'],['q-mck-sig-canvas','q-mck-canvas-wrap']]
+        : [['tc-sig-canvas','tc-canvas-wrap']];
+      pairs.forEach(([cId, wId]) => {
+        const c = document.getElementById(cId);
+        const w = document.getElementById(wId);
+        if (c && w && c.width !== w.offsetWidth) {
+          c.width = w.offsetWidth;
+          c.height = 160;
+        }
+      });
+    }, 50);
+  }
 }
 
 // ── CONFIRMED PRODUCT DATA ─────────────────────────────────
