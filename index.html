@@ -185,6 +185,11 @@
 <div id="tab-quote" class="tab-content">
   <div class="doc">
 
+    <!-- GENERATE PDF QUOTE — TOP BUTTON -->
+    <div class="no-print" style="margin-bottom:16px;text-align:center;">
+      <button onclick="generatePDFQuote()" style="background:#c9a84c;color:#000;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:16px 40px;border:none;border-radius:4px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">GENERATE PDF QUOTE</button>
+    </div>
+
     <!-- HEADER -->
     <div class="doc-header">
       <div class="header-row">
@@ -421,11 +426,16 @@
       <div>0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au</div>
     </div>
 
+    <!-- GENERATE PDF QUOTE — BOTTOM BUTTON -->
+    <div class="no-print" style="margin-top:24px;text-align:center;padding-bottom:16px;">
+      <button onclick="generatePDFQuote()" style="background:#c9a84c;color:#000;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:16px 40px;border:none;border-radius:4px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">GENERATE PDF QUOTE</button>
+    </div>
+
   </div><!-- /doc -->
 
   <!-- QUOTE TOOLBAR -->
   <div class="quote-toolbar no-print">
-    <button class="tb-btn" onclick="window.print()">PRINT / SAVE PDF</button>
+    <button class="tb-btn" onclick="generatePDFQuote()">GENERATE PDF QUOTE</button>
     <button class="tb-btn ghost" onclick="clearQuoteForm()">CLEAR FORM</button>
   </div>
 </div><!-- /tab-quote -->
