@@ -41,12 +41,16 @@ const NEEDS_MICRO_SEAL = ['Floor','Wet Area','Bench Top'];
 // Surface types that need WP120
 const NEEDS_WP120 = ['Wet Area'];
 
-// ── CREW CONFIGS ───────────────────────────────────────────
-const CREW_CONFIGS = {
-  solo:     { rate: 65,  label:'Patty Only', sqmPerDay:15, workers:1 },
-  standard: { rate: 120, label:'Patty + Hayden/Micky', sqmPerDay:20, workers:2 },
-  full:     { rate: 155, label:'Patty + Hayden/Micky + Labourer', sqmPerDay:28, workers:3 },
-};
+// ── CREW CONFIGS (reads from Settings if available) ─────────
+function getCrewConfigs() {
+  const s = typeof getSetting === 'function' ? getSetting : (k => null);
+  return {
+    solo:     { rate: s('solo_rate') || 65,  label:'Patty Only', sqmPerDay: s('sqm_per_day_solo') || 15, workers:1 },
+    standard: { rate: s('standard_rate') || 120, label:'Patty + Hayden/Micky', sqmPerDay: s('sqm_per_day_standard') || 20, workers:2 },
+    full:     { rate: s('full_rate') || 155, label:'Patty + Hayden/Micky + Labourer', sqmPerDay: s('sqm_per_day_full') || 28, workers:3 },
+  };
+}
+const CREW_CONFIGS = getCrewConfigs();
 
 let crewConfig = CREW_CONFIGS.standard;
 let prepMultiplier = 1.0;
@@ -59,13 +63,17 @@ const MARKET_RANGES = {
   'Bench Top':    { min:300, max:500 },
 };
 
-// ── MCK RECOMMENDED SELL PRICING (all ex GST, includes materials) ──
-const MCK_PRICING = {
-  'Floor':        { overThreshold: 100, underThreshold: 160, thresholdSqm: 60, minCharge: 7500 },
-  'Feature Wall': { overThreshold: 120, underThreshold: 180, thresholdSqm: 20, minCharge: 5000 },
-  'Wet Area':     { overThreshold: 160, underThreshold: 300, thresholdSqm: 20, minCharge: 7500 },
-  'Bench Top':    { overThreshold: 160, underThreshold: 300, thresholdSqm: 20, minCharge: 7500 },
-};
+// ── MCK RECOMMENDED SELL PRICING (reads from Settings if available) ──
+function getMCKPricing() {
+  const s = typeof getSetting === 'function' ? getSetting : (k => null);
+  return {
+    'Floor':        { overThreshold: s('floor_over_60_rate') || 100, underThreshold: s('floor_under_60_rate') || 160, thresholdSqm: 60, minCharge: s('floor_min_charge') || 7500 },
+    'Feature Wall': { overThreshold: s('wall_over_20_rate') || 120, underThreshold: s('wall_under_20_rate') || 180, thresholdSqm: 20, minCharge: s('wall_min_charge') || 5000 },
+    'Wet Area':     { overThreshold: s('wet_over_20_rate') || 160, underThreshold: s('wet_under_20_rate') || 300, thresholdSqm: 20, minCharge: s('wet_min_charge') || 7500 },
+    'Bench Top':    { overThreshold: s('wet_over_20_rate') || 160, underThreshold: s('wet_under_20_rate') || 300, thresholdSqm: 20, minCharge: s('wet_min_charge') || 7500 },
+  };
+}
+let MCK_PRICING = getMCKPricing();
 
 // ── SURFACE LINE MANAGEMENT ────────────────────────────────
 let lineCount = 0;
@@ -321,6 +329,7 @@ function recalc() {
   const mtTotal = mtMatCost + labourCost;
 
   // ── MCK RECOMMENDED SELL PRICE ──
+  MCK_PRICING = getMCKPricing(); // Refresh from settings
   const recSell = calculateRecommendedSellPrice(lines);
 
   // ── UPDATE SUMMARY ──

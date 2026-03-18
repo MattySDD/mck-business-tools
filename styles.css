@@ -783,6 +783,95 @@ body {
   margin-right:8px; font-size:14px;
 }
 
+/* ═══ SETTINGS PAGE ═══ */
+.settings-gate { min-height: 60vh; }
+.settings-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+.settings-group {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 6px; padding: 16px;
+}
+.settings-group-title {
+  font-size: 10px; font-weight: 800; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+  padding-bottom: 8px; border-bottom: 1px solid var(--border);
+}
+.settings-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+}
+.settings-row:last-child { border-bottom: none; }
+.settings-row label {
+  font-size: 12px; color: var(--text-secondary); font-weight: 500;
+}
+.settings-row input {
+  width: 120px; padding: 8px 12px; background: var(--dark);
+  border: 1px solid var(--border); color: var(--white);
+  font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 600;
+  text-align: right; border-radius: 4px; outline: none;
+  transition: border-color .2s;
+}
+.settings-row input:focus { border-color: var(--gold); }
+
+/* ═══ CREDIT WARNING ═══ */
+.credit-warning {
+  background: rgba(192,57,43,0.15); border: 1px solid rgba(192,57,43,0.4);
+  color: #ff6b6b; text-align: center; padding: 12px 20px;
+  font-size: 11px; font-weight: 800; letter-spacing: 1.5px;
+  text-transform: uppercase; margin-bottom: 16px; border-radius: 4px;
+}
+
+/* ═══ QUOTE HISTORY ═══ */
+.quote-history-table { width: 100%; border-collapse: collapse; }
+.quote-history-table th {
+  background: var(--card-bg); color: var(--gold); font-size: 9px;
+  letter-spacing: 1px; text-transform: uppercase; font-weight: 700;
+  padding: 8px 10px; border: 1px solid var(--border); text-align: left;
+}
+.quote-history-table td {
+  background: var(--dark); color: var(--white); font-size: 11px;
+  padding: 8px 10px; border: 1px solid var(--border);
+}
+.quote-history-table tr:nth-child(even) td { background: var(--black); }
+.quote-history-table .qh-btn {
+  background: var(--gold); color: #000; border: none; padding: 4px 12px;
+  font-family: 'Inter', sans-serif; font-size: 9px; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase; cursor: pointer;
+  border-radius: 3px;
+}
+.quote-history-table .qh-btn:hover { opacity: 0.85; }
+
+/* ═══ MCK SIGNATURE BLOCK ═══ */
+#q-mck-sig-block .digital-sig-title { color: var(--gold); }
+#q-mck-sig-block .digital-sig-subtitle { color: var(--text-secondary); }
+
+/* ═══ SHARE LINK MODAL ═══ */
+.share-modal-overlay {
+  position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.85); z-index: 9999;
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+}
+.share-modal {
+  background: var(--dark); border: 2px solid var(--gold);
+  border-radius: 8px; padding: 30px; max-width: 600px; width: 100%;
+}
+.share-modal h3 {
+  color: var(--gold); margin: 0 0 16px 0; font-size: 14px;
+  font-weight: 800; letter-spacing: 2px; text-transform: uppercase;
+}
+.share-modal .share-url {
+  background: var(--black); border: 1px solid var(--border);
+  color: var(--white); padding: 12px 16px; font-family: monospace;
+  font-size: 11px; border-radius: 4px; word-break: break-all;
+  margin-bottom: 16px; max-height: 80px; overflow-y: auto;
+}
+.share-modal .share-btn-row {
+  display: flex; gap: 10px; flex-wrap: wrap;
+}
+
 /* ═══ BUTTONS — GLOBAL ═══ */
 button { font-family:'Inter',sans-serif; }
 .btn-remove-line {
@@ -1211,6 +1300,11 @@ button { font-family:'Inter',sans-serif; }
   .quote-toolbar { bottom:12px; right:12px; flex-direction:column; }
   .market-grid { grid-template-columns:1fr 1fr; }
   .ai-chat-area { min-height:280px; max-height:400px; }
+  .settings-grid { grid-template-columns:1fr; }
+  .settings-row { flex-direction:column; align-items:flex-start; gap:6px; }
+  .settings-row input { width:100%; text-align:left; }
+  .share-modal { padding:20px; }
+  .sig-grid { grid-template-columns:1fr; }
 }
 
 @media (max-width:375px) {
@@ -1220,4 +1314,5 @@ button { font-family:'Inter',sans-serif; }
   .market-grid { grid-template-columns:1fr; }
   .card-body { padding:16px; }
   .section { padding:14px 12px; }
+  .settings-row label { font-size:11px; }
 }

@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>MCK Quote Viewer</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  box-sizing: border-box;
+}
+@page { size: A4 portrait; margin: 15mm; }
+html, body {
+  margin: 0; padding: 0;
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 10pt; line-height: 1.5;
+}
+.container { max-width: 800px; margin: 0 auto; padding: 20pt; }
+.page-section { page-break-after: always; padding: 0; margin-bottom: 20pt; }
+.page-section:last-child { page-break-after: auto; }
+
+/* Header */
+.doc-header { border-bottom: 2px solid #c9a84c; padding-bottom: 16pt; margin-bottom: 16pt; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14pt; flex-wrap: wrap; gap: 12pt; }
+.brand-block .label { font-size: 8pt; color: #c9a84c; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4pt; }
+.brand-block h1 { font-size: 22pt; color: #ffffff; margin: 0 0 4pt 0; letter-spacing: 2px; font-weight: 800; }
+.brand-block .tagline { font-size: 8.5pt; color: #aaaaaa; letter-spacing: 1px; }
+.contact-block { text-align: right; font-size: 8.5pt; color: #aaaaaa; line-height: 2; }
+.contact-block strong { color: #c9a84c; font-size: 7pt; letter-spacing: 1px; margin-right: 6pt; }
+
+/* Meta Grid */
+.meta-grid { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 0; background: #1a1a1a !important; border: 1px solid #333; border-radius: 4px; overflow: hidden; }
+.meta-cell { padding: 8pt 12pt; border-right: 1px solid #333; }
+.meta-cell:last-child { border-right: none; }
+.meta-label { font-size: 6.5pt; color: #c9a84c; letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3pt; font-weight: 600; }
+.meta-value { font-size: 10pt; color: #ffffff; font-weight: 600; }
+
+/* Banners */
+.validity-banner { background: #c9a84c !important; color: #000000 !important; text-align: center; padding: 7pt 12pt; font-size: 8pt; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; margin: 14pt 0; border-radius: 3px; }
+.status-banner { text-align: center; padding: 10pt; font-weight: 800; font-size: 11pt; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 14pt; border-radius: 4px; }
+.status-pending { background: #c9a84c !important; color: #000 !important; }
+.status-accepted { background: #27AE60 !important; color: #fff !important; }
+.status-expired { background: #ff4444 !important; color: #fff !important; }
+
+/* Section Headers */
+.sec-hd { display: flex; align-items: center; gap: 10pt; margin-bottom: 12pt; padding-bottom: 8pt; border-bottom: 1px solid #333; }
+.sec-num { background: #c9a84c !important; color: #000000 !important; font-weight: 800; font-size: 9pt; padding: 3pt 8pt; border-radius: 3px; min-width: 24pt; text-align: center; }
+.sec-hd h2 { margin: 0; font-size: 11pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+
+/* Fields */
+.field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt; }
+.field-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10pt; }
+.field-full { grid-column: 1 / -1; }
+.field { background: #111111 !important; border: 1px solid #333; border-radius: 3px; padding: 6pt 10pt; }
+.field-lbl { font-size: 6.5pt; color: #c9a84c; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 2pt; }
+.field-val { font-size: 9.5pt; color: #ffffff; min-height: 12pt; line-height: 1.5; }
+
+/* Tables */
+table { width: 100%; border-collapse: collapse; }
+th { background: #1a1a1a !important; color: #c9a84c !important; font-size: 7pt; letter-spacing: 1px; text-transform: uppercase; font-weight: 700; padding: 6pt 8pt; border: 1px solid #c9a84c; text-align: left; }
+th.right { text-align: right; }
+td { background: #111111 !important; color: #ffffff !important; font-size: 9pt; padding: 5pt 8pt; border: 1px solid #333; }
+td.right { text-align: right; }
+tr:nth-child(even) td { background: #0d0d0d !important; }
+tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px solid #c9a84c !important; }
+.grand-total td { color: #c9a84c !important; font-size: 11pt; font-weight: 800; border-top: 2px solid #c9a84c !important; }
+
+/* Callout */
+.callout { background: #1a1a1a !important; border-left: 3px solid #c9a84c; padding: 8pt 12pt; font-size: 8pt; color: #ffffff; line-height: 1.6; border-radius: 0 3px 3px 0; margin: 10pt 0; }
+.callout strong { color: #c9a84c; }
+.callout.warning { border-left-color: #ff4444; }
+.callout.warning strong { color: #ff4444; }
+
+/* Inclusions / Exclusions */
+.inc-exc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14pt; }
+.ie-col { background: #111111 !important; border: 1px solid #333; border-radius: 4px; padding: 10pt 12pt; }
+.ie-col h3 { margin: 0 0 8pt 0; font-size: 9pt; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; padding-bottom: 6pt; border-bottom: 1px solid #333; }
+.ie-col.inc h3 { color: #c9a84c; }
+.ie-col.exc h3 { color: #aaaaaa; }
+.ie-item { font-size: 8.5pt; color: #ffffff; padding: 3pt 0; line-height: 1.5; }
+.ie-item .tick { color: #c9a84c; font-weight: 700; margin-right: 6pt; }
+.ie-item .cross { color: #ff6b6b; font-weight: 700; margin-right: 6pt; }
+
+/* Payment */
+.pay-stage { font-size: 7pt; color: #c9a84c; font-weight: 700; }
+.pay-note { font-size: 7.5pt; color: #aaaaaa; font-style: italic; }
+
+/* T&C */
+.tc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8pt; }
+.tc-item { background: #111111 !important; border: 1px solid #333; border-radius: 3px; padding: 8pt 10pt; font-size: 8pt; color: #ffffff; line-height: 1.5; }
+.tc-item .tc-head { color: #c9a84c; font-weight: 700; font-size: 7pt; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3pt; }
+
+/* Signatures */
+.sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24pt; margin-top: 16pt; }
+.sig-label { font-size: 7pt; color: #c9a84c; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 6pt; }
+.sig-line { border-bottom: 1px solid #c9a84c; height: 36pt; margin-bottom: 4pt; position: relative; }
+.sig-line img { position: absolute; bottom: 2pt; left: 0; max-height: 32pt; max-width: 200pt; }
+.sig-sub { font-size: 8pt; color: #aaaaaa; margin-top: 4pt; }
+
+/* Footer */
+.doc-footer { margin-top: 20pt; padding: 10pt 14pt; background: #1a1a1a !important; border: 1px solid #333; border-radius: 3px; text-align: center; font-size: 8pt; color: #aaaaaa; line-height: 1.8; }
+.doc-footer .gold { color: #c9a84c; font-weight: 700; }
+.legal-footer { margin-top: 14pt; padding: 10pt 14pt; background: #111111 !important; border: 1px solid #333; border-radius: 3px; text-align: center; font-size: 7.5pt; color: #aaaaaa; line-height: 1.8; }
+.legal-footer strong { color: #c9a84c; }
+
+/* Action Bar */
+.action-bar { text-align: center; margin: 24pt 0; }
+.action-btn { background: #c9a84c; color: #000; border: none; padding: 14px 36px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px; margin: 0 8px; }
+.action-btn:hover { opacity: 0.9; }
+.action-btn.ghost { background: transparent; border: 2px solid #c9a84c; color: #c9a84c; }
+
+/* Signature Modal */
+.sig-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.sig-modal { background: #111; border: 2px solid #c9a84c; border-radius: 8px; padding: 30px; max-width: 500px; width: 100%; }
+.sig-modal h3 { color: #c9a84c; margin: 0 0 16px 0; font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
+.sig-modal canvas { background: #fff; border: 2px solid #c9a84c; border-radius: 4px; cursor: crosshair; width: 100%; touch-action: none; }
+.sig-modal .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+
+/* Error state */
+.error-state { text-align: center; padding: 60px 20px; }
+.error-state h2 { color: #ff4444; font-size: 18pt; margin-bottom: 12pt; }
+.error-state p { color: #aaa; font-size: 11pt; }
+
+/* Loading */
+.loading { text-align: center; padding: 80px 20px; }
+.loading h2 { color: #c9a84c; font-size: 14pt; letter-spacing: 2px; }
+
+@media (max-width: 600px) {
+  .meta-grid { grid-template-columns: 1fr 1fr; }
+  .field-grid, .inc-exc-grid, .sig-grid, .tc-grid { grid-template-columns: 1fr; }
+  .field-grid-3 { grid-template-columns: 1fr; }
+  .header-row { flex-direction: column; }
+  .contact-block { text-align: left; }
+  .container { padding: 12pt; }
+  .action-btn { display: block; width: 100%; margin: 8px 0; }
+}
+@media print {
+  html, body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+  body { background: #0a0a0a !important; }
+  .action-bar, .no-print { display: none !important; }
+}
+</style>
+</head>
+<body>
+<div class="container" id="quote-container">
+  <div class="loading"><h2>LOADING QUOTE...</h2></div>
+</div>
+
+<script>
+(function() {
+  const container = document.getElementById('quote-container');
+  const $ = v => '$' + v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  // Parse URL parameters
+  const params = new URLSearchParams(window.location.search);
+  const base64Data = params.get('data');
+
+  if (!base64Data) {
+    container.innerHTML = '<div class="error-state"><h2>NO QUOTE DATA</h2><p>This link does not contain valid quote data. Please request a new link from Micro Cement King.</p></div>';
+    return;
+  }
+
+  let d;
+  try {
+    const jsonStr = decodeURIComponent(escape(atob(base64Data)));
+    d = JSON.parse(jsonStr);
+  } catch (e) {
+    container.innerHTML = '<div class="error-state"><h2>INVALID QUOTE DATA</h2><p>The quote data could not be decoded. The link may be corrupted. Please request a new link.</p></div>';
+    return;
+  }
+
+  // Check expiry
+  let isExpired = false;
+  let status = 'PENDING';
+  if (d.createdAt && d.validityHours) {
+    const created = new Date(d.createdAt);
+    const expiry = new Date(created.getTime() + d.validityHours * 60 * 60 * 1000);
+    if (new Date() > expiry) {
+      isExpired = true;
+      status = 'EXPIRED';
+    }
+  }
+
+  // Check if accepted (stored in localStorage by quote number)
+  const acceptedKey = 'mck_quote_accepted_' + d.quoteNumber;
+  if (localStorage.getItem(acceptedKey)) {
+    status = 'ACCEPTED';
+  }
+
+  // Build status banner
+  let statusBanner = '';
+  if (isExpired) {
+    statusBanner = '<div class="status-banner status-expired">THIS QUOTE HAS EXPIRED</div>';
+  } else if (status === 'ACCEPTED') {
+    statusBanner = '<div class="status-banner status-accepted">QUOTE ACCEPTED</div>';
+  } else {
+    statusBanner = '<div class="status-banner status-pending">QUOTE STATUS: PENDING ACCEPTANCE</div>';
+  }
+
+  // Render the quote
+  container.innerHTML = `
+${statusBanner}
+
+<!-- PAGE 1: HEADER + CLIENT DETAILS -->
+<div class="page-section">
+  <div class="doc-header">
+    <div class="header-row">
+      <div class="brand-block">
+        <div class="label">FORMAL QUOTATION</div>
+        <h1>MICRO CEMENT KING</h1>
+        <div class="tagline">Gold Coast's Premium Seamless Surfaces Specialist</div>
+      </div>
+      <div class="contact-block">
+        <div><strong>PHONE</strong> 0468 053 819</div>
+        <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
+        <div><strong>WEB</strong> microcementking.com.au</div>
+        <div><strong>INSTAGRAM</strong> @microcementking</div>
+        <div style="margin-top:6pt;font-size:7.5pt;color:#666;">All prices ex GST unless stated</div>
+      </div>
+    </div>
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="meta-label">QUOTE NUMBER</div><div class="meta-value">${d.quoteNumber}</div></div>
+      <div class="meta-cell"><div class="meta-label">DATE ISSUED</div><div class="meta-value">${d.dateIssued}</div></div>
+      <div class="meta-cell"><div class="meta-label">VALIDITY</div><div class="meta-value">${d.validityLabel}</div></div>
+      <div class="meta-cell"><div class="meta-label">PREPARED BY</div><div class="meta-value">${d.preparedBy}</div></div>
+    </div>
+  </div>
+  <div class="validity-banner">${d.validityBanner}</div>
+  <div class="sec-hd"><div class="sec-num">01</div><h2>CLIENT DETAILS</h2></div>
+  <div class="field-grid">
+    <div class="field"><div class="field-lbl">CLIENT NAME</div><div class="field-val">${d.clientName || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">PROJECT ADDRESS</div><div class="field-val">${d.projectAddress || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">PHONE NUMBER</div><div class="field-val">${d.clientPhone || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">SITE CONTACT</div><div class="field-val">${d.siteContact || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">EMAIL ADDRESS</div><div class="field-val">${d.clientEmail || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">PREPARED BY</div><div class="field-val">${d.preparedBy}</div></div>
+  </div>
+  <div style="height:14pt;"></div>
+  <div class="sec-hd"><div class="sec-num">02</div><h2>PROJECT SCOPE</h2></div>
+  <div class="field-grid">
+    <div class="field"><div class="field-lbl">COLOUR / FINISH</div><div class="field-val">${d.colourFinish || '\u2014'}</div></div>
+    <div class="field"><div class="field-lbl">SUBSTRATE</div><div class="field-val">${d.substrate || '\u2014'}</div></div>
+  </div>
+  <div style="height:8pt;"></div>
+  <div class="field field-full"><div class="field-lbl">SCOPE OF WORKS</div><div class="field-val">${d.scope || '\u2014'}</div></div>
+</div>
+
+<!-- PAGE 2: PRICING -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">03</div><h2>SCOPE OF WORKS &amp; PRICING</h2></div>
+  <table>
+    <thead><tr><th style="width:42%">DESCRIPTION</th><th class="right" style="width:10%">QTY</th><th style="width:12%">UNIT</th><th class="right" style="width:18%">RATE (EX GST)</th><th class="right" style="width:18%">TOTAL (EX GST)</th></tr></thead>
+    <tbody>${(d.lineItems||[]).map(l => '<tr><td>'+l.desc+'</td><td class="right">'+l.qty+'</td><td>'+l.unit+'</td><td class="right">'+$(l.rate)+'</td><td class="right">'+$(l.total)+'</td></tr>').join('')}</tbody>
+    <tfoot>
+      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.subtotal)}</td></tr>
+      <tr><td colspan="4" style="text-align:right;">GST (10%)</td><td class="right">${$(d.gst)}</td></tr>
+      <tr class="grand-total"><td colspan="4" style="text-align:right;">TOTAL (INC GST)</td><td class="right">${$(d.grandTotal)}</td></tr>
+    </tfoot>
+  </table>
+  <div class="callout"><strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$${d.measureFee || 220} ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance.</div>
+</div>
+
+<!-- PAGE 3: INCLUSIONS & EXCLUSIONS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">04</div><h2>INCLUSIONS &amp; EXCLUSIONS</h2></div>
+  <div class="inc-exc-grid">
+    <div class="ie-col inc"><h3>INCLUSIONS</h3>${(d.inclusions||[]).map(i => '<div class="ie-item"><span class="tick">\u2713</span>'+i+'</div>').join('')}</div>
+    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${(d.exclusions||[]).map(e => '<div class="ie-item"><span class="cross">\u2717</span>'+e+'</div>').join('')}</div>
+  </div>
+</div>
+
+<!-- PAGE 4: PAYMENT SCHEDULE -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
+  <table>
+    <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (EX GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
+    <tbody>
+      <tr><td class="pay-stage">1</td><td><strong>Booking Deposit</strong><br><span class="pay-note">Secures your place in the schedule</span></td><td class="right">${$(d.depositAmt)}</td><td class="right">${d.depositPct}%</td><td class="pay-note">On acceptance</td></tr>
+      <tr><td class="pay-stage">2</td><td><strong>Material Payment</strong><br><span class="pay-note">Works do not start until paid</span></td><td class="right">${$(d.materialAmt)}</td><td class="right">${d.matPct || 50}%</td><td class="pay-note">Prior to start date</td></tr>
+      <tr><td class="pay-stage">3</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
+    </tbody>
+    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
+  </table>
+  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>${d.upfrontDiscPct || 5}% discount</strong> (capped at $${(d.upfrontDiscCap||1000).toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal || d.subtotal)}</strong>.</div>
+</div>
+
+<!-- PAGE 5: TIMELINE + KEY TERMS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">06</div><h2>PROJECT TIMELINE</h2></div>
+  <div class="field-grid-3">
+    <div class="field"><div class="field-lbl">ESTIMATED START DATE</div><div class="field-val">${d.startDate || 'TBC'}</div></div>
+    <div class="field"><div class="field-lbl">ESTIMATED DURATION</div><div class="field-val">${d.duration || 'TBC'}</div></div>
+    <div class="field"><div class="field-lbl">ESTIMATED COMPLETION</div><div class="field-val">${d.completion || 'TBC'}</div></div>
+  </div>
+  <div class="callout" style="margin-top:12pt;margin-bottom:18pt;"><strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Timeline assumes unobstructed site access and standard environmental conditions.</div>
+  <div class="sec-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
+  <div class="tc-grid">
+    <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue.</div>
+    <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing. Rate: $${d.variationRate||150}/hr (${d.variationMinHrs||2}-hour minimum).</div>
+    <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
+    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
+    <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
+    <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $${d.overdueAdminFee||220} admin fee. Interest accrues at ${d.overdueInterest||3}% per week from Day 4.</div>
+    <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration.</div>
+    <div class="tc-item"><div class="tc-head">Termination</div>Either party may terminate with written notice. All completed work is payable immediately upon termination.</div>
+    <div class="tc-item"><div class="tc-head">Colour &amp; Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions.</div>
+    <div class="tc-item"><div class="tc-head">Substrate Responsibility</div>The client is responsible for ensuring the substrate is structurally sound prior to commencement.</div>
+  </div>
+</div>
+
+<!-- PAGE 6: SIGNATURES -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
+  <div class="callout" style="margin-bottom:18pt;"><strong>HOW TO ACCEPT:</strong> Click "Accept & Sign" below, sign digitally, and pay the booking deposit to confirm your start date.</div>
+  <div class="sig-grid">
+    <div class="sig-block">
+      <div class="sig-label">CLIENT SIGNATURE</div>
+      <div class="sig-line" id="client-sig-line">${d.sigDataURL ? '<img src="'+d.sigDataURL+'" alt="Client Signature">' : ''}</div>
+      <div class="sig-sub">Full Name: ${d.clientName || '___________________________'}</div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <span id="client-sig-date">___________________________</span></div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
+      <div class="sig-line">${d.mckSigDataURL ? '<img src="'+d.mckSigDataURL+'" alt="MCK Signature">' : ''}</div>
+      <div class="sig-sub">Name: King Mannion</div>
+      <div class="sig-sub" style="margin-top:4pt;">Title: Director</div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: ___________________________</div>
+    </div>
+  </div>
+  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>
+  <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</div>
+</div>
+
+<div class="action-bar no-print">
+  <button class="action-btn ghost" onclick="window.print()">PRINT / SAVE PDF</button>
+  ${!isExpired && status !== 'ACCEPTED' ? '<button class="action-btn" onclick="showAcceptModal()">ACCEPT &amp; SIGN</button>' : ''}
+</div>
+`;
+
+  // Accept & Sign modal
+  window.showAcceptModal = function() {
+    const overlay = document.createElement('div');
+    overlay.className = 'sig-modal-overlay';
+    overlay.id = 'accept-modal';
+    overlay.innerHTML = `
+      <div class="sig-modal">
+        <h3>ACCEPT & SIGN QUOTE</h3>
+        <p style="color:#aaa;font-size:10px;margin:0 0 14px 0;">Draw your signature below to accept this quote. By signing, you agree to all terms and conditions.</p>
+        <canvas id="accept-sig-canvas" width="440" height="160"></canvas>
+        <div class="btn-row">
+          <button class="action-btn" onclick="submitAcceptance()" style="padding:10px 24px;font-size:11px;">SUBMIT ACCEPTANCE</button>
+          <button class="action-btn ghost" onclick="clearAcceptSig()" style="padding:10px 24px;font-size:11px;">CLEAR</button>
+          <button class="action-btn ghost" onclick="document.getElementById('accept-modal').remove();" style="padding:10px 24px;font-size:11px;border-color:#666;color:#666;">CANCEL</button>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(overlay);
+    overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+
+    // Init canvas drawing
+    const canvas = document.getElementById('accept-sig-canvas');
+    const ctx = canvas.getContext('2d');
+    let drawing = false;
+    ctx.strokeStyle = '#111';
+    ctx.lineWidth = 2;
+    ctx.lineCap = 'round';
+
+    function getPos(e) {
+      const rect = canvas.getBoundingClientRect();
+      const touch = e.touches ? e.touches[0] : e;
+      const scaleX = canvas.width / rect.width;
+      const scaleY = canvas.height / rect.height;
+      return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+    }
+    canvas.addEventListener('mousedown', function(e) { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousemove', function(e) { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+    canvas.addEventListener('mouseup', function() { drawing = false; });
+    canvas.addEventListener('mouseleave', function() { drawing = false; });
+    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+    canvas.addEventListener('touchmove', function(e) { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+    canvas.addEventListener('touchend', function() { drawing = false; }, { passive: false });
+  };
+
+  window.clearAcceptSig = function() {
+    const canvas = document.getElementById('accept-sig-canvas');
+    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+  };
+
+  window.submitAcceptance = function() {
+    const canvas = document.getElementById('accept-sig-canvas');
+    if (!canvas) return;
+    const blank = document.createElement('canvas');
+    blank.width = canvas.width; blank.height = canvas.height;
+    if (canvas.toDataURL() === blank.toDataURL()) {
+      alert('Please sign before submitting.');
+      return;
+    }
+
+    // Save acceptance
+    localStorage.setItem(acceptedKey, JSON.stringify({
+      date: new Date().toISOString(),
+      signature: canvas.toDataURL()
+    }));
+
+    // Update the client signature line
+    const sigLine = document.getElementById('client-sig-line');
+    if (sigLine) sigLine.innerHTML = '<img src="' + canvas.toDataURL() + '" alt="Client Signature">';
+    const sigDate = document.getElementById('client-sig-date');
+    if (sigDate) sigDate.textContent = new Date().toLocaleDateString('en-AU');
+
+    // Remove modal and update status
+    document.getElementById('accept-modal').remove();
+
+    // Replace status banner
+    const banners = container.querySelectorAll('.status-banner');
+    banners.forEach(b => {
+      b.className = 'status-banner status-accepted';
+      b.textContent = 'QUOTE ACCEPTED';
+    });
+
+    // Remove accept button
+    const actionBar = container.querySelector('.action-bar');
+    if (actionBar) {
+      const acceptBtns = actionBar.querySelectorAll('button:not(.ghost)');
+      acceptBtns.forEach(b => b.remove());
+    }
+
+    alert('Quote accepted! Thank you. Your booking deposit secures your start date.');
+  };
+
+  // Check if already accepted and show signature
+  if (status === 'ACCEPTED') {
+    try {
+      const acceptData = JSON.parse(localStorage.getItem(acceptedKey));
+      if (acceptData && acceptData.signature) {
+        const sigLine = document.getElementById('client-sig-line');
+        if (sigLine) sigLine.innerHTML = '<img src="' + acceptData.signature + '" alt="Client Signature">';
+        const sigDate = document.getElementById('client-sig-date');
+        if (sigDate) sigDate.textContent = new Date(acceptData.date).toLocaleDateString('en-AU');
+      }
+    } catch(e) {}
+  }
+
+  // Update page title
+  document.title = 'MCK Quote \u2014 ' + d.quoteNumber + ' \u2014 ' + (d.clientName || 'Client');
+})();
+</script>
+</body>
+</html>

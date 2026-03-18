@@ -18,6 +18,7 @@
     <button class="nav-tab" data-tab="quote" onclick="switchTab('quote')">QUOTE GENERATOR</button>
     <button class="nav-tab" data-tab="terms" onclick="switchTab('terms')">TERMS &amp; CONDITIONS</button>
     <button class="nav-tab" data-tab="ai" onclick="switchTab('ai')">AI AGENT</button>
+    <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">SETTINGS</button>
   </div>
 </nav>
 
@@ -26,6 +27,11 @@
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="tab-calculator" class="tab-content active">
   <div class="page">
+
+    <!-- AUTO-POPULATE BANNER -->
+    <div id="calc-auto-banner" class="auto-populate-banner" style="display:none;">
+      AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING
+    </div>
 
     <!-- SURFACE LINES -->
     <div class="card">
@@ -185,9 +191,16 @@
 <div id="tab-quote" class="tab-content">
   <div class="doc">
 
-    <!-- GENERATE PDF QUOTE — TOP BUTTON -->
-    <div class="no-print" style="margin-bottom:16px;text-align:center;">
-      <button onclick="generatePDFQuote()" style="background:#c9a84c;color:#000;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:16px 40px;border:none;border-radius:4px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">GENERATE PDF QUOTE</button>
+    <!-- AUTO-POPULATE BANNER -->
+    <div id="quote-auto-banner" class="auto-populate-banner" style="display:none;">
+      AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING
+    </div>
+
+    <!-- TOP ACTION BUTTONS -->
+    <div class="no-print" style="margin-bottom:16px;text-align:center;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;">
+      <button onclick="generatePDFQuote()" class="tb-btn" style="font-size:14px;padding:16px 32px;">GENERATE PDF QUOTE</button>
+      <button onclick="generateShareableLink()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;">&#128279; SHARE QUOTE LINK</button>
+      <button onclick="shareQuoteWhatsApp()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
     </div>
 
     <!-- HEADER -->
@@ -236,6 +249,11 @@
 
     <div class="validity-banner" id="q-validity-banner">QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE</div>
 
+    <!-- CREDIT LIMIT WARNING -->
+    <div id="q-credit-warning" class="credit-warning" style="display:none;">
+      &#9888; WARNING: QUOTE VALUE EXCEEDS $10,000 CREDIT LIMIT — PROGRESS CLAIMS WILL APPLY PER SECTION 3 OF T&amp;C
+    </div>
+
     <!-- BODY -->
     <div class="doc-body">
 
@@ -281,7 +299,13 @@
           </table>
         </div>
         <button class="add-line-btn" onclick="addQuoteLine()">+ ADD LINE ITEM</button>
-        <div class="callout callout-info" style="margin-top:14px;">
+
+        <!-- PAY-IN-FULL REDUCTION -->
+        <div class="callout callout-gold" style="margin-top:14px;" id="q-upfront-callout">
+          <strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>5% discount</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong id="q-upfront-price">—</strong>
+        </div>
+
+        <div class="callout callout-info" style="margin-top:10px;">
           <strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$220 ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance of this quote and signing of the formal agreement.
         </div>
       </div>
@@ -337,9 +361,6 @@
           </tbody>
           <tfoot><tr><td colspan="2">TOTAL CONTRACT VALUE (EX GST)</td><td id="q-payment-total">&nbsp;</td><td>100%</td><td>&nbsp;</td></tr></tfoot>
         </table>
-        <div class="callout callout-gold" style="margin-top:12px;">
-          <strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>5% discount</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Contact us to arrange.
-        </div>
       </div>
 
       <!-- 06 TIMELINE -->
@@ -365,10 +386,10 @@
           <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
           <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
           <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $220 admin fee. Interest accrues at <strong>3% per week</strong> from Day 4. External recovery at Day 30.</div>
+          <div class="tc-item"><div class="tc-head">Credit Limit</div>A maximum credit limit of <strong>$10,000</strong> applies. Progress claims will be issued when this threshold is exceeded.</div>
           <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration. Restricted access may incur additional charges.</div>
           <div class="tc-item"><div class="tc-head">Termination</div>Micro Cement King reserves the right to terminate if payment terms are repeatedly breached. All work completed to date is invoiced and immediately payable.</div>
           <div class="tc-item"><div class="tc-head">Colour &amp; Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions. Samples are indicative only.</div>
-          <div class="tc-item"><div class="tc-head">Substrate Responsibility</div>The client is responsible for ensuring the substrate is structurally sound, clean, and free from contamination prior to commencement.</div>
         </div>
         <div class="callout callout-gold" style="margin-top:12px;">
           <strong>FULL TERMS &amp; CONDITIONS:</strong> The above is a summary only. Full Payment Terms &amp; Conditions are set out in the companion document. Click the <strong>Terms &amp; Conditions</strong> tab above to view the full document. By signing below, the client acknowledges they have read, understood, and agree to the full terms.
@@ -381,11 +402,12 @@
         <div class="callout callout-gold" style="margin-bottom:20px;">
           <strong>HOW TO ACCEPT:</strong> Option A — sign digitally in the box below and click "Accept &amp; Sign". Option B — print this page, sign, and return. In both cases, pay the booking deposit to confirm your start date.
         </div>
+
+        <!-- CLIENT DIGITAL SIGNATURE -->
         <div class="digital-sig-block" id="q-digital-sig-block">
-          <div class="digital-sig-title">DIGITAL SIGNATURE</div>
+          <div class="digital-sig-title">CLIENT DIGITAL SIGNATURE</div>
           <div class="digital-sig-subtitle">Draw your signature below using your mouse (desktop) or finger (mobile/tablet)</div>
           <div class="sig-accepted-banner" id="q-sig-accepted-banner">
-            <div class="acc-label">QUOTE ACCEPTED — DIGITALLY SIGNED</div>
             <img id="q-sig-image" src="" alt="Client Signature" style="max-width:300px;margin-top:8px;display:none;">
           </div>
           <div class="canvas-wrap" id="q-canvas-wrap">
@@ -397,6 +419,25 @@
             <button class="sig-btn sig-btn-accept" id="q-accept-btn" onclick="acceptQuoteSig()" disabled>ACCEPT &amp; SIGN</button>
           </div>
         </div>
+
+        <!-- MCK AUTHORISED SIGNATURE -->
+        <div class="digital-sig-block" id="q-mck-sig-block" style="margin-top:24px;">
+          <div class="digital-sig-title">MCK AUTHORISED SIGNATORY</div>
+          <div class="digital-sig-subtitle">King Mannion — Director</div>
+          <div class="sig-accepted-banner" id="q-mck-sig-accepted-banner">
+            <img id="q-mck-sig-image" src="" alt="MCK Signature" style="max-width:300px;margin-top:8px;display:none;">
+          </div>
+          <div class="canvas-wrap" id="q-mck-canvas-wrap">
+            <canvas id="q-mck-sig-canvas"></canvas>
+            <div class="canvas-hint" id="q-mck-canvas-hint">MCK SIGN HERE</div>
+          </div>
+          <div class="sig-btn-row" id="q-mck-sig-btn-row">
+            <button class="sig-btn sig-btn-clear" onclick="clearMckSig()">CLEAR</button>
+            <button class="sig-btn sig-btn-accept" id="q-mck-accept-btn" onclick="acceptMckSig()" disabled>ACCEPT &amp; SIGN</button>
+          </div>
+        </div>
+
+        <!-- PRINT SIGNATURE LINES -->
         <div class="print-sig-grid">
           <div>
             <div class="print-sig-lbl">CLIENT SIGNATURE (PRINT &amp; SIGN)</div>
@@ -426,9 +467,11 @@
       <div>0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au</div>
     </div>
 
-    <!-- GENERATE PDF QUOTE — BOTTOM BUTTON -->
-    <div class="no-print" style="margin-top:24px;text-align:center;padding-bottom:16px;">
-      <button onclick="generatePDFQuote()" style="background:#c9a84c;color:#000;font-weight:800;font-size:14px;letter-spacing:2px;text-transform:uppercase;padding:16px 40px;border:none;border-radius:4px;cursor:pointer;transition:opacity .2s;" onmouseover="this.style.opacity='0.85'" onmouseout="this.style.opacity='1'">GENERATE PDF QUOTE</button>
+    <!-- BOTTOM ACTION BUTTONS -->
+    <div class="no-print" style="margin-top:24px;text-align:center;display:flex;flex-wrap:wrap;gap:10px;justify-content:center;padding-bottom:16px;">
+      <button onclick="generatePDFQuote()" class="tb-btn" style="font-size:14px;padding:16px 32px;">GENERATE PDF QUOTE</button>
+      <button onclick="generateShareableLink()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;">&#128279; SHARE QUOTE LINK</button>
+      <button onclick="shareQuoteWhatsApp()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
     </div>
 
   </div><!-- /doc -->
@@ -436,8 +479,19 @@
   <!-- QUOTE TOOLBAR -->
   <div class="quote-toolbar no-print">
     <button class="tb-btn" onclick="generatePDFQuote()">GENERATE PDF QUOTE</button>
+    <button class="tb-btn ghost" onclick="generateShareableLink()">&#128279; SHARE LINK</button>
+    <button class="tb-btn ghost" onclick="shareQuoteWhatsApp()" style="border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
     <button class="tb-btn ghost" onclick="clearQuoteForm()">CLEAR FORM</button>
   </div>
+
+  <!-- QUOTE HISTORY -->
+  <div class="card no-print" style="margin:24px auto;max-width:900px;">
+    <div class="card-header"><h2>QUOTE HISTORY</h2><span class="badge">LAST 10</span></div>
+    <div class="card-body" id="quote-history-wrap">
+      <div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:16px;">No quotes saved yet. Generate or share a quote to start tracking history.</div>
+    </div>
+  </div>
+
 </div><!-- /tab-quote -->
 
 
@@ -527,7 +581,7 @@
       <div class="section">
         <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">6</div><h2>WORK SUSPENSION AND SUBCONTRACTING LIMITATIONS</h2></div>
           <div class="clause"><span class="clause-num">6.1</span><span class="clause-text">If any invoice remains unpaid beyond its due date or the agreed credit limit is exceeded, Render Render Pty Ltd/Micro Cement King reserves the right to stop work immediately.</span></div>
-          <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">In the event of a payment dispute or unresolved claim, no third-party contractors, builders, or suppliers are to be engaged for continuation, rectification, or substitution of the contracted works until a written resolution is agreed upon by both parties.</span></div>
+          <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">In the event of a payment dispute or unresolved claim, no third-party contractors, builders, or suppliers are to be engaged to rectify, modify, or continue any work originally performed by Render Render Pty Ltd/Micro Cement King without prior written agreement from the Director.</span></div>
           <div class="clause"><span class="clause-num">6.3</span><span class="clause-text">This clause ensures the integrity of the job and allows for proper dispute handling without interference or miscommunication.</span></div>
         </div>
       </div>
@@ -704,6 +758,143 @@
   </div>
 </div><!-- /tab-ai -->
 
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 5: SETTINGS                                              -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-settings" class="tab-content">
+  <div class="page">
+
+    <!-- PASSWORD GATE -->
+    <div id="settings-gate" class="settings-gate">
+      <div class="card" style="max-width:400px;margin:80px auto;">
+        <div class="card-header"><h2>ADMIN ACCESS</h2></div>
+        <div class="card-body" style="text-align:center;">
+          <div style="color:var(--grey-mid);font-size:12px;margin-bottom:16px;letter-spacing:1px;">ENTER PASSWORD TO ACCESS SETTINGS</div>
+          <input type="password" id="settings-password" placeholder="Password" style="width:100%;padding:12px 16px;background:var(--panel);border:1px solid var(--border);color:#fff;font-family:inherit;font-size:14px;border-radius:4px;text-align:center;letter-spacing:2px;" onkeydown="if(event.key==='Enter')checkSettingsPassword()">
+          <div id="settings-error" style="color:#ff4444;font-size:11px;margin-top:8px;display:none;">INCORRECT PASSWORD</div>
+          <button onclick="checkSettingsPassword()" class="tb-btn" style="margin-top:16px;width:100%;">UNLOCK SETTINGS</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- SETTINGS CONTENT (hidden until authenticated) -->
+    <div id="settings-content" style="display:none;">
+
+      <!-- SECTION A: SELL PRICING -->
+      <div class="card">
+        <div class="card-header"><h2>SECTION A — MCK SELL PRICING (EX GST)</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-body">
+          <div class="settings-grid">
+            <div class="settings-group">
+              <div class="settings-group-title">FLOORS</div>
+              <div class="settings-row"><label>Over 60sqm ($/sqm)</label><input type="number" id="set-floor-over" data-key="floor_over_rate" step="1"></div>
+              <div class="settings-row"><label>Under 60sqm ($/sqm)</label><input type="number" id="set-floor-under" data-key="floor_under_rate" step="1"></div>
+              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-floor-min" data-key="floor_min" step="100"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">FEATURE WALLS</div>
+              <div class="settings-row"><label>Over 20sqm ($/sqm)</label><input type="number" id="set-wall-over" data-key="wall_over_rate" step="1"></div>
+              <div class="settings-row"><label>Under 20sqm ($/sqm)</label><input type="number" id="set-wall-under" data-key="wall_under_rate" step="1"></div>
+              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wall-min" data-key="wall_min" step="100"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">WET AREAS / BATHROOMS / BENCHTOPS</div>
+              <div class="settings-row"><label>Over 20sqm ($/sqm)</label><input type="number" id="set-wet-over" data-key="wet_over_rate" step="1"></div>
+              <div class="settings-row"><label>Under 20sqm ($/sqm)</label><input type="number" id="set-wet-under" data-key="wet_under_rate" step="1"></div>
+              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wet-min" data-key="wet_min" step="100"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION B: LABOUR RATES -->
+      <div class="card">
+        <div class="card-header"><h2>SECTION B — LABOUR RATES</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-body">
+          <div class="settings-grid">
+            <div class="settings-group">
+              <div class="settings-group-title">HOURLY RATES</div>
+              <div class="settings-row"><label>Solo applicator ($/hr)</label><input type="number" id="set-solo-rate" data-key="solo_rate" step="5"></div>
+              <div class="settings-row"><label>Standard crew ($/hr)</label><input type="number" id="set-standard-rate" data-key="standard_rate" step="5"></div>
+              <div class="settings-row"><label>Full crew ($/hr)</label><input type="number" id="set-full-rate" data-key="full_rate" step="5"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">SQM PER DAY</div>
+              <div class="settings-row"><label>Solo (sqm/day)</label><input type="number" id="set-solo-sqm" data-key="solo_sqm_day" step="1"></div>
+              <div class="settings-row"><label>Standard crew (sqm/day)</label><input type="number" id="set-standard-sqm" data-key="standard_sqm_day" step="1"></div>
+              <div class="settings-row"><label>Full crew (sqm/day)</label><input type="number" id="set-full-sqm" data-key="full_sqm_day" step="1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION C: MATERIAL COSTS -->
+      <div class="card">
+        <div class="card-header"><h2>SECTION C — MATERIAL COSTS (EX GST)</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-body">
+          <div class="settings-grid">
+            <div class="settings-group">
+              <div class="settings-group-title">SOLIDRO SYSTEM</div>
+              <div class="settings-row"><label>Solidro Zero 20kg ($)</label><input type="number" id="set-solidro-zero" data-key="solidro_zero_price" step="0.01"></div>
+              <div class="settings-row"><label>Solidro Top 10kg ($)</label><input type="number" id="set-solidro-top" data-key="solidro_top_price" step="0.01"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">MICROTOPPING SYSTEM</div>
+              <div class="settings-row"><label>MT-Zero 25kg ($)</label><input type="number" id="set-mt-zero" data-key="mt_zero_price" step="0.01"></div>
+              <div class="settings-row"><label>MT-W Finish 25kg ($)</label><input type="number" id="set-mt-w" data-key="mt_w_price" step="0.01"></div>
+              <div class="settings-row"><label>MT-POL Polymer 5L ($)</label><input type="number" id="set-mt-pol" data-key="mt_pol_price" step="0.01"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">COMMON MATERIALS</div>
+              <div class="settings-row"><label>Primer 5L ($)</label><input type="number" id="set-primer" data-key="primer_price" step="0.01"></div>
+              <div class="settings-row"><label>PU100 Sealer 5L ($)</label><input type="number" id="set-pu100" data-key="pu100_price" step="0.01"></div>
+              <div class="settings-row"><label>Micro Seal 5L ($)</label><input type="number" id="set-microseal" data-key="microseal_price" step="0.01"></div>
+              <div class="settings-row"><label>Mesh per m2 ($)</label><input type="number" id="set-mesh" data-key="mesh_price" step="0.01"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION D: QUOTE DEFAULTS -->
+      <div class="card">
+        <div class="card-header"><h2>SECTION D — QUOTE DEFAULTS</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-body">
+          <div class="settings-grid">
+            <div class="settings-group">
+              <div class="settings-group-title">PAYMENT &amp; CREDIT</div>
+              <div class="settings-row"><label>Credit limit ($)</label><input type="number" id="set-credit-limit" data-key="credit_limit" step="1000"></div>
+              <div class="settings-row"><label>Upfront discount (%)</label><input type="number" id="set-upfront-disc" data-key="upfront_discount_pct" step="1"></div>
+              <div class="settings-row"><label>Upfront discount cap ($)</label><input type="number" id="set-upfront-cap" data-key="upfront_discount_cap" step="100"></div>
+              <div class="settings-row"><label>On-site measure fee ($)</label><input type="number" id="set-measure-fee" data-key="measure_fee" step="10"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">OVERDUE &amp; VARIATIONS</div>
+              <div class="settings-row"><label>Overdue admin fee ($)</label><input type="number" id="set-overdue-fee" data-key="overdue_admin_fee" step="10"></div>
+              <div class="settings-row"><label>Overdue interest (%/week)</label><input type="number" id="set-overdue-int" data-key="overdue_interest_pct" step="0.5"></div>
+              <div class="settings-row"><label>Variation rate ($/hr)</label><input type="number" id="set-variation-rate" data-key="variation_rate" step="10"></div>
+              <div class="settings-row"><label>Variation min hours</label><input type="number" id="set-variation-min" data-key="variation_min_hrs" step="0.5"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SAVE / RESET -->
+      <div style="text-align:center;padding:24px 0;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+        <button onclick="saveAllSettings()" class="tb-btn" style="font-size:14px;padding:16px 40px;">SAVE ALL SETTINGS</button>
+        <button onclick="resetAllSettings()" class="tb-btn ghost" style="font-size:14px;padding:16px 40px;">RESET TO DEFAULTS</button>
+      </div>
+
+      <div class="callout callout-info" style="max-width:700px;margin:0 auto 24px;">
+        <strong>NOTE:</strong> All settings are saved to your browser's local storage. They persist across sessions on this device. Clearing browser data will reset to defaults. Changes take effect immediately on the Calculator and Quote tabs.
+      </div>
+
+    </div><!-- /settings-content -->
+  </div>
+</div><!-- /tab-settings -->
+
+
+<script src="settings.js"></script>
 <script src="calculator.js"></script>
 <script src="quote.js"></script>
 <script src="ai-agent.js"></script>
