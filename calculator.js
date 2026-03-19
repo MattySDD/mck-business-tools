@@ -44,29 +44,30 @@ function s(key) {
 function getProducts() {
   return {
     // SHARED / POOLED
-    primer_rr:    { name:'PRIMER-RR 5kg',              packCost: s('primer_rr_5kg') || 161.78,  packCoverage:100, unit:'5kg pack' },
-    wb_blocker:   { name:'WB Mesh Blocker 5kg',        packCost: s('wb_blocker_5kg') || 161.78, packCoverage:100, unit:'5kg pack' },
-    mesh:         { name:'Fibreglass Mesh 50sqm roll',  packCost: s('mesh_50sqm') || 120.00,    packCoverage:50,  unit:'50sqm roll' },
-    idealpu:      { name:'IDEALPU-WB-PRIMER 5kg',       packCost: s('idealpu_5kg') || 411.81,   packCoverage:100, unit:'5kg pack' },
-    pu100:        { name:'PU100 Sealer 20L',             packCost: s('pu100_20l') || 624.00,     packCoverage:100, unit:'20L pack' },
-    micro_seal:   { name:'Micro Seal 5.5L',              packCost: s('micro_seal_5_5l') || 198.00, packCoverage:30, unit:'5.5L pack' },
-    wp120:        { name:'Velosit WP120 20kg',           packCost: s('wp120_20kg') || 151.63,    packCoverage:20,  unit:'20kg pack' },
+    primer_rr:    { name:'PRIMER-RR 22.5kg',             packCost: s('primer_rr_5kg') || 161.78,  packCoverage:100, unit:'22.5kg pack' },
+    wb_blocker:   { name:'WB Mesh Blocker 10kg',         packCost: s('wb_blocker_5kg') || 161.78, packCoverage:200, unit:'10kg pack' },
+    mesh:         { name:'Fibreglass Mesh 50sqm roll',   packCost: s('mesh_50sqm') || 120.00,     packCoverage:50,  unit:'50sqm roll' },
+    idealpu:      { name:'IDEALPU-PRIMER Easy 5kg',       packCost: s('idealpu_5kg') || 411.81,    packCoverage:100, unit:'5kg pack' },
+    pu100:        { name:'PU100 Sealer 20L',              packCost: s('pu100_20l') || 624.00,      packCoverage:100, unit:'20L drum' },
+    micro_seal:   { name:'Micro Seal 5.5L',               packCost: s('micro_seal_5_5l') || 198.00, packCoverage:27.5, unit:'5.5L can' },
+    wp120:        { name:'Velosit WP120 20kg',            packCost: s('wp120_20kg') || 151.63,     packCoverage:20,  unit:'20kg pack' },
+    seal_r:       { name:'SEAL-R NEW 20L',                packCost: s('seal_r_20l') || 529.28,     packCoverage:100, unit:'20L can' },
 
     // SOLIDRO (spread rates from settings)
-    solidro_zero: { name:'Solidro Zero 20kg',  packCost: s('solidro_zero_20kg') || 745.80, packKg:20, sqmPerKg: s('solidro_zero_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
-    solidro_top:  { name:'Solidro Top 10kg',   packCost: s('solidro_top_10kg') || 627.00,  packKg:10, sqmPerKg: s('solidro_top_spread') || 2.5, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
+    solidro_zero: { name:'Solidro Zero 20kg',  packCost: s('solidro_zero_20kg') || 745.80, packKg:20, sqmPerKg: s('solidro_zero_spread') || 1.3, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
+    solidro_top:  { name:'Solidro Top 10kg',   packCost: s('solidro_top_10kg') || 627.00,  packKg:10, sqmPerKg: s('solidro_top_spread') || 3.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
 
     // MICRO CEMENT (spread rates from settings)
-    mt_zero:  { name:'MT-Zero Base Coat 25kg',     packCost: s('mt_zero_25kg') || 259.17,  packKg:25, sqmPerKg: s('mt_zero_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
-    mt_w:     { name:'MT-W Finish Coat 17.5kg',    packCost: s('mt_w_17_5kg') || 211.80,   packKg:17.5, sqmPerKg: s('mt_w_spread') || 2.2, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 17.5 * this.sqmPerKg; } },
-    mt_pol:   { name:'MT-POL Liquid Polymer 17L',   packCost: s('mt_pol_17l') || 586.67,    packCoverage:46.75, unit:'17L pack' },
+    mt_zero:  { name:'MT-Zero Base Coat 25kg',     packCost: s('mt_zero_25kg') || 259.17,  packKg:25, sqmPerKg: s('mt_zero_spread') || 1.3, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
+    mt_w:     { name:'MT-W Finish Coat 17L',       packCost: s('mt_w_17_5kg') || 211.80,   packKg:17, sqmPerKg: s('mt_w_spread') || 3.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 17 * this.sqmPerKg; } },
+    mt_pol:   { name:'MT-POL Liquid Polymer 17L',  packCost: s('mt_pol_17l') || 586.67,    packCoverage:46.75, unit:'17L pack' },
 
-    // RUSICO (spread rates from settings — default 1.0 sqm/kg for both)
-    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, sqmPerKg: s('rusico_base_spread') || 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
-    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, sqmPerKg: s('rusico_top_spread') || 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
+    // RUSICO (Hard-Neu Colour Hardener + Rasico Touch Finishing Powder)
+    rusico_base:  { name:'Hard-Neu Colour Hardener 25kg',       packCost: s('rusico_base_20kg') || 580.00,  packKg:25, sqmPerKg: s('rusico_base_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
+    rusico_top:   { name:'Rasico Touch Finishing Powder 25kg',  packCost: s('rusico_top_10kg') || 520.00,   packKg:25, sqmPerKg: s('rusico_top_spread') || 1.3, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
 
-    // IDEAL BINDER (Rusico system only)
-    ideal_binder: { name:'Ideal Binder 25L', packCost: s('ideal_binder_25l') || 761.68, packKg:25, sqmPerKg: 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
+    // IDEAL BINDER (Rusico system only — 4 bucket mixes per 25L can)
+    ideal_binder: { name:'Ideal Binder 25L', packCost: s('ideal_binder_25l') || 761.68, packCoverage: 4, unit:'25L can (4 mixes)' },
 
     // COLOUR PACK (all systems — 1 pack per 50 sqm)
     colour_pack:  { name:'Colour Pack', packCost: s('colour_pack_cost') || 85.00, packCoverage:50, unit:'pack (per 50sqm)' },
@@ -164,10 +165,12 @@ function getSystemRules(system, surfaceType, isPlasterboard, isLevelledFloor) {
     needsPrimerRR: false,
     needsWBBlocker: false,
     needsMesh: false,
-    needsPU100: true,     // All systems, all surfaces
+    needsPU100: false,      // Solidro + Micro Cement ONLY
+    needsSealR: false,      // Rusico ONLY
+    needsIdealPU: false,    // IDEALPU-PRIMER Easy — Rusico ONLY (before SEAL-R)
     needsMicroSeal: false,
     needsWP120: false,
-    needsPolymer: false,  // MT-POL for Micro Cement only
+    needsPolymer: false,    // MT-POL for Micro Cement only
   };
 
   if (system === 'microcement') {
@@ -181,6 +184,7 @@ function getSystemRules(system, surfaceType, isPlasterboard, isLevelledFloor) {
     rules.needsMicroSeal = isFloor || isWet;
     rules.needsWP120 = isWet;
     rules.needsPolymer = true;
+    rules.needsPU100 = true;  // PU100 on Micro Cement
   } else if (system === 'solidro') {
     // Same primer/mesh/sealer rules as Micro Cement
     rules.needsPrimerRR = !(isWall && isPlasterboard) && !(isFloor && isLevelledFloor);
@@ -188,13 +192,23 @@ function getSystemRules(system, surfaceType, isPlasterboard, isLevelledFloor) {
     rules.needsMesh = (isFloor || isWet) && !isLevelledFloor;
     rules.needsMicroSeal = isFloor || isWet;
     rules.needsWP120 = isWet;
+    rules.needsPU100 = true;  // PU100 on Solidro
   } else if (system === 'rusico') {
-    // External system: Primer-RR on all, mesh on all, Micro Seal on all, NO WB Blocker
-    rules.needsPrimerRR = true;
-    rules.needsWBBlocker = false;
-    rules.needsMesh = true;
-    rules.needsMicroSeal = true;
+    // RUSICO self-level floor (good substrate):
+    // WB Mesh Blocker 10kg — YES (no PRIMER-RR on good substrate self-level)
+    // Ideal Binder — YES (mixed into base + finish coats)
+    // Hard-Neu Colour Hardener (base) + Rasico Touch Finishing Powder (top)
+    // IDEALPU-PRIMER Easy — YES (applied before SEAL-R)
+    // SEAL-R NEW 20L — YES (Rusico ONLY, NOT PU100)
+    // NO PRIMER-RR on good substrate levelled floor, YES on all other Rusico surfaces
+    rules.needsPrimerRR = !(isFloor && isLevelledFloor);
+    rules.needsWBBlocker = true;   // WB Mesh Blocker on all Rusico
+    rules.needsMesh = !isLevelledFloor; // No mesh on good substrate self-level floor
+    rules.needsSealR = true;       // SEAL-R NEW on all Rusico (NOT PU100)
+    rules.needsIdealPU = true;     // IDEALPU-PRIMER Easy before SEAL-R on Rusico
+    rules.needsMicroSeal = false;  // No Micro Seal on Rusico
     rules.needsWP120 = false;
+    rules.needsPU100 = false;      // NEVER PU100 on Rusico
   }
 
   return rules;
@@ -427,6 +441,7 @@ function recalc() {
 
   // Aggregate pooled material sqm needs
   let primerRRSqm = 0, wbBlockerSqm = 0, meshSqm = 0, microSealSqm = 0, wp120Sqm = 0, polymerSqm = 0;
+  let pu100Sqm = 0, sealRSqm = 0, idealPUSqm = 0;
 
   const surfaceCalcs = lines.map(l => {
     const rules = getSystemRules(l.sys, l.type, l.plasterboard, l.levelled);
@@ -437,6 +452,9 @@ function recalc() {
     if (rules.needsMicroSeal) microSealSqm += l.sqm;
     if (rules.needsWP120) wp120Sqm += l.sqm;
     if (rules.needsPolymer) polymerSqm += l.sqm;
+    if (rules.needsPU100) pu100Sqm += l.sqm;
+    if (rules.needsSealR) sealRSqm += l.sqm;
+    if (rules.needsIdealPU) idealPUSqm += l.sqm;
 
     // Base coat: always 1 coat
     let baseProduct, topProduct;
@@ -469,16 +487,28 @@ function recalc() {
 
   // ── POOLED MATERIALS ──
   const primerRR = packsNeeded(primerRRSqm, 100);
-  const wbBlocker = packsNeeded(wbBlockerSqm, 100);
-  const pu100 = packsNeeded(totalSqm, 100);
-  const mseal = packsNeeded(microSealSqm, 30);
+  // WB Mesh Blocker 10kg covers 200 sqm per pack (20 sqm/kg × 10kg)
+  const wbBlocker = packsNeeded(wbBlockerSqm, 200);
+  // PU100: Solidro + Micro Cement ONLY (pu100Sqm tracks only those systems)
+  const pu100 = packsNeeded(pu100Sqm, 100);
+  // SEAL-R NEW: Rusico ONLY
+  const sealR = packsNeeded(sealRSqm, 100);
+  // IDEALPU-PRIMER Easy 5kg: Rusico ONLY (100 sqm per 5kg pack)
+  const idealPU = packsNeeded(idealPUSqm, 100);
+  const mseal = packsNeeded(microSealSqm, 27.5);
   const mesh = packsNeeded(meshSqm, 50);
   const wp120 = packsNeeded(wp120Sqm, 20);
   const mtPol = packsNeeded(polymerSqm, 46.75);
 
-  // IDEAL BINDER — Rusico system only, 1 per 25 sqm (1.0 sqm/kg, 25kg pack)
+  // IDEAL BINDER — Rusico system only
+  // 1 can per 4 bucket mixes (base coat + finish coat each use 1 mix per surface)
+  // For each Rusico surface: 1 mix for base + 1 mix for top = 2 mixes per surface
+  // packCoverage = 4 mixes per 25L can
   const rusicoSqm = lines.filter(l => l.sys === 'rusico').reduce((s,l) => s+l.sqm, 0);
-  const idealBinder = packsNeeded(rusicoSqm, PRODUCTS.ideal_binder.sqmPerPack);
+  const rusicoSurfaces = lines.filter(l => l.sys === 'rusico').length;
+  const totalRusicoMixes = rusicoSurfaces * 2; // 1 base mix + 1 top mix per surface
+  const idealBinderCans = rusicoSurfaces > 0 ? Math.ceil(totalRusicoMixes / 4) : 0;
+  const idealBinder = { packs: idealBinderCans, leftover: 0 };
 
   // COLOUR PACK — all systems, 1 pack per 50 sqm
   const colourPack = packsNeeded(totalSqm, 50);
@@ -487,6 +517,8 @@ function recalc() {
     (primerRR.packs * PRODUCTS.primer_rr.packCost) +
     (wbBlocker.packs * PRODUCTS.wb_blocker.packCost) +
     (pu100.packs * PRODUCTS.pu100.packCost) +
+    (sealR.packs * PRODUCTS.seal_r.packCost) +
+    (idealPU.packs * PRODUCTS.idealpu.packCost) +
     (mseal.packs * PRODUCTS.micro_seal.packCost) +
     (mesh.packs * PRODUCTS.mesh.packCost) +
     (wp120.packs * PRODUCTS.wp120.packCost) +
@@ -523,8 +555,8 @@ function recalc() {
 
   // ── MATERIAL TABLE (render FIRST to calculate adjusted material cost) ──
   renderMaterialTable('mat-table-wrap', {
-    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol, idealBinder, colourPack,
-    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm, rusicoSqm,
+    primerRR, wbBlocker, pu100, sealR, idealPU, mseal, mesh, wp120, mtPol, idealBinder, colourPack,
+    primerRRSqm, wbBlockerSqm, pu100Sqm, sealRSqm, idealPUSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm, rusicoSqm,
     surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
   });
 
@@ -753,14 +785,16 @@ function renderMaterialTable(wrapperId, d) {
   html += `<tr class="system-header-row"><td colspan="7" style="color:var(--gold);font-weight:700;padding:12px 10px;background:rgba(201,168,76,0.08);">POOLED MATERIALS</td></tr>`;
 
   const pooledRows = [
-    { p: PRODUCTS.primer_rr, key:'primer_rr', label:'PRIMER-RR', sqm: d.primerRRSqm, data: d.primerRR, desc:'Surfaces requiring primer' },
-    { p: PRODUCTS.wb_blocker, key:'wb_blocker', label:'WB Mesh Blocker', sqm: d.wbBlockerSqm, data: d.wbBlocker, desc:'Floors/Wet Areas/Plasterboard walls' },
+    { p: PRODUCTS.primer_rr, key:'primer_rr', label:'PRIMER-RR 22.5kg', sqm: d.primerRRSqm, data: d.primerRR, desc:'Surfaces requiring primer' },
+    { p: PRODUCTS.wb_blocker, key:'wb_blocker', label:'WB Mesh Blocker 10kg', sqm: d.wbBlockerSqm, data: d.wbBlocker, desc:'Floors/Wet Areas/Plasterboard walls' },
     { p: PRODUCTS.mesh, key:'mesh', label:'Fibreglass Mesh', sqm: d.meshSqm, data: d.mesh, desc:'Floors/Wet Areas/Benchtops (not levelled)' },
-    { p: PRODUCTS.pu100, key:'pu100', label:'PU100 Sealer', sqm: d.totalSqm, data: d.pu100, desc:'All surfaces' },
-    { p: PRODUCTS.micro_seal, key:'micro_seal', label:'Micro Seal', sqm: d.microSealSqm, data: d.mseal, desc:'Floors/Wet Areas/Benchtops/External' },
+    { p: PRODUCTS.pu100, key:'pu100', label:'PU100 Sealer 20L', sqm: d.pu100Sqm, data: d.pu100, desc:'Solidro + Micro Cement ONLY' },
+    { p: PRODUCTS.seal_r, key:'seal_r', label:'SEAL-R NEW 20L', sqm: d.sealRSqm, data: d.sealR, desc:'Rusico ONLY' },
+    { p: PRODUCTS.idealpu, key:'idealpu', label:'IDEALPU-PRIMER Easy 5kg', sqm: d.idealPUSqm, data: d.idealPU, desc:'Rusico ONLY (before SEAL-R)' },
+    { p: PRODUCTS.micro_seal, key:'micro_seal', label:'Micro Seal 5.5L', sqm: d.microSealSqm, data: d.mseal, desc:'Solidro + Micro Cement floors/wet areas' },
     { p: PRODUCTS.wp120, key:'wp120', label:'Velosit WP120', sqm: d.wp120Sqm, data: d.wp120, desc:'Wet areas only' },
-    { p: PRODUCTS.mt_pol, key:'mt_pol', label:'MT-POL Polymer', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
-    { p: PRODUCTS.ideal_binder, key:'ideal_binder', label:'Ideal Binder', sqm: d.rusicoSqm, data: d.idealBinder, desc:'Rusico system only' },
+    { p: PRODUCTS.mt_pol, key:'mt_pol', label:'MT-POL Polymer 17L', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
+    { p: PRODUCTS.ideal_binder, key:'ideal_binder', label:'Ideal Binder 25L', sqm: d.rusicoSqm, data: d.idealBinder, desc:'Rusico system only (4 mixes per 25L can)' },
     { p: PRODUCTS.colour_pack, key:'colour_pack', label:'Colour Pack', sqm: d.totalSqm, data: d.colourPack, desc:'All systems (1 per 50 sqm)' },
   ];
 

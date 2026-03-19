@@ -10,6 +10,9 @@
 </head>
 <body>
 
+<!-- ═══ SETTINGS DRIFT WARNING BANNER ═══ -->
+<div id="settings-drift-banner" style="display:none;background:#7a4a00;color:#ffd700;padding:10px 20px;font-size:13px;font-weight:600;text-align:center;border-bottom:2px solid #c9a84c;position:sticky;top:0;z-index:9999;"></div>
+
 <!-- ═══ TOP NAV BAR ═══ -->
 <nav class="topnav">
   <div class="nav-brand">MICRO CEMENT KING</div>
@@ -996,9 +999,10 @@
             </div>
             <div class="settings-group">
               <div class="settings-group-title">RUSICO SYSTEM</div>
-              <div class="settings-row"><label>Rusico Base Coat 20kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_20kg" step="0.01"></div>
-              <div class="settings-row"><label>Rusico Finish Coat 10kg ($)</label><input type="number" id="set-rusico-top" data-key="rusico_top_10kg" step="0.01"></div>
+              <div class="settings-row"><label>Hard-Neu Colour Hardener 25kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_20kg" step="0.01"></div>
+              <div class="settings-row"><label>Rasico Touch Finishing Powder 25kg ($)</label><input type="number" id="set-rusico-top" data-key="rusico_top_10kg" step="0.01"></div>
               <div class="settings-row"><label>Ideal Binder 25L ($)</label><input type="number" id="set-ideal-binder" data-key="ideal_binder_25l" step="0.01"></div>
+              <div class="settings-row"><label>SEAL-R NEW 20L ($) <span style="color:var(--gold);font-size:11px;">RUSICO ONLY</span></label><input type="number" id="set-seal-r" data-key="seal_r_20l" step="0.01"></div>
               <div class="settings-row"><label>Colour Pack ($)</label><input type="number" id="set-colour-pack" data-key="colour_pack_cost" step="0.01"></div>
             </div>
             <div class="settings-group">
@@ -1031,8 +1035,8 @@
             </div>
             <div class="settings-group">
               <div class="settings-group-title">RUSICO SYSTEM</div>
-              <div class="settings-row"><label>Rusico Base (sqm/kg)</label><input type="number" id="set-rusico-base-spread" data-key="rusico_base_spread" step="0.1" min="0.1"></div>
-              <div class="settings-row"><label>Rusico Top (sqm/kg)</label><input type="number" id="set-rusico-top-spread" data-key="rusico_top_spread" step="0.1" min="0.1"></div>
+              <div class="settings-row"><label>Hard-Neu Colour Hardener — Base (sqm/kg)</label><input type="number" id="set-rusico-base-spread" data-key="rusico_base_spread" step="0.01" min="0.1"></div>
+              <div class="settings-row"><label>Rasico Touch Finishing Powder — Top (sqm/kg)</label><input type="number" id="set-rusico-top-spread" data-key="rusico_top_spread" step="0.01" min="0.1"></div>
             </div>
           </div>
         </div>
@@ -1079,10 +1083,10 @@
 </div><!-- /tab-settings -->
 
 
-<script src="settings.js?v=6"></script>
-<script src="calculator.js?v=6"></script>
-<script src="quote.js?v=6"></script>
-<script src="ai-agent.js?v=6"></script>
+<script src="settings.js?v=8"></script>
+<script src="calculator.js?v=8"></script>
+<script src="quote.js?v=8"></script>
+<script src="ai-agent.js?v=8"></script>
 
 </body>
 </html>

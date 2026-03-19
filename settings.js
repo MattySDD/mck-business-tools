@@ -48,31 +48,33 @@ const MCK_DEFAULTS = {
   mt_w_17_5kg: 211.80,
   mt_pol_17l: 586.67,
 
-  // SECTION C — Material Costs: Rusico
-  rusico_base_20kg: 580.00,
-  rusico_top_10kg: 520.00,
+  // SECTION C — Material Costs: Rusico (Hard-Neu + Rasico Touch)
+  rusico_base_20kg: 580.00,  // Hard-Neu Colour Hardener 25kg
+  rusico_top_10kg: 520.00,   // Rasico Touch Finishing Powder 25kg
   ideal_binder_25l: 761.68,
+  seal_r_20l: 529.28,        // SEAL-R NEW 20L — Rusico ONLY
 
   // SECTION C — Material Costs: Colour Pack (all systems)
   colour_pack_cost: 85.00,
 
   // SECTION C — Material Costs: Shared/Pooled
-  primer_rr_5kg: 161.78,
-  wb_blocker_5kg: 161.78,
-  idealpu_5kg: 411.81,
-  pu100_20l: 624.00,
-  micro_seal_5_5l: 198.00,
+  primer_rr_5kg: 161.78,     // PRIMER-RR 22.5kg
+  wb_blocker_5kg: 161.78,    // WB Mesh Blocker 10kg
+  idealpu_5kg: 411.81,       // IDEALPU-PRIMER Easy 5kg
+  pu100_20l: 624.00,         // PU100 Sealer 20L drum
+  micro_seal_5_5l: 198.00,   // Micro Seal 5.5L can
   mesh_50sqm: 120.00,
   wp120_20kg: 151.63,
   consumables_flat: 100.00,
 
-  // SECTION C — Spread Rates (sqm per kg)
-  solidro_zero_spread: 1.1,
-  solidro_top_spread: 2.5,
-  mt_zero_spread: 1.1,
-  mt_w_spread: 2.2,
-  rusico_base_spread: 1.0,
-  rusico_top_spread: 1.0,
+  // SECTION C2 — Spread Rates (sqm per kg) — LOCKED DEFAULTS
+  // These are the correct production values. Only change via Settings page.
+  solidro_zero_spread: 1.3,   // LOCKED: 1.3 sqm/kg
+  solidro_top_spread: 3.0,    // LOCKED: 3.0 sqm/kg (NOT 30)
+  mt_zero_spread: 1.3,        // LOCKED: 1.3 sqm/kg
+  mt_w_spread: 3.0,           // LOCKED: 3.0 sqm/kg
+  rusico_base_spread: 1.1,    // LOCKED: 1.1 sqm/kg (Hard-Neu)
+  rusico_top_spread: 1.3,     // LOCKED: 1.3 sqm/kg (Rasico Touch)
 
   // SECTION D — Quote Defaults
   default_validity_hours: 48,
@@ -243,6 +245,7 @@ const SETTINGS_ID_MAP = {
   rusico_base_20kg: 'set-rusico-base',
   rusico_top_10kg: 'set-rusico-top',
   ideal_binder_25l: 'set-ideal-binder',
+  seal_r_20l: 'set-seal-r',
   colour_pack_cost: 'set-colour-pack',
   // Shared
   primer_rr_5kg: 'set-primer-rr',
@@ -324,6 +327,79 @@ function updateSettingsStatus(msg) {
   }
 }
 
+// ── PART 4: STOP-CHECK RULE ──────────────────────────────
+// Locked critical values that must NEVER silently drift.
+// The ONLY way to change these is via the Settings page with explicit user action.
+const MCK_LOCKED_CRITICAL = {
+  solidro_zero_spread: 1.3,
+  solidro_top_spread: 3.0,
+  mt_zero_spread: 1.3,
+  mt_w_spread: 3.0,
+  rusico_base_spread: 1.1,
+  rusico_top_spread: 1.3,
+  solidro_zero_20kg: 745.80,
+  solidro_top_10kg: 627.00,
+  mt_zero_25kg: 259.17,
+  mt_w_17_5kg: 211.80,
+  rusico_base_20kg: 580.00,
+  rusico_top_10kg: 520.00,
+  ideal_binder_25l: 761.68,
+  seal_r_20l: 529.28,
+  pu100_20l: 624.00,
+  primer_rr_5kg: 161.78,
+  wb_blocker_5kg: 161.78,
+  idealpu_5kg: 411.81,
+  micro_seal_5_5l: 198.00,
+};
+
+const MCK_SETTINGS_VERSION = 'v7-2026-03-19';
+
+function checkSettingsDrift() {
+  const stored = getMCKSettings();
+  const drifted = [];
+
+  Object.entries(MCK_LOCKED_CRITICAL).forEach(([key, lockedVal]) => {
+    const storedVal = stored[key];
+    if (storedVal === undefined || storedVal === null) return;
+    // Allow tolerance of 0.001 for floating point
+    if (Math.abs(Number(storedVal) - Number(lockedVal)) > 0.001) {
+      drifted.push({ key, storedVal, lockedVal });
+    }
+  });
+
+  const banner = document.getElementById('settings-drift-banner');
+  if (!banner) return;
+
+  if (drifted.length > 0) {
+    const driftList = drifted.map(d => `${d.key}: stored=${d.storedVal}, locked=${d.lockedVal}`).join(' | ');
+    banner.innerHTML = `<strong>⚠ SETTINGS MODIFIED FROM LOCKED VALUES</strong> — ${drifted.length} value(s) differ from defaults. Go to Settings to review. <span style="font-size:11px;opacity:0.7;">[${driftList}]</span>`;
+    banner.style.display = 'block';
+  } else {
+    banner.style.display = 'none';
+  }
+}
+
+// Force-merge any new keys from MCK_DEFAULTS into stored settings
+// (handles upgrades where new keys are added)
+function mergeNewDefaults() {
+  try {
+    const stored = localStorage.getItem(MCK_SETTINGS_KEY);
+    if (!stored) return; // First time — getMCKSettings() handles this
+    const parsed = JSON.parse(stored);
+    let changed = false;
+    // Add any keys that exist in MCK_DEFAULTS but NOT in stored settings
+    Object.keys(MCK_DEFAULTS).forEach(key => {
+      if (!(key in parsed)) {
+        parsed[key] = MCK_DEFAULTS[key];
+        changed = true;
+      }
+    });
+    if (changed) {
+      localStorage.setItem(MCK_SETTINGS_KEY, JSON.stringify(parsed));
+    }
+  } catch(e) {}
+}
+
 // ── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   const pwInput = document.getElementById('settings-password') || document.getElementById('settings-password-input');
@@ -332,4 +408,10 @@ document.addEventListener('DOMContentLoaded', () => {
       if (e.key === 'Enter') unlockSettings();
     });
   }
+
+  // Merge any new default keys (e.g. seal_r_20l added in this version)
+  mergeNewDefaults();
+
+  // Run drift check on every page load
+  checkSettingsDrift();
 });
