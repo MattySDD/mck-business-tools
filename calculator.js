@@ -496,18 +496,42 @@ function recalc() {
   const labourHrs = totalDays * 8;
   const labourCost = labourHrs * crewConfig.rate;
 
-  // ── TOTALS ──
-  const totalJobCost = totalMatCost + labourCost;
+  // ── VARIATIONS ──
+  const calcVars = getCalcVariations();
+  updateCalcVariationDisplay(calcVars);
+  const variationCost = calcVars.totalCost;
+  const variationRevenue = calcVars.totalRevenue;
+
+  // ── TOTALS (including variations) ──
+  const baseJobCost = totalMatCost + labourCost;
+  const totalJobCost = baseJobCost + variationCost;
 
   // ── MCK RECOMMENDED SELL PRICE ──
   const recSell = calculateRecommendedSellPrice(lines);
+
+  // ── VARIATION IMPACT DISPLAY ──
+  const varImpactEl = document.getElementById('calc-var-impact');
+  if (varImpactEl) {
+    if (variationCost > 0) {
+      const netVarMargin = variationRevenue - variationCost;
+      varImpactEl.innerHTML = `<div style="display:flex;flex-wrap:wrap;gap:16px;padding:10px 0;font-size:13px;">`
+        + `<span><strong style="color:var(--gold);">VARIATION COST:</strong> ${fmt(variationCost)}</span>`
+        + `<span><strong style="color:var(--green);">VARIATION REVENUE:</strong> ${fmt(variationRevenue)}</span>`
+        + `<span><strong style="color:#fff;">NET VARIATION MARGIN:</strong> ${fmt(netVarMargin)}</span>`
+        + `<span><strong style="color:#fff;">TOTAL JOB COST (incl. variations):</strong> <span style="color:var(--gold);font-size:15px;">${fmt(totalJobCost)}</span></span>`
+        + `</div>`;
+      varImpactEl.style.display = 'block';
+    } else {
+      varImpactEl.style.display = 'none';
+    }
+  }
 
   // ── UPDATE SUMMARY CARDS ──
   setText('r-mat-cost', fmt(totalMatCost));
   setText('r-mat-sub', getSystemLabel(lines) + ' system');
   setText('r-lab-cost', fmt(labourCost));
   setText('r-lab-sub', totalDays + ' days × 8hrs × ' + fmt(crewConfig.rate) + '/hr' + (totalDays === MIN_JOB_DAYS && adjustedDays < MIN_JOB_DAYS ? ' (MIN 4-DAY PROCESS)' : ''));
-  setText('r-job-cost', fmt(totalJobCost));
+  setText('r-job-cost', fmt(totalJobCost) + (variationCost > 0 ? ' (incl. ' + fmt(variationCost) + ' variations)' : ''));
   setText('r-sqm-cost', fmt(totalJobCost / totalSqm) + '/sqm cost price');
   setText('r-total-sqm', totalSqm.toFixed(1) + ' sqm');
 
@@ -541,10 +565,12 @@ function recalc() {
   const customDisplay = document.getElementById('custom-margin-display');
   if (customDisplay) {
     if (customSell > 0) {
-      const margin = ((customSell - totalJobCost) / customSell * 100);
+      const totalSellWithVar = customSell + variationRevenue;
+      const margin = ((totalSellWithVar - totalJobCost) / totalSellWithVar * 100);
       const cls = margin >= 40 ? 'var(--green)' : margin >= 35 ? 'var(--amber)' : 'var(--red)';
+      const varNote = variationCost > 0 ? ` &nbsp; <span style="font-size:12px;color:#aaa;">(incl. variation revenue ${fmt(variationRevenue)})</span>` : '';
       customDisplay.innerHTML =
-        `<span style="color:${cls};font-size:18px;">${margin.toFixed(1)}% margin</span> &nbsp; Profit: ${fmt(customSell - totalJobCost)} &nbsp; $/sqm sell: ${fmt(customSell/totalSqm)}`;
+        `<span style="color:${cls};font-size:18px;">${margin.toFixed(1)}% margin</span> &nbsp; Profit: ${fmt(totalSellWithVar - totalJobCost)} &nbsp; $/sqm sell: ${fmt(customSell/totalSqm)}${varNote}`;
     } else {
       customDisplay.textContent = 'Enter a sell price to see your actual margin';
       customDisplay.style.color = 'var(--grey-light)';
@@ -926,6 +952,82 @@ function renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalD
     </table>`;
 }
 
+// ═══════════════════════════════════════════════════════════
+// CALCULATOR VARIATIONS ENGINE
+// ═══════════════════════════════════════════════════════════
+
+let calcVarCount = 0;
+
+function addCalcVariation() {
+  calcVarCount++;
+  const id = calcVarCount;
+  const defaultRate = crewConfig ? crewConfig.rate : 120;
+  const defaultMatAllowance = 100;
+  const html = `
+  <tr id="calc-var-${id}">
+    <td><input type="text" class="cv-desc" placeholder="e.g. Extra prep — damaged substrate" value="" style="width:100%;background:#1a1a1a;color:#fff;border:1px solid #333;padding:6px 8px;font-size:12px;"></td>
+    <td><input type="number" class="cv-hrs" value="2" min="0" step="0.5" oninput="recalc()" style="width:60px;background:#1a1a1a;color:#fff;border:1px solid #333;padding:6px;text-align:center;font-size:12px;"></td>
+    <td><input type="number" class="cv-rate" value="${defaultRate}" min="0" step="5" oninput="recalc()" style="width:70px;background:#1a1a1a;color:#fff;border:1px solid #333;padding:6px;text-align:center;font-size:12px;"></td>
+    <td><input type="number" class="cv-mat" value="${defaultMatAllowance}" min="0" step="10" oninput="recalc()" style="width:70px;background:#1a1a1a;color:#fff;border:1px solid #333;padding:6px;text-align:center;font-size:12px;"></td>
+    <td class="cv-line-total right" style="font-weight:700;color:var(--gold);">$0.00</td>
+    <td class="cv-line-rev right" style="font-weight:700;color:var(--green);">$0.00</td>
+    <td><button onclick="removeCalcVariation(${id})" style="background:transparent;border:1px solid #555;color:#ff5555;cursor:pointer;padding:4px 8px;font-size:14px;border-radius:4px;">&times;</button></td>
+  </tr>`;
+  const body = document.getElementById('calc-variation-body');
+  if (body) body.insertAdjacentHTML('beforeend', html);
+  recalc();
+}
+
+function removeCalcVariation(id) {
+  const row = document.getElementById('calc-var-' + id);
+  if (row) row.remove();
+  recalc();
+}
+
+function getCalcVariations() {
+  const rows = document.querySelectorAll('#calc-variation-body tr');
+  let totalCost = 0;
+  let totalRevenue = 0;
+  const items = [];
+
+  rows.forEach(row => {
+    const desc = row.querySelector('.cv-desc')?.value || '';
+    const hrs = parseFloat(row.querySelector('.cv-hrs')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.cv-rate')?.value) || 0;
+    const mat = parseFloat(row.querySelector('.cv-mat')?.value) || 0;
+    const lineCost = (hrs * rate) + mat;
+    // Revenue: charge $400 per $300 cost (1.333x markup)
+    const lineRevenue = lineCost * (4/3);
+
+    const costEl = row.querySelector('.cv-line-total');
+    const revEl = row.querySelector('.cv-line-rev');
+    if (costEl) costEl.textContent = fmt(lineCost);
+    if (revEl) revEl.textContent = fmt(lineRevenue);
+
+    totalCost += lineCost;
+    totalRevenue += lineRevenue;
+    items.push({ desc, hrs, rate, mat, lineCost, lineRevenue });
+  });
+
+  return { totalCost, totalRevenue, items };
+}
+
+// updateCalcVariations is called from within recalc() to update the variation summary display
+function updateCalcVariationDisplay(v) {
+  const totalEl = document.getElementById('calc-var-total-cost');
+  const revEl = document.getElementById('calc-var-total-rev');
+  const marginEl = document.getElementById('calc-var-margin');
+
+  if (totalEl) totalEl.textContent = fmt(v.totalCost);
+  if (revEl) revEl.textContent = fmt(v.totalRevenue);
+  if (marginEl) {
+    const netMargin = v.totalRevenue - v.totalCost;
+    const marginPct = v.totalRevenue > 0 ? ((netMargin / v.totalRevenue) * 100).toFixed(1) : '0.0';
+    const cls = parseFloat(marginPct) >= 25 ? 'var(--green)' : 'var(--amber)';
+    marginEl.innerHTML = `<span style="color:${cls};font-weight:700;">${marginPct}% margin</span> &mdash; Net: ${fmt(netMargin)}`;
+  }
+}
+
 function clearResults() {
   ['r-mat-cost','r-lab-cost','r-job-cost','r-sqm-cost','r-mat-sub','r-lab-sub','r-total-sqm'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = '—';
@@ -934,6 +1036,9 @@ function clearResults() {
    'market-check-wrap','labour-wrap','rec-sell-wrap','mt-table-wrap','rusico-table-wrap'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '';
   });
+  // Reset variation impact
+  const varImpact = document.getElementById('calc-var-impact');
+  if (varImpact) varImpact.style.display = 'none';
   // Reset comparison cards
   ['cmp-sol-mat','cmp-sol-lab','cmp-sol-total','cmp-sol-40','cmp-sol-50',
    'cmp-mc-mat','cmp-mc-lab','cmp-mc-total','cmp-mc-40','cmp-mc-50',

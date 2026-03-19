@@ -671,6 +671,58 @@ body {
 #ai-input::placeholder { color:var(--grey-mid); }
 .ai-btn-row { display:flex; gap:10px; }
 
+/* ═══ CALCULATOR VARIATIONS ═══ */
+.calc-var-section {
+  background:var(--dark-card); border:1px solid var(--gold-dim); border-radius:8px;
+  padding:20px; margin-top:16px;
+}
+.calc-var-section h3 {
+  color:var(--gold); font-size:14px; font-weight:800; text-transform:uppercase;
+  letter-spacing:1.5px; margin:0 0 16px 0;
+}
+.calc-var-row {
+  display:grid; grid-template-columns:1fr 80px 100px 100px 90px 40px;
+  gap:8px; align-items:center; margin-bottom:8px;
+}
+.calc-var-row input {
+  background:var(--dark-bg); border:1px solid var(--border); color:var(--white);
+  padding:8px 10px; border-radius:4px; font-family:inherit; font-size:13px;
+}
+.calc-var-row input:focus { border-color:var(--gold); outline:none; }
+.calc-var-row .var-total {
+  color:var(--gold); font-weight:700; font-size:13px; text-align:right;
+}
+.calc-var-row .var-remove {
+  background:transparent; border:1px solid #ff4444; color:#ff4444;
+  width:32px; height:32px; border-radius:4px; cursor:pointer; font-size:16px;
+  display:flex; align-items:center; justify-content:center;
+}
+.calc-var-row .var-remove:hover { background:#ff4444; color:var(--white); }
+.calc-var-summary {
+  display:grid; grid-template-columns:1fr 1fr; gap:12px;
+  margin-top:12px; padding-top:12px; border-top:1px solid var(--border);
+}
+.calc-var-summary .var-stat {
+  display:flex; justify-content:space-between; padding:6px 10px;
+  background:var(--dark-bg); border-radius:4px;
+}
+.calc-var-summary .var-stat span:first-child { color:var(--grey-mid); font-size:12px; text-transform:uppercase; }
+.calc-var-summary .var-stat span:last-child { color:var(--gold); font-weight:700; }
+.add-var-btn {
+  background:transparent; border:1px solid var(--gold); color:var(--gold);
+  padding:8px 20px; font-family:inherit; font-size:12px; font-weight:700;
+  text-transform:uppercase; letter-spacing:1px; cursor:pointer; border-radius:4px;
+  margin-top:12px;
+}
+.add-var-btn:hover { background:var(--gold); color:var(--black); }
+@media (max-width:768px) {
+  .calc-var-row {
+    grid-template-columns:1fr 1fr;
+  }
+  .calc-var-row input:first-child { grid-column:1/-1; }
+  .calc-var-summary { grid-template-columns:1fr; }
+}
+
 /* ═══ VOICE INTAKE ═══ */
 .intake-start-btn {
   background:var(--gold); color:var(--black); border:none;
