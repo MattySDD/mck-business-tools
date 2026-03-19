@@ -52,16 +52,16 @@
         <div class="section-label">CREW SIZE</div>
         <div id="crew-grid" class="crew-grid">
           <div class="crew-option" onclick="selectCrew(this,'solo')" data-key="solo">
-            <div class="crew-label">PATTY ONLY</div>
-            <div class="crew-rate">$65/hr</div>
+            <div class="crew-label">SOLO — PATTY</div>
+            <div class="crew-rate">$65/hr | 15 sqm/day</div>
           </div>
-          <div class="crew-option active" onclick="selectCrew(this,'standard')" data-key="standard">
-            <div class="crew-label">PATTY + HAYDEN/MICKY</div>
-            <div class="crew-rate">$120/hr combined</div>
+          <div class="crew-option active" onclick="selectCrew(this,'dual')" data-key="dual">
+            <div class="crew-label">DUAL — PATTY + HAYDEN/MICKY</div>
+            <div class="crew-rate">$120/hr | 30 sqm/day</div>
           </div>
           <div class="crew-option" onclick="selectCrew(this,'full')" data-key="full">
-            <div class="crew-label">PATTY + HAYDEN/MICKY + LABOURER</div>
-            <div class="crew-rate">$155/hr combined</div>
+            <div class="crew-label">FULL — 3 MAN + LABOURER</div>
+            <div class="crew-rate">$155/hr | 40 sqm/day</div>
           </div>
         </div>
         <div style="height:16px;"></div>
@@ -75,6 +75,9 @@
             <div class="crew-label">COMPLEX PREP</div>
             <div class="crew-rate">+20% labour</div>
           </div>
+        </div>
+        <div class="callout callout-info" style="margin-top:14px;font-size:11px;">
+          <strong>MINIMUM 4-DAY PROCESS:</strong> Every job requires a minimum 4-day process regardless of area size (prep + base coat + top coat + seal). Labour is calculated on whichever is greater: the sqm-based duration or 4 days.
         </div>
       </div>
     </div>
@@ -90,10 +93,10 @@
 
       <!-- SUMMARY -->
       <div class="card">
-        <div class="card-header"><h2>JOB COST SUMMARY — SOLIDRO</h2><span class="badge">INTERNAL ONLY</span></div>
+        <div class="card-header"><h2 id="summary-system-title">JOB COST SUMMARY</h2><span class="badge">INTERNAL ONLY</span></div>
         <div class="card-body">
           <div class="results-grid">
-            <div class="stat-card"><div class="stat-label">TOTAL MATERIAL COST</div><div class="stat-value" id="r-mat-cost">—</div><div class="stat-sub" id="r-mat-sub">Solidro system (pooled materials)</div></div>
+            <div class="stat-card"><div class="stat-label">TOTAL MATERIAL COST</div><div class="stat-value" id="r-mat-cost">—</div><div class="stat-sub" id="r-mat-sub">Selected system (pooled materials)</div></div>
             <div class="stat-card"><div class="stat-label">TOTAL LABOUR COST</div><div class="stat-value" id="r-lab-cost">—</div><div class="stat-sub" id="r-lab-sub">—</div></div>
             <div class="stat-card" style="border-color:var(--gold);"><div class="stat-label">TOTAL JOB COST</div><div class="stat-value gold" id="r-job-cost">—</div><div class="stat-sub" id="r-sqm-cost">—</div></div>
             <div class="stat-card"><div class="stat-label">TOTAL SQM</div><div class="stat-value" id="r-total-sqm">—</div><div class="stat-sub">All surfaces combined</div></div>
@@ -103,7 +106,7 @@
 
       <!-- RECOMMENDED SELL PRICE -->
       <div class="card">
-        <div class="card-header"><h2>MCK RECOMMENDED SELL PRICE</h2><span class="badge">ALL SYSTEMS — EX GST</span></div>
+        <div class="card-header"><h2>MCK RECOMMENDED SELL PRICE</h2><span class="badge">TIERED PRICING — EX GST</span></div>
         <div class="card-body" id="rec-sell-wrap"></div>
       </div>
 
@@ -121,20 +124,26 @@
 
       <!-- MARGIN BANDS -->
       <div class="card">
-        <div class="card-header"><h2>MARGIN BANDS — SOLIDRO</h2></div>
+        <div class="card-header"><h2>MARGIN BANDS</h2></div>
         <div class="card-body" id="margin-bands-wrap"></div>
       </div>
 
       <!-- MATERIAL BREAKDOWN — SOLIDRO -->
-      <div class="card">
-        <div class="card-header"><h2>MATERIAL BREAKDOWN — SOLIDRO</h2><span class="badge">POOLED CORRECTLY</span></div>
+      <div class="card" id="mat-solidro-card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN — SOLIDRO</h2><span class="badge">POOLED</span></div>
         <div class="card-body" id="mat-table-wrap"></div>
       </div>
 
-      <!-- MATERIAL BREAKDOWN — MICROTOPPING -->
-      <div class="card">
-        <div class="card-header"><h2>MATERIAL BREAKDOWN — MICROTOPPING</h2><span class="badge">COMPARISON</span></div>
+      <!-- MATERIAL BREAKDOWN — MICRO CEMENT -->
+      <div class="card" id="mat-microcement-card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN — MICRO CEMENT</h2><span class="badge">COMPARISON</span></div>
         <div class="card-body" id="mt-table-wrap"></div>
+      </div>
+
+      <!-- MATERIAL BREAKDOWN — RUSICO -->
+      <div class="card" id="mat-rusico-card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN — RUSICO</h2><span class="badge">EXTERNAL / HEAVY DUTY</span></div>
+        <div class="card-body" id="rusico-table-wrap"></div>
       </div>
 
       <!-- SURFACE BREAKDOWN -->
@@ -149,26 +158,34 @@
         <div class="card-body" id="labour-wrap"></div>
       </div>
 
-      <!-- SOLIDRO vs MICROTOPPING COMPARISON -->
+      <!-- 3-WAY SYSTEM COMPARISON -->
       <div class="card">
-        <div class="card-header"><h2>SOLIDRO VS MICROTOPPING COMPARISON</h2></div>
+        <div class="card-header"><h2>SYSTEM COMPARISON</h2><span class="badge">SOLIDRO vs MICRO CEMENT vs RUSICO</span></div>
         <div class="card-body">
-          <div class="compare-grid">
+          <div class="compare-grid compare-grid-3">
             <div class="compare-card solidro">
-              <div class="compare-title">SYSTEM A — SOLIDRO</div>
+              <div class="compare-title">SOLIDRO</div>
               <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-sol-mat">—</span></div>
               <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-sol-lab">—</span></div>
               <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-sol-total">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 40% Margin</span><span class="cr-value" id="cmp-sol-40">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 45% Margin</span><span class="cr-value" id="cmp-sol-45">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-sol-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-sol-50">—</span></div>
             </div>
-            <div class="compare-card microtopping">
-              <div class="compare-title">SYSTEM B — MICROTOPPING</div>
-              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-mt-mat">—</span></div>
-              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-mt-lab">—</span></div>
-              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-mt-total">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 40% Margin</span><span class="cr-value" id="cmp-mt-40">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 45% Margin</span><span class="cr-value" id="cmp-mt-45">—</span></div>
+            <div class="compare-card microcement">
+              <div class="compare-title">MICRO CEMENT</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-mc-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-mc-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-mc-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-mc-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-mc-50">—</span></div>
+            </div>
+            <div class="compare-card rusico">
+              <div class="compare-title">RUSICO</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-ru-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-ru-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-ru-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-ru-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-ru-50">—</span></div>
             </div>
           </div>
         </div>
@@ -201,6 +218,7 @@
       <button onclick="generatePDFQuote()" class="tb-btn" style="font-size:14px;padding:16px 32px;">GENERATE PDF QUOTE</button>
       <button onclick="generateShareableLink()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;">&#128279; SHARE QUOTE LINK</button>
       <button onclick="shareQuoteWhatsApp()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
+      <button onclick="shareQuoteSMS()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#4A90D9;color:#4A90D9;">&#128241; SMS</button>
     </div>
 
     <!-- HEADER -->
@@ -300,6 +318,24 @@
         </div>
         <button class="add-line-btn" onclick="addQuoteLine()">+ ADD LINE ITEM</button>
 
+        <!-- VARIATIONS -->
+        <div class="callout callout-gold" style="margin-top:14px;">
+          <strong>VARIATIONS:</strong> Any additional work outside the above scope will be charged at the agreed variation rate. All variations must be approved in writing before work commences.
+        </div>
+
+        <div style="margin-top:12px;">
+          <div class="section-label" style="margin-bottom:8px;">VARIATION LINE ITEMS</div>
+          <table class="pricing-table" id="q-variations-table">
+            <colgroup><col style="width:42%"><col style="width:12%"><col style="width:12%"><col style="width:14%"><col style="width:16%"><col style="width:4%"></colgroup>
+            <thead><tr><th>VARIATION DESCRIPTION</th><th class="right">HRS</th><th class="right">LABOUR $/HR</th><th class="right">MATERIALS $</th><th class="right">TOTAL (EX GST)</th><th></th></tr></thead>
+            <tbody id="q-variations-body"></tbody>
+            <tfoot>
+              <tr class="subtotal-row"><td colspan="4">VARIATIONS SUBTOTAL (EX GST)</td><td class="right" id="q-variations-subtotal">&mdash;</td><td></td></tr>
+            </tfoot>
+          </table>
+          <button class="add-line-btn" onclick="addVariationLine()">+ ADD VARIATION</button>
+        </div>
+
         <!-- PAY-IN-FULL REDUCTION -->
         <div class="callout callout-gold" style="margin-top:14px;" id="q-upfront-callout">
           <strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>5% discount</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong id="q-upfront-price">—</strong>
@@ -313,34 +349,37 @@
       <!-- 04 INCLUSIONS / EXCLUSIONS -->
       <div class="section">
         <div class="section-hd"><div class="sec-num">04</div><h2>INCLUSIONS &amp; EXCLUSIONS</h2></div>
+        <div class="callout callout-info" style="margin-bottom:12px;font-size:11px;">
+          <strong>EDITABLE:</strong> Click on any inclusion or exclusion line below to edit the text. Changes are saved per quote.
+        </div>
         <div class="inc-exc">
           <div class="inc-col">
             <h4>INCLUSIONS</h4>
-            <ul class="ie-list" id="q-inclusions" contenteditable="true">
-              <li>All Ideal Works / Solidro microcement materials</li>
-              <li>Professional surface preparation</li>
-              <li>Base coat application (1 coat)</li>
-              <li>Finish coat application (2 coats)</li>
-              <li>Fibreglass mesh reinforcement (floors/wet areas/bench tops)</li>
-              <li>IDEALPU-WB-PRIMER sealer primer</li>
-              <li>PU100 polyurethane sealer</li>
-              <li>Micro Seal protective topcoat (floors/bench tops/wet areas)</li>
-              <li>Full clean-up and site protection</li>
-              <li>Workmanship warranty as per statutory requirements</li>
-              <li>Manufacturer product warranties passed through</li>
+            <ul class="ie-list" id="q-inclusions">
+              <li contenteditable="true">All microcement materials (Ideal Works / Solidro / supplier equivalent)</li>
+              <li contenteditable="true">Professional surface preparation</li>
+              <li contenteditable="true">PRIMER-RR application (where required per system rules)</li>
+              <li contenteditable="true">WB Mesh Blocker + fibreglass mesh reinforcement (floors/wet areas/benchtops)</li>
+              <li contenteditable="true">Base coat application (1 coat)</li>
+              <li contenteditable="true">Finish coat application (2 coats)</li>
+              <li contenteditable="true">PU100 polyurethane sealer (2 coats)</li>
+              <li contenteditable="true">Micro Seal protective topcoat (floors/benchtops/wet areas)</li>
+              <li contenteditable="true">Full clean-up and site protection</li>
+              <li contenteditable="true">Workmanship warranty as per statutory requirements</li>
+              <li contenteditable="true">Manufacturer product warranties passed through</li>
             </ul>
           </div>
           <div class="exc-col">
             <h4>EXCLUSIONS</h4>
-            <ul class="ie-list" id="q-exclusions" contenteditable="true">
-              <li>Structural repairs or substrate rectification</li>
-              <li>Waterproofing (unless specified in scope)</li>
-              <li>Plumbing, electrical, or other trade work</li>
-              <li>Furniture removal or storage</li>
-              <li>Floor levelling or grinding (unless specified)</li>
-              <li>Colour changes after application has commenced</li>
-              <li>Damage caused by other trades after completion</li>
-              <li>Ongoing maintenance products</li>
+            <ul class="ie-list" id="q-exclusions">
+              <li contenteditable="true">Structural repairs or substrate rectification</li>
+              <li contenteditable="true">Waterproofing (unless specified in scope)</li>
+              <li contenteditable="true">Plumbing, electrical, or other trade work</li>
+              <li contenteditable="true">Furniture removal or storage</li>
+              <li contenteditable="true">Floor levelling or grinding (unless specified)</li>
+              <li contenteditable="true">Colour changes after application has commenced</li>
+              <li contenteditable="true">Damage caused by other trades after completion</li>
+              <li contenteditable="true">Ongoing maintenance products</li>
             </ul>
           </div>
         </div>
@@ -372,7 +411,7 @@
           <div class="field"><div class="field-lbl">ESTIMATED COMPLETION</div><div class="field-val" contenteditable="true" id="q-completion">&nbsp;</div></div>
         </div>
         <div class="callout callout-info">
-          <strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Timeline assumes unobstructed site access, no other trades in the same area, and standard environmental conditions. Delays caused by other trades, wet weather, or restricted access will be communicated promptly.
+          <strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Minimum 4-day process on every job. Timeline assumes unobstructed site access, no other trades in the same area, and standard environmental conditions.
         </div>
       </div>
 
@@ -381,9 +420,9 @@
         <div class="section-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
         <div class="tc-grid">
           <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue. After expiry, pricing must be reconfirmed in writing.</div>
-          <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing before work commences. Rate: <strong>$150/hr (2-hour minimum)</strong>.</div>
+          <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing before work commences. Rate: <strong>$150/hr (2-hour minimum)</strong> plus materials at cost + 20%.</div>
           <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
-          <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
+          <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all products are passed through to the client in full.</div>
           <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
           <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $220 admin fee. Interest accrues at <strong>3% per week</strong> from Day 4. External recovery at Day 30.</div>
           <div class="tc-item"><div class="tc-head">Credit Limit</div>A maximum credit limit of <strong>$10,000</strong> applies. Progress claims will be issued when this threshold is exceeded.</div>
@@ -479,6 +518,7 @@
       <button onclick="generatePDFQuote()" class="tb-btn" style="font-size:14px;padding:16px 32px;">GENERATE PDF QUOTE</button>
       <button onclick="generateShareableLink()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;">&#128279; SHARE QUOTE LINK</button>
       <button onclick="shareQuoteWhatsApp()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
+      <button onclick="shareQuoteSMS()" class="tb-btn ghost" style="font-size:14px;padding:16px 32px;border-color:#4A90D9;color:#4A90D9;">&#128241; SMS</button>
     </div>
 
   </div><!-- /doc -->
@@ -488,6 +528,7 @@
     <button class="tb-btn" onclick="generatePDFQuote()">GENERATE PDF QUOTE</button>
     <button class="tb-btn ghost" onclick="generateShareableLink()">&#128279; SHARE LINK</button>
     <button class="tb-btn ghost" onclick="shareQuoteWhatsApp()" style="border-color:#25D366;color:#25D366;">&#128172; WHATSAPP</button>
+    <button class="tb-btn ghost" onclick="shareQuoteSMS()" style="border-color:#4A90D9;color:#4A90D9;">&#128241; SMS</button>
     <button class="tb-btn ghost" onclick="clearQuoteForm()">CLEAR FORM</button>
   </div>
 
@@ -819,28 +860,31 @@
     <!-- SETTINGS CONTENT (hidden until authenticated) -->
     <div id="settings-content" style="display:none;">
 
-      <!-- SECTION A: SELL PRICING -->
+      <!-- SECTION A: SELL PRICING — TIERED -->
       <div class="card">
-        <div class="card-header"><h2>SECTION A — MCK SELL PRICING (EX GST)</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-header"><h2>SECTION A — MCK SELL PRICING (EX GST)</h2><span class="badge">TIERED BANDS</span></div>
         <div class="card-body">
           <div class="settings-grid">
             <div class="settings-group">
               <div class="settings-group-title">FLOORS</div>
-              <div class="settings-row"><label>Over 60sqm ($/sqm)</label><input type="number" id="set-floor-over" data-key="floor_over_rate" step="1"></div>
-              <div class="settings-row"><label>Under 60sqm ($/sqm)</label><input type="number" id="set-floor-under" data-key="floor_under_rate" step="1"></div>
-              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-floor-min" data-key="floor_min" step="100"></div>
+              <div class="settings-row"><label>0–25 sqm ($/sqm)</label><input type="number" id="set-floor-band1" data-key="floor_band1_rate" step="1"></div>
+              <div class="settings-row"><label>25–70 sqm ($/sqm)</label><input type="number" id="set-floor-band2" data-key="floor_band2_rate" step="1"></div>
+              <div class="settings-row"><label>70–120+ sqm ($/sqm)</label><input type="number" id="set-floor-band3" data-key="floor_band3_rate" step="1"></div>
             </div>
             <div class="settings-group">
               <div class="settings-group-title">FEATURE WALLS</div>
-              <div class="settings-row"><label>Over 20sqm ($/sqm)</label><input type="number" id="set-wall-over" data-key="wall_over_rate" step="1"></div>
-              <div class="settings-row"><label>Under 20sqm ($/sqm)</label><input type="number" id="set-wall-under" data-key="wall_under_rate" step="1"></div>
               <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wall-min" data-key="wall_min" step="100"></div>
+              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wall-band1" data-key="wall_band1_rate" step="1"></div>
+              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wall-band2" data-key="wall_band2_rate" step="1"></div>
+              <div class="settings-row"><label>60+ sqm ($/sqm)</label><input type="number" id="set-wall-band3" data-key="wall_band3_rate" step="1"></div>
             </div>
             <div class="settings-group">
               <div class="settings-group-title">WET AREAS / BATHROOMS / BENCHTOPS</div>
-              <div class="settings-row"><label>Over 20sqm ($/sqm)</label><input type="number" id="set-wet-over" data-key="wet_over_rate" step="1"></div>
-              <div class="settings-row"><label>Under 20sqm ($/sqm)</label><input type="number" id="set-wet-under" data-key="wet_under_rate" step="1"></div>
               <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wet-min" data-key="wet_min" step="100"></div>
+              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wet-band1" data-key="wet_band1_rate" step="1"></div>
+              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wet-band2" data-key="wet_band2_rate" step="1"></div>
+              <div class="settings-row"><label>60–100 sqm ($/sqm)</label><input type="number" id="set-wet-band3" data-key="wet_band3_rate" step="1"></div>
+              <div class="settings-row"><label>100+ sqm ($/sqm)</label><input type="number" id="set-wet-band4" data-key="wet_band4_rate" step="1"></div>
             </div>
           </div>
         </div>
@@ -848,20 +892,27 @@
 
       <!-- SECTION B: LABOUR RATES -->
       <div class="card">
-        <div class="card-header"><h2>SECTION B — LABOUR RATES</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-header"><h2>SECTION B — LABOUR RATES</h2><span class="badge">INDIVIDUAL + CREW</span></div>
         <div class="card-body">
           <div class="settings-grid">
             <div class="settings-group">
-              <div class="settings-group-title">HOURLY RATES</div>
-              <div class="settings-row"><label>Solo applicator ($/hr)</label><input type="number" id="set-solo-rate" data-key="solo_rate" step="5"></div>
-              <div class="settings-row"><label>Standard crew ($/hr)</label><input type="number" id="set-standard-rate" data-key="standard_rate" step="5"></div>
-              <div class="settings-row"><label>Full crew ($/hr)</label><input type="number" id="set-full-rate" data-key="full_rate" step="5"></div>
+              <div class="settings-group-title">INDIVIDUAL RATES</div>
+              <div class="settings-row"><label>Patty ($/hr)</label><input type="number" id="set-patty-rate" data-key="patty_rate" step="5"></div>
+              <div class="settings-row"><label>Hayden / Micky ($/hr)</label><input type="number" id="set-hayden-rate" data-key="hayden_rate" step="5"></div>
+              <div class="settings-row"><label>Labourer ($/hr)</label><input type="number" id="set-labourer-rate" data-key="labourer_rate" step="5"></div>
             </div>
             <div class="settings-group">
-              <div class="settings-group-title">SQM PER DAY</div>
+              <div class="settings-group-title">CREW COMBINED RATES</div>
+              <div class="settings-row"><label>Solo — Patty ($/hr)</label><input type="number" id="set-solo-rate" data-key="solo_rate" step="5"></div>
+              <div class="settings-row"><label>Dual — Patty + Hayden/Micky ($/hr)</label><input type="number" id="set-dual-rate" data-key="dual_rate" step="5"></div>
+              <div class="settings-row"><label>Full — 3 man + labourer ($/hr)</label><input type="number" id="set-full-rate" data-key="full_rate" step="5"></div>
+            </div>
+            <div class="settings-group">
+              <div class="settings-group-title">PRODUCTIVITY (SQM/DAY)</div>
               <div class="settings-row"><label>Solo (sqm/day)</label><input type="number" id="set-solo-sqm" data-key="solo_sqm_day" step="1"></div>
-              <div class="settings-row"><label>Standard crew (sqm/day)</label><input type="number" id="set-standard-sqm" data-key="standard_sqm_day" step="1"></div>
+              <div class="settings-row"><label>Dual team (sqm/day)</label><input type="number" id="set-dual-sqm" data-key="dual_sqm_day" step="1"></div>
               <div class="settings-row"><label>Full crew (sqm/day)</label><input type="number" id="set-full-sqm" data-key="full_sqm_day" step="1"></div>
+              <div class="settings-row"><label>Minimum days per job</label><input type="number" id="set-min-days" data-key="min_days" step="1"></div>
             </div>
           </div>
         </div>
@@ -869,7 +920,7 @@
 
       <!-- SECTION C: MATERIAL COSTS -->
       <div class="card">
-        <div class="card-header"><h2>SECTION C — MATERIAL COSTS (EX GST)</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-header"><h2>SECTION C — MATERIAL COSTS (EX GST)</h2><span class="badge">ALL SYSTEMS</span></div>
         <div class="card-body">
           <div class="settings-grid">
             <div class="settings-group">
@@ -878,17 +929,24 @@
               <div class="settings-row"><label>Solidro Top 10kg ($)</label><input type="number" id="set-solidro-top" data-key="solidro_top_price" step="0.01"></div>
             </div>
             <div class="settings-group">
-              <div class="settings-group-title">MICROTOPPING SYSTEM</div>
+              <div class="settings-group-title">MICRO CEMENT SYSTEM</div>
               <div class="settings-row"><label>MT-Zero 25kg ($)</label><input type="number" id="set-mt-zero" data-key="mt_zero_price" step="0.01"></div>
               <div class="settings-row"><label>MT-W Finish 25kg ($)</label><input type="number" id="set-mt-w" data-key="mt_w_price" step="0.01"></div>
               <div class="settings-row"><label>MT-POL Polymer 5L ($)</label><input type="number" id="set-mt-pol" data-key="mt_pol_price" step="0.01"></div>
             </div>
             <div class="settings-group">
+              <div class="settings-group-title">RUSICO SYSTEM</div>
+              <div class="settings-row"><label>Rusico Base 20kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_price" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Finish 20kg ($)</label><input type="number" id="set-rusico-finish" data-key="rusico_finish_price" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Sealer 5L ($)</label><input type="number" id="set-rusico-sealer" data-key="rusico_sealer_price" step="0.01"></div>
+            </div>
+            <div class="settings-group">
               <div class="settings-group-title">COMMON MATERIALS</div>
-              <div class="settings-row"><label>Primer 5L ($)</label><input type="number" id="set-primer" data-key="primer_price" step="0.01"></div>
+              <div class="settings-row"><label>PRIMER-RR 5L ($)</label><input type="number" id="set-primer" data-key="primer_price" step="0.01"></div>
+              <div class="settings-row"><label>WB Mesh Blocker 5L ($)</label><input type="number" id="set-blocker" data-key="blocker_price" step="0.01"></div>
               <div class="settings-row"><label>PU100 Sealer 5L ($)</label><input type="number" id="set-pu100" data-key="pu100_price" step="0.01"></div>
               <div class="settings-row"><label>Micro Seal 5L ($)</label><input type="number" id="set-microseal" data-key="microseal_price" step="0.01"></div>
-              <div class="settings-row"><label>Mesh per m2 ($)</label><input type="number" id="set-mesh" data-key="mesh_price" step="0.01"></div>
+              <div class="settings-row"><label>Fibreglass Mesh per m2 ($)</label><input type="number" id="set-mesh" data-key="mesh_price" step="0.01"></div>
             </div>
           </div>
         </div>
@@ -910,8 +968,9 @@
               <div class="settings-group-title">OVERDUE &amp; VARIATIONS</div>
               <div class="settings-row"><label>Overdue admin fee ($)</label><input type="number" id="set-overdue-fee" data-key="overdue_admin_fee" step="10"></div>
               <div class="settings-row"><label>Overdue interest (%/week)</label><input type="number" id="set-overdue-int" data-key="overdue_interest_pct" step="0.5"></div>
-              <div class="settings-row"><label>Variation rate ($/hr)</label><input type="number" id="set-variation-rate" data-key="variation_rate" step="10"></div>
+              <div class="settings-row"><label>Variation labour rate ($/hr)</label><input type="number" id="set-variation-rate" data-key="variation_rate" step="10"></div>
               <div class="settings-row"><label>Variation min hours</label><input type="number" id="set-variation-min" data-key="variation_min_hrs" step="0.5"></div>
+              <div class="settings-row"><label>Variation material allowance ($)</label><input type="number" id="set-variation-mat" data-key="variation_material_allowance" step="50"></div>
             </div>
           </div>
         </div>

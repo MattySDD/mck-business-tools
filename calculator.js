@@ -1,6 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// MCK MARGIN CALCULATOR — CONFIRMED PRICING ENGINE
-// All prices ex GST. Source: sop_data_confirmed.md v2.0
+// MCK MARGIN CALCULATOR v3.0 — FULL BACKEND REBUILD
+// 3 Product Systems: Micro Cement, Solidro, Rusico
+// Tiered pricing, min 4-day process, new crew configs
 // ═══════════════════════════════════════════════════════════
 
 // ── TAB SWITCHING ──────────────────────────────────────────
@@ -16,7 +17,7 @@ function switchTab(tabId) {
     setTimeout(() => {
       const pairs = tabId === 'quote'
         ? [['q-sig-canvas','q-canvas-wrap'],['q-mck-sig-canvas','q-mck-canvas-wrap']]
-        : [['tc-sig-canvas','tc-canvas-wrap']];
+        : [['tc-sig-canvas','tc-canvas-wrap'],['tc-mck-sig-canvas','tc-mck-canvas-wrap']];
       pairs.forEach(([cId, wId]) => {
         const c = document.getElementById(cId);
         const w = document.getElementById(wId);
@@ -29,68 +30,165 @@ function switchTab(tabId) {
   }
 }
 
-// ── CONFIRMED PRODUCT DATA ─────────────────────────────────
-const PRODUCTS = {
-  // SHARED — POOLED ACROSS ENTIRE JOB
-  iw_blocker:   { name:'IW Blocker Grip Primer 5kg',  packCost:161.78, packCoverage:100, unit:'5kg pack' },
-  mesh:         { name:'Fibreglass Mesh 50sqm roll',   packCost:120.00, packCoverage:50,  unit:'50sqm roll' },
-  idealpu:      { name:'IDEALPU-WB-PRIMER 5kg',        packCost:411.81, packCoverage:100, unit:'5kg pack' },
-  pu100:        { name:'PU100 Sealer 20L',             packCost:624.00, packCoverage:100, unit:'20L pack' },
-  micro_seal:   { name:'Micro Seal 5.5L',              packCost:198.00, packCoverage:30,  unit:'5.5L pack' },
-  wp120:        { name:'Velosit WP120 20kg',           packCost:151.63, packCoverage:20,  unit:'20kg pack' },
+// ── HELPER: READ SETTING ──────────────────────────────────
+function s(key) {
+  return (typeof getSetting === 'function') ? getSetting(key) : null;
+}
 
-  // SOLIDRO — PER SURFACE
-  solidro_zero: { name:'Solidro Zero 20kg',  packCost:745.80, packKg:20, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:22 },
-  solidro_top:  { name:'Solidro Top 10kg',   packCost:627.00, packKg:10, kgPerSqm:1/2.5, sqmPerKg:2.5, sqmPerPack:25 },
-
-  // MICROTOPPING — PER SURFACE
-  mt_base:   { name:'MT-BC-W Base Coat 25kg',    packCost:259.17, packKg:25, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:27.5 },
-  mt_finish: { name:'MT-FC-W Finish Coat 17.5kg', packCost:211.80, packKg:17.5, kgPerSqm:1/2.2, sqmPerKg:2.2, sqmPerPack:38.5 },
-  mt_pol:    { name:'MT-POL Liquid Polymer 17L',   packCost:586.67, packCoverage:46.75, unit:'17L pack' },
-};
-
-const CONSUMABLES = 100.00; // flat per job
-
-// Surface types that need mesh
-const NEEDS_MESH = ['Floor','Wet Area','Bench Top'];
-// Surface types that need Micro Seal
-const NEEDS_MICRO_SEAL = ['Floor','Wet Area','Bench Top'];
-// Surface types that need WP120
-const NEEDS_WP120 = ['Wet Area'];
-
-// ── CREW CONFIGS (reads from Settings if available) ─────────
-function getCrewConfigs() {
-  const s = typeof getSetting === 'function' ? getSetting : (k => null);
+// ── PRODUCT DATA ──────────────────────────────────────────
+// All costs read from Settings (localStorage) with hardcoded fallbacks
+function getProducts() {
   return {
-    solo:     { rate: s('solo_rate') || 65,  label:'Patty Only', sqmPerDay: s('sqm_per_day_solo') || 15, workers:1 },
-    standard: { rate: s('standard_rate') || 120, label:'Patty + Hayden/Micky', sqmPerDay: s('sqm_per_day_standard') || 20, workers:2 },
-    full:     { rate: s('full_rate') || 155, label:'Patty + Hayden/Micky + Labourer', sqmPerDay: s('sqm_per_day_full') || 28, workers:3 },
+    // SHARED / POOLED
+    primer_rr:    { name:'PRIMER-RR 5kg',              packCost: s('primer_rr_5kg') || 161.78,  packCoverage:100, unit:'5kg pack' },
+    wb_blocker:   { name:'WB Mesh Blocker 5kg',        packCost: s('wb_blocker_5kg') || 161.78, packCoverage:100, unit:'5kg pack' },
+    mesh:         { name:'Fibreglass Mesh 50sqm roll',  packCost: s('mesh_50sqm') || 120.00,    packCoverage:50,  unit:'50sqm roll' },
+    idealpu:      { name:'IDEALPU-WB-PRIMER 5kg',       packCost: s('idealpu_5kg') || 411.81,   packCoverage:100, unit:'5kg pack' },
+    pu100:        { name:'PU100 Sealer 20L',             packCost: s('pu100_20l') || 624.00,     packCoverage:100, unit:'20L pack' },
+    micro_seal:   { name:'Micro Seal 5.5L',              packCost: s('micro_seal_5_5l') || 198.00, packCoverage:30, unit:'5.5L pack' },
+    wp120:        { name:'Velosit WP120 20kg',           packCost: s('wp120_20kg') || 151.63,    packCoverage:20,  unit:'20kg pack' },
+
+    // SOLIDRO
+    solidro_zero: { name:'Solidro Zero 20kg',  packCost: s('solidro_zero_20kg') || 745.80, packKg:20, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:22 },
+    solidro_top:  { name:'Solidro Top 10kg',   packCost: s('solidro_top_10kg') || 627.00,  packKg:10, kgPerSqm:1/2.5, sqmPerKg:2.5, sqmPerPack:25 },
+
+    // MICRO CEMENT (renamed from Microtopping)
+    mt_zero:  { name:'MT-Zero Base Coat 25kg',     packCost: s('mt_zero_25kg') || 259.17,  packKg:25, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:27.5 },
+    mt_w:     { name:'MT-W Finish Coat 17.5kg',    packCost: s('mt_w_17_5kg') || 211.80,   packKg:17.5, kgPerSqm:1/2.2, sqmPerKg:2.2, sqmPerPack:38.5 },
+    mt_pol:   { name:'MT-POL Liquid Polymer 17L',   packCost: s('mt_pol_17l') || 586.67,    packCoverage:46.75, unit:'17L pack' },
+
+    // RUSICO (External/Outdoor)
+    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:22 },
+    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, kgPerSqm:1/2.5, sqmPerKg:2.5, sqmPerPack:25 },
   };
 }
-const CREW_CONFIGS = getCrewConfigs();
 
-let crewConfig = CREW_CONFIGS.standard;
+const CONSUMABLES = 100.00;
+const MIN_JOB_DAYS = 4; // Minimum 4-day process on every job
+
+// ── CREW CONFIGS ──────────────────────────────────────────
+function getCrewConfigs() {
+  return {
+    solo:     { rate: s('solo_rate') || 65,  label:'Patty Only ($65/hr)', sqmPerDay: s('sqm_per_day_solo') || 15, workers:1 },
+    dual:     { rate: s('dual_rate') || 120, label:'Patty + Hayden/Micky ($120/hr)', sqmPerDay: s('sqm_per_day_dual') || 30, workers:2 },
+    full:     { rate: s('full_rate') || 155, label:'3-Man Crew + Labour ($155/hr)', sqmPerDay: s('sqm_per_day_full') || 40, workers:3 },
+  };
+}
+
+let crewConfig = getCrewConfigs().dual;
 let prepMultiplier = 1.0;
 
-// ── MARKET RANGES (Gold Coast) ─────────────────────────────
+// ── MARKET RANGES ─────────────────────────────────────────
 const MARKET_RANGES = {
   'Floor':        { min:200, max:400 },
   'Feature Wall': { min:280, max:500 },
   'Wet Area':     { min:350, max:600 },
   'Bench Top':    { min:300, max:500 },
+  'External':     { min:200, max:400 },
 };
 
-// ── MCK RECOMMENDED SELL PRICING (reads from Settings if available) ──
+// ── MCK TIERED SELL PRICING ───────────────────────────────
 function getMCKPricing() {
-  const s = typeof getSetting === 'function' ? getSetting : (k => null);
   return {
-    'Floor':        { overThreshold: s('floor_over_60_rate') || 100, underThreshold: s('floor_under_60_rate') || 160, thresholdSqm: 60, minCharge: s('floor_min_charge') || 7500 },
-    'Feature Wall': { overThreshold: s('wall_over_20_rate') || 120, underThreshold: s('wall_under_20_rate') || 180, thresholdSqm: 20, minCharge: s('wall_min_charge') || 5000 },
-    'Wet Area':     { overThreshold: s('wet_over_20_rate') || 160, underThreshold: s('wet_under_20_rate') || 300, thresholdSqm: 20, minCharge: s('wet_min_charge') || 7500 },
-    'Bench Top':    { overThreshold: s('wet_over_20_rate') || 160, underThreshold: s('wet_under_20_rate') || 300, thresholdSqm: 20, minCharge: s('wet_min_charge') || 7500 },
+    'Floor': {
+      minCharge: s('floor_min_charge') || 3000,
+      tiers: [
+        { maxSqm: 25,  rate: s('floor_0_25_rate') || 365 },
+        { maxSqm: 70,  rate: s('floor_25_70_rate') || 305 },
+        { maxSqm: 9999, rate: s('floor_70_plus_rate') || 250 },
+      ]
+    },
+    'Feature Wall': {
+      minCharge: s('wall_min_charge') || 3000,
+      tiers: [
+        { maxSqm: 30,  rate: s('wall_15_30_rate') || 300 },
+        { maxSqm: 60,  rate: s('wall_30_60_rate') || 260 },
+        { maxSqm: 9999, rate: s('wall_60_plus_rate') || 220 },
+      ]
+    },
+    'Wet Area': {
+      minCharge: s('wet_min_charge') || 7000,
+      tiers: [
+        { maxSqm: 30,  rate: s('wet_15_30_rate') || 460 },
+        { maxSqm: 60,  rate: s('wet_30_60_rate') || 360 },
+        { maxSqm: 100, rate: s('wet_60_100_rate') || 320 },
+        { maxSqm: 9999, rate: s('wet_100_plus_rate') || 280 },
+      ]
+    },
+    'Bench Top': {
+      minCharge: s('wet_min_charge') || 7000,
+      tiers: [
+        { maxSqm: 30,  rate: s('wet_15_30_rate') || 460 },
+        { maxSqm: 60,  rate: s('wet_30_60_rate') || 360 },
+        { maxSqm: 100, rate: s('wet_60_100_rate') || 320 },
+        { maxSqm: 9999, rate: s('wet_100_plus_rate') || 280 },
+      ]
+    },
+    'External': {
+      minCharge: s('floor_min_charge') || 3000,
+      tiers: [
+        { maxSqm: 25,  rate: s('floor_0_25_rate') || 365 },
+        { maxSqm: 70,  rate: s('floor_25_70_rate') || 305 },
+        { maxSqm: 9999, rate: s('floor_70_plus_rate') || 250 },
+      ]
+    },
   };
 }
-let MCK_PRICING = getMCKPricing();
+
+function getTieredRate(pricing, sqm) {
+  for (const tier of pricing.tiers) {
+    if (sqm <= tier.maxSqm) return tier.rate;
+  }
+  return pricing.tiers[pricing.tiers.length - 1].rate;
+}
+
+// ── SYSTEM-SPECIFIC MATERIAL RULES ────────────────────────
+// Returns which products apply for a given system + surface type + substrate
+function getSystemRules(system, surfaceType, isPlasterboard, isLevelledFloor) {
+  const isFloor = surfaceType === 'Floor';
+  const isWall = surfaceType === 'Feature Wall';
+  const isWet = surfaceType === 'Wet Area' || surfaceType === 'Bench Top';
+  const isExternal = surfaceType === 'External';
+
+  const rules = {
+    needsPrimerRR: false,
+    needsWBBlocker: false,
+    needsMesh: false,
+    needsPU100: true,     // All systems, all surfaces
+    needsMicroSeal: false,
+    needsWP120: false,
+    needsPolymer: false,  // MT-POL for Micro Cement only
+  };
+
+  if (system === 'microcement') {
+    // PRIMER-RR: all surfaces EXCEPT plasterboard feature walls AND self-level ready floors
+    rules.needsPrimerRR = !(isWall && isPlasterboard) && !(isFloor && isLevelledFloor);
+    // WB Mesh Blocker: floors, wet areas, benchtops (NOT feature walls on plasterboard — but blocker ONLY on plasterboard walls)
+    rules.needsWBBlocker = (isFloor || isWet) || (isWall && isPlasterboard);
+    // Fibreglass mesh: floors, wet areas, benchtops (NOT feature walls)
+    rules.needsMesh = (isFloor || isWet) && !isLevelledFloor;
+    // Micro Seal: floors, wet areas, benchtops (NOT feature walls)
+    rules.needsMicroSeal = isFloor || isWet;
+    rules.needsWP120 = isWet;
+    rules.needsPolymer = true;
+  } else if (system === 'solidro') {
+    // Same primer/mesh/sealer rules as Micro Cement
+    rules.needsPrimerRR = !(isWall && isPlasterboard) && !(isFloor && isLevelledFloor);
+    rules.needsWBBlocker = (isFloor || isWet) || (isWall && isPlasterboard);
+    rules.needsMesh = (isFloor || isWet) && !isLevelledFloor;
+    rules.needsMicroSeal = isFloor || isWet;
+    rules.needsWP120 = isWet;
+  } else if (system === 'rusico') {
+    // External system: Primer-RR on all, mesh on all, Micro Seal on all, NO WB Blocker
+    rules.needsPrimerRR = true;
+    rules.needsWBBlocker = false;
+    rules.needsMesh = true;
+    rules.needsMicroSeal = true;
+    rules.needsWP120 = false;
+  }
+
+  return rules;
+}
 
 // ── SURFACE LINE MANAGEMENT ────────────────────────────────
 let lineCount = 0;
@@ -118,15 +216,17 @@ function addSurfaceLine(defaultType, defaultSys) {
         <select id="type-${id}" onchange="onTypeChange(${id});recalc()">
           <option value="Floor" ${type==='Floor'?'selected':''}>Floor</option>
           <option value="Feature Wall" ${type==='Feature Wall'?'selected':''}>Feature Wall</option>
-          <option value="Wet Area" ${type==='Wet Area'?'selected':''}>Wet Area</option>
+          <option value="Wet Area" ${type==='Wet Area'?'selected':''}>Wet Area / Bathroom</option>
           <option value="Bench Top" ${type==='Bench Top'?'selected':''}>Bench Top</option>
+          <option value="External" ${type==='External'?'selected':''}>External / Outdoor</option>
         </select>
       </div>
       <div class="field-group">
         <label>SYSTEM</label>
-        <select id="sys-${id}" onchange="recalc()">
+        <select id="sys-${id}" onchange="onSystemChange(${id});recalc()">
           <option value="solidro" ${sys==='solidro'?'selected':''}>Solidro</option>
-          <option value="microtopping" ${sys==='microtopping'?'selected':''}>Microtopping</option>
+          <option value="microcement" ${sys==='microcement'?'selected':''}>Micro Cement</option>
+          <option value="rusico" ${sys==='rusico'?'selected':''}>Rusico (External)</option>
         </select>
       </div>
       <div class="field-group">
@@ -135,9 +235,15 @@ function addSurfaceLine(defaultType, defaultSys) {
       </div>
       <button class="remove-btn" onclick="removeSurfaceLine(${id})" title="Remove">&times;</button>
     </div>
-    <div class="toggle-wrap" id="levelled-wrap-${id}" style="opacity:${type==='Floor'?'1':'0.3'}">
-      <input type="checkbox" id="levelled-${id}" onchange="recalc()">
-      <label for="levelled-${id}">Levelled floor (good substrate — 1 base + 1 top, no mesh)</label>
+    <div class="surface-options" id="options-${id}">
+      <div class="toggle-wrap" id="levelled-wrap-${id}" style="display:${type==='Floor'?'flex':'none'}">
+        <input type="checkbox" id="levelled-${id}" onchange="recalc()">
+        <label for="levelled-${id}">Levelled floor (good substrate — 1 top coat, no mesh, no primer)</label>
+      </div>
+      <div class="toggle-wrap" id="plaster-wrap-${id}" style="display:${type==='Feature Wall'?'flex':'none'}">
+        <input type="checkbox" id="plaster-${id}" onchange="recalc()">
+        <label for="plaster-${id}">Plasterboard substrate (WB Blocker only — no primer, no mesh)</label>
+      </div>
     </div>
   </div>`;
 
@@ -148,10 +254,38 @@ function addSurfaceLine(defaultType, defaultSys) {
 
 function onTypeChange(id) {
   const type = document.getElementById('type-'+id)?.value;
-  const wrap = document.getElementById('levelled-wrap-'+id);
-  if (wrap) wrap.style.opacity = type === 'Floor' ? '1' : '0.3';
-  const cb = document.getElementById('levelled-'+id);
-  if (cb && type !== 'Floor') cb.checked = false;
+  const levWrap = document.getElementById('levelled-wrap-'+id);
+  const plasWrap = document.getElementById('plaster-wrap-'+id);
+  const sysSelect = document.getElementById('sys-'+id);
+
+  // Show/hide substrate options
+  if (levWrap) levWrap.style.display = type === 'Floor' ? 'flex' : 'none';
+  if (plasWrap) plasWrap.style.display = type === 'Feature Wall' ? 'flex' : 'none';
+
+  // Reset checkboxes when type changes
+  const levCb = document.getElementById('levelled-'+id);
+  const plasCb = document.getElementById('plaster-'+id);
+  if (levCb && type !== 'Floor') levCb.checked = false;
+  if (plasCb && type !== 'Feature Wall') plasCb.checked = false;
+
+  // Auto-select Rusico for External surfaces
+  if (type === 'External' && sysSelect) {
+    sysSelect.value = 'rusico';
+  }
+  // If switching away from External and system is Rusico, switch to Solidro
+  if (type !== 'External' && sysSelect && sysSelect.value === 'rusico') {
+    sysSelect.value = 'solidro';
+  }
+}
+
+function onSystemChange(id) {
+  const sys = document.getElementById('sys-'+id)?.value;
+  const typeSelect = document.getElementById('type-'+id);
+  // If Rusico selected, auto-set type to External
+  if (sys === 'rusico' && typeSelect && typeSelect.value !== 'External') {
+    typeSelect.value = 'External';
+    onTypeChange(id);
+  }
 }
 
 function removeSurfaceLine(id) {
@@ -163,14 +297,16 @@ function removeSurfaceLine(id) {
 
 function updateAddBtn() {
   const count = document.querySelectorAll('.surface-line').length;
-  document.getElementById('add-surface-btn').style.display = count >= 10 ? 'none' : 'block';
+  const btn = document.getElementById('add-surface-btn');
+  if (btn) btn.style.display = count >= 10 ? 'none' : 'block';
 }
 
 // ── CREW & PREP ────────────────────────────────────────────
 function selectCrew(el, key) {
   document.querySelectorAll('#crew-grid .crew-option').forEach(e => e.classList.remove('active'));
   el.classList.add('active');
-  crewConfig = CREW_CONFIGS[key];
+  const configs = getCrewConfigs();
+  crewConfig = configs[key];
   recalc();
 }
 
@@ -197,6 +333,7 @@ function packsNeeded(totalSqm, packCoverage) {
 // ── MCK RECOMMENDED SELL PRICE ENGINE ──────────────────────
 function calculateRecommendedSellPrice(lines) {
   if (!lines.length) return null;
+  const MCK_PRICING = getMCKPricing();
 
   const uniqueTypes = [...new Set(lines.map(l => l.type))];
   const isCombined = uniqueTypes.length > 1;
@@ -218,7 +355,7 @@ function calculateRecommendedSellPrice(lines) {
     if (!pricing) return;
 
     const sqm = data.sqm;
-    const rate = sqm >= pricing.thresholdSqm ? pricing.overThreshold : pricing.underThreshold;
+    const rate = getTieredRate(pricing, sqm);
     let linePrice = sqm * rate;
 
     // Apply minimum charge only if NOT combined
@@ -229,187 +366,371 @@ function calculateRecommendedSellPrice(lines) {
     }
 
     totalRecommended += linePrice;
+
+    // Determine tier label
+    let tierLabel = '';
+    for (const tier of pricing.tiers) {
+      if (sqm <= tier.maxSqm) {
+        tierLabel = sqm.toFixed(0) + ' sqm @ ' + fmt(tier.rate) + '/sqm';
+        break;
+      }
+    }
+
     breakdown.push({
-      type,
-      sqm,
-      rate,
-      linePrice,
+      type, sqm, rate, linePrice,
       minCharge: pricing.minCharge,
-      minApplied,
-      thresholdSqm: pricing.thresholdSqm,
-      overUnder: sqm >= pricing.thresholdSqm ? 'OVER' : 'UNDER'
+      minApplied, tierLabel
     });
   });
 
   return {
-    totalRecommended,
-    breakdown,
-    isCombined,
-    totalSqm,
+    totalRecommended, breakdown, isCombined, totalSqm,
     combinedNote: isCombined ? 'Combined areas — individual minimum charges eliminated. Only total job value matters.' : null
   };
 }
 
 // ── MAIN RECALC ────────────────────────────────────────────
 function recalc() {
+  const PRODUCTS = getProducts();
   const lines = [];
+
   document.querySelectorAll('.surface-line').forEach(el => {
-    const id = el.id.replace('surface-line-', '');
+    const id = el.id.replace('surface-line-','');
     const type = document.getElementById('type-'+id)?.value;
     const sys  = document.getElementById('sys-'+id)?.value;
     const sqm  = parseFloat(document.getElementById('sqm-'+id)?.value) || 0;
     const name = document.getElementById('name-'+id)?.value || ('Surface ' + id);
-    const lev  = document.getElementById('levelled-'+id)?.checked && type === 'Floor';
-    if (type && sqm > 0) lines.push({ id, name, type, sys, sqm, levelled: lev });
+    const levelled = document.getElementById('levelled-'+id)?.checked && type === 'Floor';
+    const plasterboard = document.getElementById('plaster-'+id)?.checked && type === 'Feature Wall';
+    if (type && sqm > 0) lines.push({ id, name, type, sys, sqm, levelled, plasterboard });
   });
 
   const hasLines = lines.length > 0;
-  document.getElementById('empty-state').style.display = hasLines ? 'none' : 'block';
-  document.getElementById('results-content').style.display = hasLines ? 'block' : 'none';
+  const emptyEl = document.getElementById('empty-state');
+  const resultsEl = document.getElementById('results-content');
+  if (emptyEl) emptyEl.style.display = hasLines ? 'none' : 'block';
+  if (resultsEl) resultsEl.style.display = hasLines ? 'block' : 'none';
   if (!hasLines) { clearResults(); return; }
 
-  // ── TOTAL SQM CALCULATIONS ──
+  // ── CALCULATE MATERIALS PER SURFACE ──
   const totalSqm = lines.reduce((s, l) => s + l.sqm, 0);
-  const meshSqm = lines.filter(l => NEEDS_MESH.includes(l.type) && !l.levelled).reduce((s, l) => s + l.sqm, 0);
-  const microSealSqm = lines.filter(l => NEEDS_MICRO_SEAL.includes(l.type)).reduce((s, l) => s + l.sqm, 0);
-  const wp120Sqm = lines.filter(l => NEEDS_WP120.includes(l.type)).reduce((s, l) => s + l.sqm, 0);
 
-  // ── POOLED MATERIALS (same for both systems) ──
-  const iwB     = packsNeeded(totalSqm, 100);
-  const idealpu = packsNeeded(totalSqm, 100);
-  const pu100   = packsNeeded(totalSqm, 100);
-  const mseal   = packsNeeded(microSealSqm, 30);
-  const mesh    = packsNeeded(meshSqm, 50);
-  const wp120   = packsNeeded(wp120Sqm, 20);
+  // Aggregate pooled material sqm needs
+  let primerRRSqm = 0, wbBlockerSqm = 0, meshSqm = 0, microSealSqm = 0, wp120Sqm = 0, polymerSqm = 0;
+
+  const surfaceCalcs = lines.map(l => {
+    const rules = getSystemRules(l.sys, l.type, l.plasterboard, l.levelled);
+
+    if (rules.needsPrimerRR) primerRRSqm += l.sqm;
+    if (rules.needsWBBlocker) wbBlockerSqm += l.sqm;
+    if (rules.needsMesh) meshSqm += l.sqm;
+    if (rules.needsMicroSeal) microSealSqm += l.sqm;
+    if (rules.needsWP120) wp120Sqm += l.sqm;
+    if (rules.needsPolymer) polymerSqm += l.sqm;
+
+    // Base coat: always 1 coat
+    let baseProduct, topProduct;
+    if (l.sys === 'solidro') {
+      baseProduct = PRODUCTS.solidro_zero;
+      topProduct = PRODUCTS.solidro_top;
+    } else if (l.sys === 'microcement') {
+      baseProduct = PRODUCTS.mt_zero;
+      topProduct = PRODUCTS.mt_w;
+    } else { // rusico
+      baseProduct = PRODUCTS.rusico_base;
+      topProduct = PRODUCTS.rusico_top;
+    }
+
+    const baseKg = l.sqm / baseProduct.sqmPerKg;
+    const topCoats = l.levelled ? 1 : 2;
+    const topKg = (l.sqm / topProduct.sqmPerKg) * topCoats;
+    const basePacks = Math.ceil(baseKg / baseProduct.packKg);
+    const topPacks = Math.ceil(topKg / topProduct.packKg);
+    const bCost = basePacks * baseProduct.packCost;
+    const tCost = topPacks * topProduct.packCost;
+
+    return {
+      ...l, rules, baseProduct, topProduct,
+      baseKg: baseKg.toFixed(2), topKg: topKg.toFixed(2),
+      basePacks, topPacks, bCost, tCost, topCoats,
+      lineCost: bCost + tCost
+    };
+  });
+
+  // ── POOLED MATERIALS ──
+  const primerRR = packsNeeded(primerRRSqm, 100);
+  const wbBlocker = packsNeeded(wbBlockerSqm, 100);
+  const pu100 = packsNeeded(totalSqm, 100);
+  const mseal = packsNeeded(microSealSqm, 30);
+  const mesh = packsNeeded(meshSqm, 50);
+  const wp120 = packsNeeded(wp120Sqm, 20);
+  const mtPol = packsNeeded(polymerSqm, 46.75);
 
   const pooledCost =
-    (iwB.packs * PRODUCTS.iw_blocker.packCost) +
-    (idealpu.packs * PRODUCTS.idealpu.packCost) +
+    (primerRR.packs * PRODUCTS.primer_rr.packCost) +
+    (wbBlocker.packs * PRODUCTS.wb_blocker.packCost) +
     (pu100.packs * PRODUCTS.pu100.packCost) +
     (mseal.packs * PRODUCTS.micro_seal.packCost) +
     (mesh.packs * PRODUCTS.mesh.packCost) +
     (wp120.packs * PRODUCTS.wp120.packCost) +
+    (mtPol.packs * PRODUCTS.mt_pol.packCost) +
     CONSUMABLES;
 
-  // ── SOLIDRO BASE/TOP COAT (per surface) ──
-  let solidroBaseCost = 0, solidroTopCost = 0;
-  const solidroLines = [];
-  lines.forEach(l => {
-    const baseKg = l.sqm / PRODUCTS.solidro_zero.sqmPerKg;
-    const topCoats = l.levelled ? 1 : 2;
-    const topKg = l.sqm / PRODUCTS.solidro_top.sqmPerKg * topCoats;
-    const basePacks = Math.ceil(baseKg / PRODUCTS.solidro_zero.packKg);
-    const topPacks  = Math.ceil(topKg / PRODUCTS.solidro_top.packKg);
-    const bCost = basePacks * PRODUCTS.solidro_zero.packCost;
-    const tCost = topPacks * PRODUCTS.solidro_top.packCost;
-    solidroBaseCost += bCost;
-    solidroTopCost += tCost;
-    solidroLines.push({ ...l, basePacks, topPacks, bCost, tCost, topCoats,
-      baseKg: baseKg.toFixed(2), topKg: topKg.toFixed(2) });
-  });
-  const solidroMatCost = solidroBaseCost + solidroTopCost + pooledCost;
-
-  // ── MICROTOPPING BASE/TOP COAT + POLYMER (per surface) ──
-  let mtBaseCost = 0, mtTopCost = 0, mtPolCost = 0;
-  const mtLines = [];
-  lines.forEach(l => {
-    const baseKg = l.sqm / PRODUCTS.mt_base.sqmPerKg;
-    const topCoats = l.levelled ? 1 : 2;
-    const topKg = l.sqm / PRODUCTS.mt_finish.sqmPerKg * topCoats;
-    const basePacks = Math.ceil(baseKg / PRODUCTS.mt_base.packKg);
-    const topPacks  = Math.ceil(topKg / PRODUCTS.mt_finish.packKg);
-    const bCost = basePacks * PRODUCTS.mt_base.packCost;
-    const tCost = topPacks * PRODUCTS.mt_finish.packCost;
-    mtBaseCost += bCost;
-    mtTopCost += tCost;
-    mtLines.push({ ...l, basePacks, topPacks, bCost, tCost, topCoats,
-      baseKg: baseKg.toFixed(2), topKg: topKg.toFixed(2) });
-  });
-  const mtPolPacks = packsNeeded(totalSqm, 46.75);
-  mtPolCost = mtPolPacks.packs * PRODUCTS.mt_pol.packCost;
-  const mtMatCost = mtBaseCost + mtTopCost + mtPolCost + pooledCost;
+  // ── SURFACE COAT COSTS ──
+  const totalCoatCost = surfaceCalcs.reduce((s, l) => s + l.lineCost, 0);
+  const totalMatCost = totalCoatCost + pooledCost;
 
   // ── LABOUR ──
-  const floorSqm = lines.filter(l => l.type === 'Floor').reduce((s,l) => s+l.sqm, 0);
-  const nonFloorSqm = lines.filter(l => l.type !== 'Floor').reduce((s,l) => s+l.sqm, 0);
+  const configs = getCrewConfigs();
+  crewConfig = configs[document.querySelector('#crew-grid .crew-option.active')?.dataset?.crew || 'dual'] || crewConfig;
+
+  const floorSqm = lines.filter(l => l.type === 'Floor' || l.type === 'External').reduce((s,l) => s+l.sqm, 0);
+  const nonFloorSqm = lines.filter(l => l.type !== 'Floor' && l.type !== 'External').reduce((s,l) => s+l.sqm, 0);
   const floorDays = floorSqm > 0 ? Math.ceil(floorSqm / crewConfig.sqmPerDay) : 0;
   const wallDays = nonFloorSqm > 0 ? Math.ceil(nonFloorSqm / (crewConfig.sqmPerDay * 1.25)) : 0;
   const prepDays = totalSqm > 0 ? Math.ceil(totalSqm / 80) : 0;
   const sealerDays = totalSqm > 0 ? Math.ceil(totalSqm / 100) : 0;
   const rawDays = prepDays + floorDays + wallDays + sealerDays;
-  const totalDays = Math.ceil(rawDays * prepMultiplier);
+  const adjustedDays = Math.ceil(rawDays * prepMultiplier);
+  const totalDays = Math.max(adjustedDays, MIN_JOB_DAYS); // MINIMUM 4-DAY PROCESS
   const labourHrs = totalDays * 8;
   const labourCost = labourHrs * crewConfig.rate;
 
   // ── TOTALS ──
-  const solidroTotal = solidroMatCost + labourCost;
-  const mtTotal = mtMatCost + labourCost;
+  const totalJobCost = totalMatCost + labourCost;
 
   // ── MCK RECOMMENDED SELL PRICE ──
-  MCK_PRICING = getMCKPricing(); // Refresh from settings
   const recSell = calculateRecommendedSellPrice(lines);
 
-  // ── UPDATE SUMMARY ──
-  document.getElementById('r-mat-cost').textContent = fmt(solidroMatCost);
-  document.getElementById('r-mat-sub').textContent = 'Solidro system (pooled materials)';
-  document.getElementById('r-lab-cost').textContent = fmt(labourCost);
-  document.getElementById('r-lab-sub').textContent = totalDays + ' working days × 8hrs × ' + fmt(crewConfig.rate) + '/hr';
-  document.getElementById('r-job-cost').textContent = fmt(solidroTotal);
-  document.getElementById('r-sqm-cost').textContent = fmt(solidroTotal / totalSqm) + '/sqm cost price';
-  document.getElementById('r-total-sqm').textContent = totalSqm.toFixed(1) + ' sqm';
+  // ── UPDATE SUMMARY CARDS ──
+  setText('r-mat-cost', fmt(totalMatCost));
+  setText('r-mat-sub', getSystemLabel(lines) + ' system');
+  setText('r-lab-cost', fmt(labourCost));
+  setText('r-lab-sub', totalDays + ' days × 8hrs × ' + fmt(crewConfig.rate) + '/hr' + (totalDays === MIN_JOB_DAYS && adjustedDays < MIN_JOB_DAYS ? ' (MIN 4-DAY PROCESS)' : ''));
+  setText('r-job-cost', fmt(totalJobCost));
+  setText('r-sqm-cost', fmt(totalJobCost / totalSqm) + '/sqm cost price');
+  setText('r-total-sqm', totalSqm.toFixed(1) + ' sqm');
 
-  // ── COMPARISON ──
-  document.getElementById('cmp-sol-mat').textContent = fmt(solidroMatCost);
-  document.getElementById('cmp-sol-lab').textContent = fmt(labourCost);
-  document.getElementById('cmp-sol-total').textContent = fmt(solidroTotal);
-  document.getElementById('cmp-sol-40').textContent = fmt(solidroTotal / 0.60);
-  document.getElementById('cmp-sol-45').textContent = fmt(solidroTotal / 0.55);
-  document.getElementById('cmp-mt-mat').textContent = fmt(mtMatCost);
-  document.getElementById('cmp-mt-lab').textContent = fmt(labourCost);
-  document.getElementById('cmp-mt-total').textContent = fmt(mtTotal);
-  document.getElementById('cmp-mt-40').textContent = fmt(mtTotal / 0.60);
-  document.getElementById('cmp-mt-45').textContent = fmt(mtTotal / 0.55);
+  // ── SYSTEM COMPARISON TABLE ──
+  renderSystemComparison(surfaceCalcs, pooledCost, labourCost, totalSqm);
 
-  // ── MATERIAL TABLE (Solidro) ──
+  // ── MATERIAL TABLE ──
   renderMaterialTable('mat-table-wrap', {
-    iwB, idealpu, pu100, mseal, mesh, wp120, microSealSqm, meshSqm, wp120Sqm, totalSqm,
-    surfaceLines: solidroLines, baseCost: solidroBaseCost, topCost: solidroTopCost,
-    pooledCost, totalMatCost: solidroMatCost
-  }, 'solidro');
-
-  // ── MATERIAL TABLE (Microtopping) ──
-  renderMaterialTable('mt-table-wrap', {
-    iwB, idealpu, pu100, mseal, mesh, wp120, microSealSqm, meshSqm, wp120Sqm, totalSqm,
-    surfaceLines: mtLines, baseCost: mtBaseCost, topCost: mtTopCost,
-    pooledCost, totalMatCost: mtMatCost, mtPolPacks, mtPolCost
-  }, 'microtopping');
+    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol,
+    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm,
+    surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
+  });
 
   // ── SURFACE BREAKDOWN ──
-  renderSurfaceBreakdown(solidroLines);
+  renderSurfaceBreakdown(surfaceCalcs);
 
   // ── RECOMMENDED SELL PRICE ──
-  renderRecommendedSellPrice(recSell, solidroTotal, totalSqm);
+  renderRecommendedSellPrice(recSell, totalJobCost, totalSqm);
 
   // ── MARGIN BANDS ──
-  renderMarginBands(solidroTotal, totalSqm);
+  renderMarginBands(totalJobCost, totalSqm);
 
   // ── MARKET SANITY ──
-  renderMarketCheck(solidroTotal, lines);
+  renderMarketCheck(totalJobCost, lines);
 
   // ── LABOUR BREAKDOWN ──
-  renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalDays, labourHrs, labourCost);
+  renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalDays, adjustedDays, labourHrs, labourCost);
 
   // ── CUSTOM SELL PRICE ──
-  const customSell = parseFloat(document.getElementById('custom-sell').value) || 0;
-  if (customSell > 0) {
-    const margin = ((customSell - solidroTotal) / customSell * 100);
-    const cls = margin >= 40 ? 'var(--green)' : margin >= 35 ? 'var(--amber)' : 'var(--red)';
-    document.getElementById('custom-margin-display').innerHTML =
-      `<span style="color:${cls};font-size:18px;">${margin.toFixed(1)}% margin</span> &nbsp; Profit: ${fmt(customSell - solidroTotal)} &nbsp; $/sqm sell: ${fmt(customSell/totalSqm)}`;
-  } else {
-    document.getElementById('custom-margin-display').textContent = 'Enter a sell price to see your actual margin';
-    document.getElementById('custom-margin-display').style.color = 'var(--grey-light)';
+  const customSell = parseFloat(document.getElementById('custom-sell')?.value) || 0;
+  const customDisplay = document.getElementById('custom-margin-display');
+  if (customDisplay) {
+    if (customSell > 0) {
+      const margin = ((customSell - totalJobCost) / customSell * 100);
+      const cls = margin >= 40 ? 'var(--green)' : margin >= 35 ? 'var(--amber)' : 'var(--red)';
+      customDisplay.innerHTML =
+        `<span style="color:${cls};font-size:18px;">${margin.toFixed(1)}% margin</span> &nbsp; Profit: ${fmt(customSell - totalJobCost)} &nbsp; $/sqm sell: ${fmt(customSell/totalSqm)}`;
+    } else {
+      customDisplay.textContent = 'Enter a sell price to see your actual margin';
+      customDisplay.style.color = 'var(--grey-light)';
+    }
   }
+}
+
+// ── HELPER: SET TEXT ──────────────────────────────────────
+function setText(id, text) {
+  const el = document.getElementById(id);
+  if (el) el.textContent = text;
+}
+
+function getSystemLabel(lines) {
+  const systems = [...new Set(lines.map(l => l.sys))];
+  const labels = { solidro: 'Solidro', microcement: 'Micro Cement', rusico: 'Rusico' };
+  return systems.map(s => labels[s] || s).join(' + ');
+}
+
+// ── RENDER SYSTEM COMPARISON ──────────────────────────────
+function renderSystemComparison(surfaceCalcs, pooledCost, labourCost, totalSqm) {
+  const PRODUCTS = getProducts();
+  const systems = ['solidro', 'microcement', 'rusico'];
+  const prefixes = { solidro: 'cmp-sol', microcement: 'cmp-mc', rusico: 'cmp-ru' };
+
+  const sysCosts = {};
+  systems.forEach(sys => {
+    let coatCost = 0;
+    surfaceCalcs.forEach(l => {
+      let bp, tp;
+      if (sys === 'solidro') { bp = PRODUCTS.solidro_zero; tp = PRODUCTS.solidro_top; }
+      else if (sys === 'microcement') { bp = PRODUCTS.mt_zero; tp = PRODUCTS.mt_w; }
+      else { bp = PRODUCTS.rusico_base; tp = PRODUCTS.rusico_top; }
+      const bKg = l.sqm / bp.sqmPerKg;
+      const tKg = (l.sqm / tp.sqmPerKg) * l.topCoats;
+      coatCost += Math.ceil(bKg / bp.packKg) * bp.packCost;
+      coatCost += Math.ceil(tKg / tp.packKg) * tp.packCost;
+    });
+    const matTotal = coatCost + pooledCost;
+    const jobTotal = matTotal + labourCost;
+    sysCosts[sys] = { matTotal, jobTotal };
+  });
+
+  systems.forEach(sys => {
+    const p = prefixes[sys];
+    const el = (id) => document.getElementById(id);
+    const c = sysCosts[sys];
+    if (el(p+'-mat')) el(p+'-mat').textContent = fmt(c.matTotal);
+    if (el(p+'-lab')) el(p+'-lab').textContent = fmt(labourCost);
+    if (el(p+'-total')) el(p+'-total').textContent = fmt(c.jobTotal);
+    if (el(p+'-40')) el(p+'-40').textContent = fmt(c.jobTotal / 0.60);
+    if (el(p+'-50')) el(p+'-50').textContent = fmt(c.jobTotal / 0.50);
+  });
+}
+
+// ── RENDER MATERIAL TABLE ──────────────────────────────────
+function renderMaterialTable(wrapperId, d) {
+  const PRODUCTS = getProducts();
+
+  let html = `<table class="mat-table">
+    <thead><tr>
+      <th>PRODUCT</th><th>APPLIES TO</th><th class="right">PACKS</th>
+      <th class="right">LEFTOVER</th><th class="right">UNIT COST</th><th class="right">LINE COST</th>
+    </tr></thead><tbody>`;
+
+  // SURFACE COATS (grouped by system)
+  const sysSurfaces = {};
+  d.surfaceCalcs.forEach(l => {
+    if (!sysSurfaces[l.sys]) sysSurfaces[l.sys] = [];
+    sysSurfaces[l.sys].push(l);
+  });
+
+  Object.entries(sysSurfaces).forEach(([sys, surfaces]) => {
+    const sysLabel = { solidro:'SOLIDRO', microcement:'MICRO CEMENT', rusico:'RUSICO' }[sys];
+    html += `<tr class="system-header-row"><td colspan="6" style="color:var(--gold);font-weight:700;text-transform:uppercase;padding:12px 10px;background:rgba(201,168,76,0.08);">${sysLabel} SYSTEM</td></tr>`;
+
+    // Base coat
+    let totalBasePacks = 0, totalBaseKg = 0;
+    surfaces.forEach(l => { totalBasePacks += l.basePacks; totalBaseKg += parseFloat(l.baseKg); });
+    const bp = surfaces[0].baseProduct;
+    const baseLeftoverKg = (totalBasePacks * bp.packKg) - totalBaseKg;
+    const baseLeftoverSqm = baseLeftoverKg * bp.sqmPerKg;
+    html += `<tr>
+      <td>${bp.name}</td>
+      <td>Base coat — ${surfaces.map(l=>l.name).join(', ')} (1 coat)</td>
+      <td class="right">${totalBasePacks}</td>
+      <td class="right">${baseLeftoverSqm.toFixed(1)} sqm</td>
+      <td class="right">${fmt(bp.packCost)}</td>
+      <td class="right">${fmt(totalBasePacks * bp.packCost)}</td>
+    </tr>`;
+
+    // Top coat
+    let totalTopPacks = 0, totalTopKg = 0;
+    surfaces.forEach(l => { totalTopPacks += l.topPacks; totalTopKg += parseFloat(l.topKg); });
+    const tp = surfaces[0].topProduct;
+    const topLeftoverKg = (totalTopPacks * tp.packKg) - totalTopKg;
+    const topLeftoverSqm = topLeftoverKg * tp.sqmPerKg;
+    html += `<tr>
+      <td>${tp.name}</td>
+      <td>Top coat — ${surfaces.map(l=>l.name + (l.levelled?' (1 coat)':' (2 coats)')).join(', ')}</td>
+      <td class="right">${totalTopPacks}</td>
+      <td class="right">${topLeftoverSqm.toFixed(1)} sqm</td>
+      <td class="right">${fmt(tp.packCost)}</td>
+      <td class="right">${fmt(totalTopPacks * tp.packCost)}</td>
+    </tr>`;
+  });
+
+  // POOLED PRODUCTS
+  html += `<tr class="system-header-row"><td colspan="6" style="color:var(--gold);font-weight:700;padding:12px 10px;background:rgba(201,168,76,0.08);">POOLED MATERIALS</td></tr>`;
+
+  const pooledRows = [
+    { p: PRODUCTS.primer_rr, label:'PRIMER-RR', sqm: d.primerRRSqm, data: d.primerRR, desc:'Surfaces requiring primer' },
+    { p: PRODUCTS.wb_blocker, label:'WB Mesh Blocker', sqm: d.wbBlockerSqm, data: d.wbBlocker, desc:'Floors/Wet Areas/Plasterboard walls' },
+    { p: PRODUCTS.mesh, label:'Fibreglass Mesh', sqm: d.meshSqm, data: d.mesh, desc:'Floors/Wet Areas/Benchtops (not levelled)' },
+    { p: PRODUCTS.pu100, label:'PU100 Sealer', sqm: d.totalSqm, data: d.pu100, desc:'All surfaces' },
+    { p: PRODUCTS.micro_seal, label:'Micro Seal', sqm: d.microSealSqm, data: d.mseal, desc:'Floors/Wet Areas/Benchtops/External' },
+    { p: PRODUCTS.wp120, label:'Velosit WP120', sqm: d.wp120Sqm, data: d.wp120, desc:'Wet areas only' },
+    { p: PRODUCTS.mt_pol, label:'MT-POL Polymer', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
+  ];
+
+  pooledRows.forEach(r => {
+    const applies = r.sqm > 0 ? `${r.desc} (${r.sqm.toFixed(0)} sqm)` : 'Not required';
+    html += `<tr>
+      <td>${r.p.name} <span class="pooled-badge">POOLED</span></td>
+      <td>${applies}</td>
+      <td class="right">${r.data.packs}</td>
+      <td class="right">${r.data.leftover.toFixed(1)} sqm</td>
+      <td class="right">${fmt(r.p.packCost)}</td>
+      <td class="right">${fmt(r.data.packs * r.p.packCost)}</td>
+    </tr>`;
+  });
+
+  // CONSUMABLES
+  html += `<tr>
+    <td>Consumables (flat per job)</td><td>All jobs</td>
+    <td class="right">—</td><td class="right">—</td>
+    <td class="right">—</td><td class="right">${fmt(CONSUMABLES)}</td>
+  </tr>`;
+
+  html += `</tbody><tfoot>
+    <tr class="total-row">
+      <td colspan="5">TOTAL MATERIAL COST</td>
+      <td class="right">${fmt(d.totalMatCost)}</td>
+    </tr>
+  </tfoot></table>`;
+
+  document.getElementById(wrapperId).innerHTML = html;
+}
+
+// ── RENDER SURFACE BREAKDOWN ───────────────────────────────
+function renderSurfaceBreakdown(surfaceCalcs) {
+  const wrap = document.getElementById('surface-breakdown-wrap');
+  if (!wrap) return;
+  if (!surfaceCalcs.length) { wrap.innerHTML = ''; return; }
+
+  const sysLabels = { solidro:'Solidro', microcement:'Micro Cement', rusico:'Rusico' };
+
+  let html = `<table class="breakdown-table">
+    <thead><tr>
+      <th>SURFACE</th><th>TYPE</th><th>SYSTEM</th><th>SQM</th>
+      <th>BASE</th><th>TOP</th><th>COATS</th>
+      <th>PRIMER</th><th>BLOCKER</th><th>MESH</th><th>SEAL</th><th>WP120</th>
+      <th>LINE COST</th>
+    </tr></thead><tbody>`;
+
+  surfaceCalcs.forEach(l => {
+    const r = l.rules;
+    const yn = (v) => v ? '<span style="color:var(--green);font-weight:700;">YES</span>' : '<span style="color:var(--grey-light);">NO</span>';
+    html += `<tr>
+      <td>${l.name}</td>
+      <td>${l.type}${l.levelled?' (Lev)':''}${l.plasterboard?' (PB)':''}</td>
+      <td>${sysLabels[l.sys]}</td>
+      <td>${l.sqm}</td>
+      <td>${l.basePacks}</td>
+      <td>${l.topPacks}</td>
+      <td>${l.topCoats}</td>
+      <td>${yn(r.needsPrimerRR)}</td>
+      <td>${yn(r.needsWBBlocker)}</td>
+      <td>${yn(r.needsMesh)}</td>
+      <td>${yn(r.needsMicroSeal)}</td>
+      <td>${yn(r.needsWP120)}</td>
+      <td>${fmt(l.lineCost)}</td>
+    </tr>`;
+  });
+  html += '</tbody></table>';
+  wrap.innerHTML = html;
 }
 
 // ── RENDER RECOMMENDED SELL PRICE ──────────────────────────
@@ -441,27 +762,25 @@ function renderRecommendedSellPrice(recSell, totalCost, totalSqm) {
       </div>
     </div>`;
 
-  // Combined areas note
   if (recSell.isCombined) {
     html += `<div class="callout callout-gold" style="margin-top:14px;">
       <strong>COMBINED AREAS:</strong> ${recSell.combinedNote}
     </div>`;
   }
 
-  // Breakdown table
+  // Tiered breakdown table
   html += `<table class="mat-table" style="margin-top:14px;">
     <thead><tr>
-      <th>SURFACE TYPE</th><th class="right">SQM</th><th class="right">THRESHOLD</th>
-      <th class="right">RATE/SQM</th><th class="right">LINE PRICE</th><th>STATUS</th>
+      <th>SURFACE TYPE</th><th class="right">SQM</th>
+      <th class="right">TIER RATE</th><th class="right">LINE PRICE</th><th>STATUS</th>
     </tr></thead><tbody>`;
 
   recSell.breakdown.forEach(b => {
     const statusColor = b.minApplied ? 'var(--amber)' : 'var(--green)';
-    const statusText = b.minApplied ? 'MIN CHARGE APPLIED' : (b.overUnder + ' ' + b.thresholdSqm + 'sqm');
+    const statusText = b.minApplied ? 'MIN CHARGE APPLIED' : b.tierLabel;
     html += `<tr>
       <td>${b.type}</td>
       <td class="right">${b.sqm.toFixed(1)}</td>
-      <td class="right">${b.thresholdSqm} sqm</td>
       <td class="right">${fmt(b.rate)}/sqm</td>
       <td class="right">${fmt(b.linePrice)}</td>
       <td style="color:${statusColor};font-weight:700;font-size:11px;">${statusText}</td>
@@ -470,7 +789,7 @@ function renderRecommendedSellPrice(recSell, totalCost, totalSqm) {
 
   html += `</tbody><tfoot>
     <tr class="total-row">
-      <td colspan="4">TOTAL RECOMMENDED SELL PRICE (EX GST)</td>
+      <td colspan="3">TOTAL RECOMMENDED SELL PRICE (EX GST)</td>
       <td class="right">${fmt(recSell.totalRecommended)}</td>
       <td></td>
     </tr>
@@ -479,152 +798,19 @@ function renderRecommendedSellPrice(recSell, totalCost, totalSqm) {
   // MCK Pricing reference
   html += `<div class="callout callout-info" style="margin-top:14px;">
     <strong>MCK PRICING STRUCTURE (ALL SYSTEMS — EX GST, INCLUDES MATERIALS)</strong><br>
-    <strong>Floors:</strong> Over 60sqm = $100/sqm | Under 60sqm = $160/sqm | Min $7,500<br>
-    <strong>Feature Walls:</strong> Over 20sqm = $120/sqm | Under 20sqm = $180/sqm | Min $5,000<br>
-    <strong>Wet Areas / Bathrooms / Benchtops:</strong> Over 20sqm = $160/sqm | Under 20sqm = $300/sqm | Min $7,500<br>
+    <strong>Floors:</strong> 0–25sqm = $365/sqm | 25–70sqm = $305/sqm | 70+ sqm = $250/sqm | Min $3,000<br>
+    <strong>Feature Walls:</strong> 15–30sqm = $300/sqm | 30–60sqm = $260/sqm | 60+ sqm = $220/sqm | Min $3,000<br>
+    <strong>Wet Areas / Bathrooms / Benchtops:</strong> 15–30sqm = $460/sqm | 30–60sqm = $360/sqm | 60–100sqm = $320/sqm | 100+ sqm = $280/sqm | Min $7,000<br>
     <strong>Combined areas:</strong> Individual minimums eliminated — only total job value matters
   </div>`;
 
   wrap.innerHTML = html;
 }
 
-// ── RENDER MATERIAL TABLE ──────────────────────────────────
-function renderMaterialTable(wrapperId, d, system) {
-  const isSolidro = system === 'solidro';
-  const baseProduct = isSolidro ? PRODUCTS.solidro_zero : PRODUCTS.mt_base;
-  const topProduct  = isSolidro ? PRODUCTS.solidro_top  : PRODUCTS.mt_finish;
-
-  let html = `<table class="mat-table">
-    <thead><tr>
-      <th>PRODUCT</th><th>APPLIES TO</th><th class="right">PACKS</th>
-      <th class="right">LEFTOVER</th><th class="right">UNIT COST</th><th class="right">LINE COST</th>
-    </tr></thead><tbody>`;
-
-  // BASE COAT
-  let totalBasePacks = 0, totalBaseKg = 0;
-  d.surfaceLines.forEach(l => { totalBasePacks += l.basePacks; totalBaseKg += parseFloat(l.baseKg); });
-  const baseLeftoverKg = (totalBasePacks * baseProduct.packKg) - totalBaseKg;
-  const baseLeftoverSqm = baseLeftoverKg * baseProduct.sqmPerKg;
-  html += `<tr>
-    <td>${baseProduct.name}</td>
-    <td>Base coat — all surfaces (1 coat)</td>
-    <td class="right">${totalBasePacks}</td>
-    <td class="right">${baseLeftoverSqm.toFixed(1)} sqm</td>
-    <td class="right">${fmt(baseProduct.packCost)}</td>
-    <td class="right">${fmt(totalBasePacks * baseProduct.packCost)}</td>
-  </tr>`;
-
-  // TOP COAT
-  let totalTopPacks = 0, totalTopKg = 0;
-  d.surfaceLines.forEach(l => { totalTopPacks += l.topPacks; totalTopKg += parseFloat(l.topKg); });
-  const topLeftoverKg = (totalTopPacks * topProduct.packKg) - totalTopKg;
-  const topLeftoverSqm = topLeftoverKg * topProduct.sqmPerKg;
-  html += `<tr>
-    <td>${topProduct.name}</td>
-    <td>Top coat — all surfaces (2 coats std, 1 coat levelled)</td>
-    <td class="right">${totalTopPacks}</td>
-    <td class="right">${topLeftoverSqm.toFixed(1)} sqm</td>
-    <td class="right">${fmt(topProduct.packCost)}</td>
-    <td class="right">${fmt(totalTopPacks * topProduct.packCost)}</td>
-  </tr>`;
-
-  // MT-POL (Microtopping only)
-  if (!isSolidro && d.mtPolPacks) {
-    html += `<tr>
-      <td>${PRODUCTS.mt_pol.name}</td>
-      <td>Mixed into base + finish coats (${d.totalSqm.toFixed(0)} sqm total)</td>
-      <td class="right">${d.mtPolPacks.packs}</td>
-      <td class="right">${d.mtPolPacks.leftover.toFixed(1)} sqm</td>
-      <td class="right">${fmt(PRODUCTS.mt_pol.packCost)}</td>
-      <td class="right">${fmt(d.mtPolCost)}</td>
-    </tr>`;
-  }
-
-  // POOLED PRODUCTS
-  const pooledRows = [
-    { label:'IW Blocker Grip Primer 5kg', applies:`All surfaces (${d.totalSqm.toFixed(0)} sqm total)`, packs:d.iwB.packs, leftover:d.iwB.leftover, unit:PRODUCTS.iw_blocker.packCost },
-    { label:'IDEALPU-WB-PRIMER 5kg', applies:`All surfaces (${d.totalSqm.toFixed(0)} sqm total)`, packs:d.idealpu.packs, leftover:d.idealpu.leftover, unit:PRODUCTS.idealpu.packCost },
-    { label:'PU100 Sealer 20L', applies:`All surfaces (${d.totalSqm.toFixed(0)} sqm total)`, packs:d.pu100.packs, leftover:d.pu100.leftover, unit:PRODUCTS.pu100.packCost },
-    { label:'Micro Seal 5.5L', applies:d.microSealSqm>0?`Floors/Bench Tops/Wet Areas (${d.microSealSqm.toFixed(0)} sqm)`:'Not required — no eligible surfaces', packs:d.mseal.packs, leftover:d.mseal.leftover, unit:PRODUCTS.micro_seal.packCost },
-    { label:'Fibreglass Mesh 50sqm roll', applies:d.meshSqm>0?`Floors/Wet Areas/Bench Tops (${d.meshSqm.toFixed(0)} sqm)`:'Not required — no eligible surfaces', packs:d.mesh.packs, leftover:d.mesh.leftover, unit:PRODUCTS.mesh.packCost },
-    { label:'Velosit WP120 20kg', applies:d.wp120Sqm>0?`Wet Areas only (${d.wp120Sqm.toFixed(0)} sqm)`:'Not required — no wet areas', packs:d.wp120.packs, leftover:d.wp120.leftover, unit:PRODUCTS.wp120.packCost },
-  ];
-  pooledRows.forEach(r => {
-    html += `<tr>
-      <td>${r.label} <span class="pooled-badge">POOLED</span></td>
-      <td>${r.applies}</td>
-      <td class="right">${r.packs}</td>
-      <td class="right">${r.leftover.toFixed(1)} sqm</td>
-      <td class="right">${fmt(r.unit)}</td>
-      <td class="right">${fmt(r.packs * r.unit)}</td>
-    </tr>`;
-  });
-
-  // CONSUMABLES
-  html += `<tr>
-    <td>Consumables (flat per job)</td><td>All jobs</td>
-    <td class="right">—</td><td class="right">—</td>
-    <td class="right">—</td><td class="right">${fmt(CONSUMABLES)}</td>
-  </tr>`;
-
-  // PENDING ITEMS (Microtopping section)
-  if (!isSolidro) {
-    html += `<tr class="pending-row">
-      <td>X-Bond <span class="pending-label">PENDING PRICING</span></td>
-      <td>X-Bond system — pricing not yet confirmed</td>
-      <td class="right">—</td><td class="right">—</td>
-      <td class="right">$0.00</td><td class="right">$0.00</td>
-    </tr>
-    <tr class="pending-row">
-      <td>Dulux Microcement <span class="pending-label">PENDING PRICING</span></td>
-      <td>Dulux system — pricing not yet confirmed</td>
-      <td class="right">—</td><td class="right">—</td>
-      <td class="right">$0.00</td><td class="right">$0.00</td>
-    </tr>`;
-  }
-
-  html += `</tbody><tfoot>
-    <tr class="total-row">
-      <td colspan="5">TOTAL MATERIAL COST</td>
-      <td class="right">${fmt(d.totalMatCost)}</td>
-    </tr>
-  </tfoot></table>`;
-
-  document.getElementById(wrapperId).innerHTML = html;
-}
-
-// ── RENDER SURFACE BREAKDOWN ───────────────────────────────
-function renderSurfaceBreakdown(lines) {
-  if (!lines.length) { document.getElementById('surface-breakdown-wrap').innerHTML = ''; return; }
-  let html = `<table class="breakdown-table">
-    <thead><tr>
-      <th>SURFACE</th><th>TYPE</th><th>SQM</th>
-      <th>BASE PACKS</th><th>TOP PACKS</th><th>TOP COATS</th>
-      <th>MESH</th><th>MICRO SEAL</th><th>WP120</th><th>LINE MAT COST</th>
-    </tr></thead><tbody>`;
-  lines.forEach(l => {
-    const needsMesh = NEEDS_MESH.includes(l.type) && !l.levelled;
-    const needsSeal = NEEDS_MICRO_SEAL.includes(l.type);
-    const needsWP = NEEDS_WP120.includes(l.type);
-    html += `<tr>
-      <td>${l.name}</td>
-      <td>${l.type}${l.levelled?' (Levelled)':''}</td>
-      <td>${l.sqm}</td>
-      <td>${l.basePacks}</td>
-      <td>${l.topPacks}</td>
-      <td>${l.topCoats}</td>
-      <td style="color:${needsMesh?'var(--green)':'var(--grey-light)'};font-weight:700;">${needsMesh?'YES':'NO'}</td>
-      <td style="color:${needsSeal?'var(--green)':'var(--grey-light)'};font-weight:700;">${needsSeal?'YES':'NO'}</td>
-      <td style="color:${needsWP?'var(--green)':'var(--grey-light)'};font-weight:700;">${needsWP?'YES':'NO'}</td>
-      <td>${fmt(l.bCost + l.tCost)}</td>
-    </tr>`;
-  });
-  html += '</tbody></table>';
-  document.getElementById('surface-breakdown-wrap').innerHTML = html;
-}
-
 // ── RENDER MARGIN BANDS ────────────────────────────────────
 function renderMarginBands(totalCost, totalSqm) {
+  const wrap = document.getElementById('margin-bands-wrap');
+  if (!wrap) return;
   const bands = [30,35,40,45,50,55,60];
   let html = `<table class="margin-table">
     <thead><tr>
@@ -646,12 +832,14 @@ function renderMarginBands(totalCost, totalSqm) {
     </tr>`;
   });
   html += '</tbody></table>';
-  document.getElementById('margin-bands-wrap').innerHTML = html;
+  wrap.innerHTML = html;
 }
 
 // ── RENDER MARKET SANITY CHECK ─────────────────────────────
 function renderMarketCheck(totalCost, lines) {
-  if (!lines.length) { document.getElementById('market-check-wrap').innerHTML = ''; return; }
+  const wrap = document.getElementById('market-check-wrap');
+  if (!wrap) return;
+  if (!lines.length) { wrap.innerHTML = ''; return; }
 
   const totalSqm = lines.reduce((s,l) => s+l.sqm, 0);
   const sell40 = totalCost / 0.60;
@@ -689,10 +877,8 @@ function renderMarketCheck(totalCost, lines) {
     <div class="mc-rate" style="color:var(--gold);">${fmt(avgSqmRate)}/sqm</div>
     <div class="mc-status" style="color:var(--grey-mid);">@ 40% MARGIN</div>
     <div style="font-size:10px;color:var(--grey-mid);margin-top:4px;">All surfaces blended</div>
-  </div>`;
-  html += `</div>`;
+  </div></div>`;
 
-  // Market reference table
   html += `<div class="callout callout-info" style="margin-top:14px;">
     <strong>GOLD COAST MARKET REFERENCE (2025–2026)</strong>
     <table style="width:100%;border-collapse:collapse;margin-top:8px;font-size:12px;">
@@ -710,40 +896,49 @@ function renderMarketCheck(totalCost, lines) {
     </table>
   </div>`;
 
-  document.getElementById('market-check-wrap').innerHTML = html;
+  wrap.innerHTML = html;
 }
 
 // ── RENDER LABOUR BREAKDOWN ────────────────────────────────
-function renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalDays, hrs, cost) {
+function renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalDays, adjustedDays, hrs, cost) {
+  const wrap = document.getElementById('labour-wrap');
+  if (!wrap) return;
   const crewLabel = document.querySelector('#crew-grid .crew-option.active .crew-label')?.textContent || '';
   const prepLabel = document.querySelector('#prep-grid .crew-option.active .crew-label')?.textContent || '';
-  document.getElementById('labour-wrap').innerHTML = `
+  const minNote = totalDays > adjustedDays ? `<div class="callout callout-gold" style="margin-top:10px;"><strong>MINIMUM 4-DAY PROCESS APPLIED</strong> — Calculated ${adjustedDays} days, enforced minimum of ${MIN_JOB_DAYS} days (prep + base coat + top coat + seal)</div>` : '';
+
+  wrap.innerHTML = `
     <div class="results-grid wide">
       <div class="stat-card"><div class="stat-label">CREW</div><div class="stat-value" style="font-size:16px;">${crewLabel}</div><div class="stat-sub">${fmt(crewConfig.rate)}/hr combined</div></div>
       <div class="stat-card"><div class="stat-label">PREP LEVEL</div><div class="stat-value" style="font-size:16px;">${prepLabel}</div><div class="stat-sub">x${prepMultiplier.toFixed(1)} multiplier</div></div>
       <div class="stat-card" style="border-color:var(--gold);"><div class="stat-label">TOTAL LABOUR COST</div><div class="stat-value gold">${fmt(cost)}</div><div class="stat-sub">${totalDays} days x 8hrs x ${fmt(crewConfig.rate)}/hr</div></div>
     </div>
+    ${minNote}
     <table class="mat-table" style="margin-top:14px;">
       <thead><tr><th>PHASE</th><th class="right">DAYS</th><th class="right">HOURS</th><th class="right">COST</th></tr></thead>
       <tbody>
         <tr><td>Prep (masking, grinding, substrate prep)</td><td class="right">${prepDays}</td><td class="right">${prepDays*8}</td><td class="right">${fmt(prepDays*8*crewConfig.rate)}</td></tr>
-        <tr><td>Floor Application</td><td class="right">${floorDays}</td><td class="right">${floorDays*8}</td><td class="right">${fmt(floorDays*8*crewConfig.rate)}</td></tr>
-        <tr><td>Wall / Feature / Bench Top Application</td><td class="right">${wallDays}</td><td class="right">${wallDays*8}</td><td class="right">${fmt(wallDays*8*crewConfig.rate)}</td></tr>
-        <tr><td>Sealer Days (IW Primer + PU100 + Micro Seal)</td><td class="right">${sealerDays}</td><td class="right">${sealerDays*8}</td><td class="right">${fmt(sealerDays*8*crewConfig.rate)}</td></tr>
+        <tr><td>Floor / External Application</td><td class="right">${floorDays}</td><td class="right">${floorDays*8}</td><td class="right">${fmt(floorDays*8*crewConfig.rate)}</td></tr>
+        <tr><td>Wall / Feature / Bench Top / Wet Area</td><td class="right">${wallDays}</td><td class="right">${wallDays*8}</td><td class="right">${fmt(wallDays*8*crewConfig.rate)}</td></tr>
+        <tr><td>Sealer Days (Primer + PU100 + Micro Seal)</td><td class="right">${sealerDays}</td><td class="right">${sealerDays*8}</td><td class="right">${fmt(sealerDays*8*crewConfig.rate)}</td></tr>
       </tbody>
-      <tfoot><tr class="total-row"><td colspan="3">TOTAL LABOUR (incl. prep multiplier x${prepMultiplier.toFixed(1)})</td><td class="right">${fmt(cost)}</td></tr></tfoot>
+      <tfoot><tr class="total-row"><td colspan="3">TOTAL LABOUR (${totalDays} days, incl. prep x${prepMultiplier.toFixed(1)}${totalDays > adjustedDays ? ', MIN 4-DAY':''})</td><td class="right">${fmt(cost)}</td></tr></tfoot>
     </table>`;
 }
 
 function clearResults() {
-  ['r-mat-cost','r-lab-cost','r-job-cost','r-sqm-cost','r-mat-sub','r-lab-sub','r-total-sqm',
-   'cmp-sol-mat','cmp-sol-lab','cmp-sol-total','cmp-sol-40','cmp-sol-45',
-   'cmp-mt-mat','cmp-mt-lab','cmp-mt-total','cmp-mt-40','cmp-mt-45'].forEach(id => {
+  ['r-mat-cost','r-lab-cost','r-job-cost','r-sqm-cost','r-mat-sub','r-lab-sub','r-total-sqm'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = '—';
   });
-  ['mat-table-wrap','mt-table-wrap','surface-breakdown-wrap','margin-bands-wrap',
-   'market-check-wrap','labour-wrap','rec-sell-wrap'].forEach(id => {
+  ['mat-table-wrap','surface-breakdown-wrap','margin-bands-wrap',
+   'market-check-wrap','labour-wrap','rec-sell-wrap','mt-table-wrap','rusico-table-wrap'].forEach(id => {
     const el = document.getElementById(id); if (el) el.innerHTML = '';
+  });
+  // Reset comparison cards
+  ['cmp-sol-mat','cmp-sol-lab','cmp-sol-total','cmp-sol-40','cmp-sol-50',
+   'cmp-mc-mat','cmp-mc-lab','cmp-mc-total','cmp-mc-40','cmp-mc-50',
+   'cmp-ru-mat','cmp-ru-lab','cmp-ru-total','cmp-ru-40','cmp-ru-50'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.textContent = '\u2014';
   });
 }
 

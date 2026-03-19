@@ -234,15 +234,18 @@ body {
 
 /* ═══ COMPARISON ═══ */
 .compare-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+.compare-grid.compare-grid-3 { grid-template-columns:1fr 1fr 1fr; }
 .compare-card {
   padding:18px 20px; border:2px solid var(--border);
   background:var(--panel); border-radius:4px;
 }
 .compare-card.solidro { border-color:var(--gold); }
-.compare-card.microtopping { border-color:var(--blue); }
+.compare-card.microcement { border-color:var(--blue); }
+.compare-card.rusico { border-color:var(--green); }
 .compare-title { font-size:11px; font-weight:800; letter-spacing:2px; text-transform:uppercase; margin-bottom:12px; }
 .compare-card.solidro .compare-title { color:var(--gold); }
-.compare-card.microtopping .compare-title { color:var(--blue); }
+.compare-card.microcement .compare-title { color:var(--blue); }
+.compare-card.rusico .compare-title { color:var(--green); }
 .compare-row { display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--border); font-size:12px; }
 .compare-row:last-child { border-bottom:none; }
 .compare-row .cr-label { color:var(--text-secondary); }
@@ -1315,6 +1318,7 @@ button { font-family:'Inter',sans-serif; }
   .results-grid { grid-template-columns:1fr; }
   .results-grid.wide { grid-template-columns:1fr; }
   .compare-grid { grid-template-columns:1fr; }
+  .compare-grid.compare-grid-3 { grid-template-columns:1fr; }
   .tc-grid { grid-template-columns:1fr; }
   .g2, .g3 { grid-template-columns:1fr; }
   .inc-exc { grid-template-columns:1fr; }

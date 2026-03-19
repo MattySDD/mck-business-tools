@@ -1,7 +1,7 @@
 // ═══════════════════════════════════════════════════════════
-// MCK QUOTE GENERATOR LOGIC
-// Features: Signature, Credit Limit, Pay-in-Full, Share,
-//           WhatsApp, Revision History, PDF Generation
+// MCK QUOTE GENERATOR v3.0 — FULL REBUILD
+// Variations, SMS, editable inclusions/exclusions,
+// embedded MCK signature, fixed clear signature
 // ═══════════════════════════════════════════════════════════
 
 // Helper: format YYYY-MM-DD date to DD/MM/YYYY for display
@@ -11,6 +11,16 @@ function formatDateForPDF(dateStr) {
   if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
   return dateStr;
 }
+
+// ── KING MANNION EMBEDDED SIGNATURE ───────────────────────
+// Pre-drawn signature as SVG data URL (clean cursive "King Mannion")
+const MCK_SIGNATURE_DATA_URL = (() => {
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 80" width="300" height="80">
+    <path d="M20,55 C25,20 30,15 35,25 C40,35 30,55 35,55 C40,55 55,15 60,15 C65,15 50,55 55,55 C60,55 70,25 75,25 C80,25 72,55 78,50 M90,55 C95,20 100,15 105,25 C110,35 100,55 105,55 C110,55 125,15 130,15 C135,15 120,55 125,55 C130,55 140,25 145,25 C150,25 142,55 148,50 M160,55 C165,20 170,15 175,25 C180,35 170,55 175,55 C180,55 195,15 200,15 C205,15 190,55 195,55 C200,55 210,25 215,25 C220,25 212,55 218,50 C224,45 230,30 240,30 C250,30 245,55 250,55 C255,55 265,35 270,30"
+    fill="none" stroke="#111" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>`;
+  return 'data:image/svg+xml;base64,' + btoa(svg);
+})();
 
 function initQuote() {
   const year = new Date().getFullYear();
@@ -26,12 +36,13 @@ function initQuote() {
   updateQuoteValidity();
 
   if (document.getElementById('q-pricing-body').children.length === 0) {
-    addQuoteLine('Microcement Application — Floors', 0, 'sqm', 0);
-    addQuoteLine('Microcement Application — Feature Walls', 0, 'sqm', 0);
+    addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
+    addQuoteLine('Micro Cement Application — Feature Walls', 0, 'sqm', 0);
   }
 
   initSignature();
   renderQuoteHistory();
+  initEditableListItems();
 }
 
 function updateQuoteValidity() {
@@ -51,6 +62,11 @@ function updateQuoteValidity() {
     banner.textContent = 'QUOTE VALID FOR ' + label.toUpperCase() + ' FROM DATE OF ISSUE';
   }
 }
+
+
+// ═══════════════════════════════════════════════════════════
+// PRICING LINE ITEMS
+// ═══════════════════════════════════════════════════════════
 
 function addQuoteLine(desc = '', qty = 0, unit = 'sqm', rate = 0) {
   const body = document.getElementById('q-pricing-body');
@@ -77,6 +93,59 @@ function addQuoteLine(desc = '', qty = 0, unit = 'sqm', rate = 0) {
   updateQuoteTotals();
 }
 
+
+// ═══════════════════════════════════════════════════════════
+// VARIATION LINE ITEMS
+// ═══════════════════════════════════════════════════════════
+
+function addVariationLine(desc = '', hrs = 0, matCost = 0) {
+  const body = document.getElementById('q-variations-body');
+  if (!body) return;
+
+  const s = typeof getSetting === 'function' ? getSetting : (k => null);
+  const varRate = s('variation_rate') || 150;
+
+  const tr = document.createElement('tr');
+  tr.className = 'q-variation-item';
+
+  tr.innerHTML = `
+    <td><input type="text" class="var-desc" value="${desc}" oninput="updateVariationTotals()"></td>
+    <td class="right"><input type="number" class="var-hrs" value="${hrs}" min="0" step="0.5" oninput="updateVariationTotals()"></td>
+    <td class="right"><input type="number" class="var-rate" value="${varRate}" oninput="updateVariationTotals()"></td>
+    <td class="right"><input type="number" class="var-mat" value="${matCost}" min="0" step="1" oninput="updateVariationTotals()"></td>
+    <td class="right var-line-total">—</td>
+    <td class="center no-print"><button class="btn-remove-line" onclick="this.parentElement.parentElement.remove(); updateVariationTotals();">&times;</button></td>
+  `;
+
+  body.appendChild(tr);
+  updateVariationTotals();
+}
+
+function updateVariationTotals() {
+  const lines = document.querySelectorAll('.q-variation-item');
+  let varTotal = 0;
+
+  lines.forEach(row => {
+    const hrs = parseFloat(row.querySelector('.var-hrs')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.var-rate')?.value) || 0;
+    const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
+    const total = (hrs * rate) + mat;
+    row.querySelector('.var-line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    varTotal += total;
+  });
+
+  const totalEl = document.getElementById('q-variations-subtotal');
+  if (totalEl) totalEl.textContent = '$' + varTotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  // Update main totals (variations add to subtotal)
+  updateQuoteTotals();
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// QUOTE TOTALS
+// ═══════════════════════════════════════════════════════════
+
 function updateQuoteTotals() {
   const lines = document.querySelectorAll('.q-line-item');
   let subtotal = 0;
@@ -88,6 +157,16 @@ function updateQuoteTotals() {
     line.querySelector('.line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
     subtotal += total;
   });
+
+  // Add variation totals
+  let varTotal = 0;
+  document.querySelectorAll('.q-variation-item').forEach(row => {
+    const hrs = parseFloat(row.querySelector('.var-hrs')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.var-rate')?.value) || 0;
+    const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
+    varTotal += (hrs * rate) + mat;
+  });
+  subtotal += varTotal;
 
   const gst = subtotal * 0.1;
   const grandTotal = subtotal + gst;
@@ -149,6 +228,64 @@ function updateQuoteTotals() {
 
 
 // ═══════════════════════════════════════════════════════════
+// EDITABLE INCLUSIONS / EXCLUSIONS
+// ═══════════════════════════════════════════════════════════
+
+function initEditableListItems() {
+  ['q-inclusions', 'q-exclusions'].forEach(listId => {
+    const list = document.getElementById(listId);
+    if (!list) return;
+    list.querySelectorAll('li').forEach(li => {
+      li.contentEditable = 'true';
+      li.style.cursor = 'text';
+      li.addEventListener('focus', function() {
+        this.style.outline = '1px solid #c9a84c';
+        this.style.outlineOffset = '2px';
+        this.style.borderRadius = '2px';
+      });
+      li.addEventListener('blur', function() {
+        this.style.outline = 'none';
+      });
+    });
+  });
+}
+
+function addInclusionItem() {
+  const list = document.getElementById('q-inclusions');
+  if (!list) return;
+  const li = document.createElement('li');
+  li.contentEditable = 'true';
+  li.style.cursor = 'text';
+  li.textContent = 'New inclusion — click to edit';
+  li.addEventListener('focus', function() {
+    this.style.outline = '1px solid #c9a84c';
+    this.style.outlineOffset = '2px';
+    if (this.textContent === 'New inclusion — click to edit') this.textContent = '';
+  });
+  li.addEventListener('blur', function() { this.style.outline = 'none'; });
+  list.appendChild(li);
+  li.focus();
+}
+
+function addExclusionItem() {
+  const list = document.getElementById('q-exclusions');
+  if (!list) return;
+  const li = document.createElement('li');
+  li.contentEditable = 'true';
+  li.style.cursor = 'text';
+  li.textContent = 'New exclusion — click to edit';
+  li.addEventListener('focus', function() {
+    this.style.outline = '1px solid #c9a84c';
+    this.style.outlineOffset = '2px';
+    if (this.textContent === 'New exclusion — click to edit') this.textContent = '';
+  });
+  li.addEventListener('blur', function() { this.style.outline = 'none'; });
+  list.appendChild(li);
+  li.focus();
+}
+
+
+// ═══════════════════════════════════════════════════════════
 // SIGNATURE CANVAS — BOTH CLIENT AND MCK AUTHORISED
 // ═══════════════════════════════════════════════════════════
 
@@ -163,6 +300,22 @@ function initSignature() {
     const el = document.getElementById(id);
     if (el && !el.value) el.value = today;
   });
+
+  // Pre-draw King Mannion signature on MCK canvas after a short delay
+  setTimeout(() => {
+    preDrawMCKSignature('q-mck-sig-canvas');
+  }, 500);
+}
+
+function preDrawMCKSignature(canvasId) {
+  const canvas = document.getElementById(canvasId);
+  if (!canvas || canvas.width === 0) return;
+  const ctx = canvas.getContext('2d');
+  const img = new Image();
+  img.onload = function() {
+    ctx.drawImage(img, 10, 20, 200, 60);
+  };
+  img.src = MCK_SIGNATURE_DATA_URL;
 }
 
 function initSigCanvas(canvasId, wrapId, hintId, acceptBtnId) {
@@ -173,12 +326,18 @@ function initSigCanvas(canvasId, wrapId, hintId, acceptBtnId) {
 
   function resize() {
     const wrap = document.getElementById(wrapId);
-    if (!wrap) return;
+    if (!wrap || wrap.offsetWidth === 0) return;
+    // Save current content
+    const imgData = canvas.width > 0 ? ctx.getImageData(0, 0, canvas.width, canvas.height) : null;
     canvas.width = wrap.offsetWidth;
     canvas.height = 160;
     ctx.strokeStyle = '#111';
     ctx.lineWidth = 2;
     ctx.lineCap = 'round';
+    // Restore content if we had any
+    if (imgData && imgData.width > 0) {
+      try { ctx.putImageData(imgData, 0, 0); } catch(e) {}
+    }
   }
 
   window.addEventListener('resize', resize);
@@ -224,26 +383,37 @@ function initSigCanvas(canvasId, wrapId, hintId, acceptBtnId) {
 }
 
 function clearQuoteSig() {
-  clearSigCanvas('q-sig-canvas', 'q-canvas-hint', 'q-sig-accepted-banner', 'q-accept-btn');
+  clearSigCanvas('q-sig-canvas', 'q-canvas-wrap', 'q-canvas-hint', 'q-sig-accepted-banner', 'q-accept-btn');
 }
 
 function clearMCKSig() {
-  clearSigCanvas('q-mck-sig-canvas', 'q-mck-canvas-hint', 'q-mck-sig-accepted-banner', 'q-mck-accept-btn');
+  clearSigCanvas('q-mck-sig-canvas', 'q-mck-canvas-wrap', 'q-mck-canvas-hint', 'q-mck-sig-accepted-banner', 'q-mck-accept-btn');
+  // Re-draw the embedded signature after clearing
+  setTimeout(() => preDrawMCKSignature('q-mck-sig-canvas'), 100);
 }
 
 function clearTcSig() {
-  clearSigCanvas('tc-sig-canvas', 'tc-canvas-hint', 'tc-sig-accepted-banner', 'tc-accept-btn');
+  clearSigCanvas('tc-sig-canvas', 'tc-canvas-wrap', 'tc-canvas-hint', 'tc-sig-accepted-banner', 'tc-accept-btn');
 }
 
 function acceptTcSig() {
   acceptSigCanvas('tc-sig-canvas', 'tc-sig-accepted-banner', 'tc-sig-image', 'CLIENT (T&Cs)');
 }
 
-function clearSigCanvas(canvasId, hintId, bannerId, acceptBtnId) {
+function clearSigCanvas(canvasId, wrapId, hintId, bannerId, acceptBtnId) {
   const canvas = document.getElementById(canvasId);
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
+  // Resize first to ensure proper dimensions
+  const wrap = document.getElementById(wrapId);
+  if (wrap && wrap.offsetWidth > 0) {
+    canvas.width = wrap.offsetWidth;
+    canvas.height = 160;
+  }
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
   const hint = document.getElementById(hintId);
   if (hint) hint.style.display = 'block';
   const banner = document.getElementById(bannerId);
@@ -286,8 +456,10 @@ function acceptSigCanvas(canvasId, bannerId, imageId, label) {
 function clearQuoteForm() {
   if (!confirm('Clear all quote data?')) return;
   document.getElementById('q-pricing-body').innerHTML = '';
+  const varBody = document.getElementById('q-variation-body');
+  if (varBody) varBody.innerHTML = '';
   document.querySelectorAll('#tab-quote .field-val').forEach(f => f.innerHTML = '&nbsp;');
-  addQuoteLine('Microcement Application — Floors', 0, 'sqm', 0);
+  addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
   updateQuoteTotals();
   clearQuoteSig();
   clearMCKSig();
@@ -335,23 +507,37 @@ function extractQuoteData() {
     if (desc || qty > 0) lineItems.push({ desc, qty, unit, rate, total });
   });
 
-  const subtotal = lineItems.reduce((s, l) => s + l.total, 0);
+  // Variation line items
+  const variationItems = [];
+  document.querySelectorAll('.q-variation-item').forEach(row => {
+    const desc = row.querySelector('.var-desc')?.value || '';
+    const hrs = parseFloat(row.querySelector('.var-hrs')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.var-rate')?.value) || 0;
+    const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
+    const total = (hrs * rate) + mat;
+    if (desc || hrs > 0 || mat > 0) variationItems.push({ desc, hrs, rate, mat, total });
+  });
+
+  const baseSubtotal = lineItems.reduce((s, l) => s + l.total, 0);
+  const varSubtotal = variationItems.reduce((s, v) => s + v.total, 0);
+  const subtotal = baseSubtotal + varSubtotal;
   const gst = subtotal * 0.1;
   const grandTotal = subtotal + gst;
 
-  const s = typeof getSetting === 'function' ? getSetting : (k => null);
-  const threshold = s('deposit_threshold') || 20000;
-  const depOver = s('deposit_pct_over') || 5;
-  const depUnder = s('deposit_pct_under') || 10;
-  const matPct = s('material_pct') || 50;
-  const creditLimit = s('credit_limit') || 10000;
-  const upfrontDiscPct = s('upfront_discount_pct') || 5;
-  const upfrontDiscCap = s('upfront_discount_cap') || 1000;
-  const variationRate = s('variation_rate') || 150;
-  const variationMinHrs = s('variation_min_hours') || 2;
-  const overdueAdminFee = s('overdue_admin_fee') || 220;
-  const overdueInterest = s('overdue_interest_pct_week') || 3;
-  const measureFee = s('measure_fee') || 220;
+  const st = typeof getSetting === 'function' ? getSetting : (k => null);
+  const threshold = st('deposit_threshold') || 20000;
+  const depOver = st('deposit_pct_over') || 5;
+  const depUnder = st('deposit_pct_under') || 10;
+  const matPct = st('material_pct') || 50;
+  const creditLimit = st('credit_limit') || 10000;
+  const upfrontDiscPct = st('upfront_discount_pct') || 5;
+  const upfrontDiscCap = st('upfront_discount_cap') || 1000;
+  const variationRate = st('variation_rate') || 150;
+  const variationMinHrs = st('variation_min_hours') || 2;
+  const variationMatAllowance = st('variation_material_allowance') || 500;
+  const overdueAdminFee = st('overdue_admin_fee') || 220;
+  const overdueInterest = st('overdue_interest_pct_week') || 3;
+  const measureFee = st('measure_fee') || 220;
 
   const depositPct = subtotal > threshold ? depOver : depUnder;
   const depositAmt = subtotal * (depositPct / 100);
@@ -384,6 +570,8 @@ function extractQuoteData() {
     blank.width = mckSigCanvas.width; blank.height = mckSigCanvas.height;
     if (mckSigCanvas.toDataURL() !== blank.toDataURL()) mckSigDataURL = mckSigCanvas.toDataURL();
   }
+  // If MCK canvas is blank, use embedded signature
+  if (!mckSigDataURL) mckSigDataURL = MCK_SIGNATURE_DATA_URL;
 
   // Typed names and dates
   const clientTypedName = (document.getElementById('q-sig-typed-name') || {}).value || '';
@@ -396,10 +584,11 @@ function extractQuoteData() {
     quoteNumber, dateIssued, validityLabel, validityHours, validityBanner, preparedBy,
     clientName, clientPhone, clientEmail, projectAddress, siteContact,
     colourFinish, substrate, scope, startDate, duration, completion,
-    lineItems, subtotal, gst, grandTotal,
+    lineItems, variationItems, subtotal, gst, grandTotal, baseSubtotal, varSubtotal,
     depositPct, depositAmt, materialAmt, finalPct, finalAmt, matPct,
     creditLimit, upfrontDiscPct, upfrontDiscCap, upfrontDisc, upfrontTotal,
-    variationRate, variationMinHrs, overdueAdminFee, overdueInterest, measureFee,
+    variationRate, variationMinHrs, variationMatAllowance,
+    overdueAdminFee, overdueInterest, measureFee,
     inclusions, exclusions, sigDataURL, mckSigDataURL,
     clientTypedName, clientSigDate, mckTypedName, mckTypedTitle, mckSigDate,
     createdAt: new Date().toISOString(),
@@ -423,6 +612,20 @@ function buildQuoteHTML(d, options = {}) {
     statusBanner = `<div style="background:#ff4444!important;color:#fff!important;text-align:center;padding:10pt;font-weight:800;font-size:11pt;letter-spacing:2px;text-transform:uppercase;margin-bottom:14pt;border-radius:4px;">THIS QUOTE HAS EXPIRED</div>`;
   } else if (status === 'ACCEPTED') {
     statusBanner = `<div style="background:#27AE60!important;color:#fff!important;text-align:center;padding:10pt;font-weight:800;font-size:11pt;letter-spacing:2px;text-transform:uppercase;margin-bottom:14pt;border-radius:4px;">QUOTE ACCEPTED</div>`;
+  }
+
+  // Build variation rows HTML
+  let variationHTML = '';
+  if (d.variationItems && d.variationItems.length > 0) {
+    variationHTML = `
+    <div style="height:14pt;"></div>
+    <div class="sec-hd"><div class="sec-num">03B</div><h2>VARIATIONS</h2></div>
+    <table>
+      <thead><tr><th style="width:40%">DESCRIPTION</th><th class="right" style="width:12%">HOURS</th><th class="right" style="width:16%">RATE/HR</th><th class="right" style="width:16%">MATERIALS</th><th class="right" style="width:16%">TOTAL (EX GST)</th></tr></thead>
+      <tbody>${d.variationItems.map(v => `<tr><td>${v.desc}</td><td class="right">${v.hrs}</td><td class="right">${$(v.rate)}</td><td class="right">${$(v.mat)}</td><td class="right">${$(v.total)}</td></tr>`).join('')}</tbody>
+      <tfoot><tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL (EX GST)</td><td class="right">${$(d.varSubtotal || 0)}</td></tr></tfoot>
+    </table>
+    <div class="callout" style="margin-top:10pt;"><strong>VARIATION TERMS:</strong> All variations are charged at $${d.variationRate}/hr (${d.variationMinHrs}-hour minimum) plus materials at cost + ${d.variationMatAllowance ? '$' + d.variationMatAllowance + ' allowance' : 'cost'}. Variations must be agreed in writing before work commences.</div>`;
   }
 
   return `<!DOCTYPE html>
@@ -582,13 +785,15 @@ ${statusBanner}
     <thead><tr><th style="width:42%">DESCRIPTION</th><th class="right" style="width:10%">QTY</th><th style="width:12%">UNIT</th><th class="right" style="width:18%">RATE (EX GST)</th><th class="right" style="width:18%">TOTAL (EX GST)</th></tr></thead>
     <tbody>${d.lineItems.map(l => `<tr><td>${l.desc}</td><td class="right">${l.qty}</td><td>${l.unit}</td><td class="right">${$(l.rate)}</td><td class="right">${$(l.total)}</td></tr>`).join('')}</tbody>
     <tfoot>
-      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.subtotal)}</td></tr>
+      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.baseSubtotal || d.subtotal)}</td></tr>
+      ${d.varSubtotal > 0 ? `<tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL</td><td class="right">${$(d.varSubtotal)}</td></tr>` : ''}
       <tr><td colspan="4" style="text-align:right;">GST (10%)</td><td class="right">${$(d.gst)}</td></tr>
       <tr class="grand-total"><td colspan="4" style="text-align:right;">TOTAL (INC GST)</td><td class="right">${$(d.grandTotal)}</td></tr>
     </tfoot>
   </table>
   ${d.subtotal > d.creditLimit ? `<div class="callout warning"><strong>CREDIT LIMIT NOTE:</strong> Contract value exceeds the $${d.creditLimit.toLocaleString()} credit limit. Full deposit and material payment required before commencement. No credit terms available.</div>` : ''}
   <div class="callout"><strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$${d.measureFee} ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance.</div>
+  ${variationHTML}
 </div>
 
 <!-- PAGE 3: INCLUSIONS & EXCLUSIONS -->
@@ -628,9 +833,9 @@ ${statusBanner}
   <div class="sec-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
   <div class="tc-grid">
     <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue. After expiry, pricing must be reconfirmed.</div>
-    <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing. Rate: $${d.variationRate}/hr (${d.variationMinHrs}-hour minimum).</div>
+    <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing. Rate: $${d.variationRate}/hr (${d.variationMinHrs}-hour minimum) plus materials at cost.</div>
     <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
-    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
+    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works, Solidro, and Rusico products are passed through to the client in full.</div>
     <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
     <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $${d.overdueAdminFee} admin fee. Interest accrues at ${d.overdueInterest}% per week from Day 4.</div>
     <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration.</div>
@@ -683,8 +888,6 @@ ${!showAcceptBtn ? `<script>window.onload=function(){setTimeout(function(){windo
 function generatePDFQuote() {
   const d = extractQuoteData();
   const html = buildQuoteHTML(d);
-
-  // Save to revision history
   saveQuoteRevision(d);
 
   const printWindow = window.open('', '_blank');
@@ -703,24 +906,17 @@ function generatePDFQuote() {
 
 function generateShareableLink() {
   const d = extractQuoteData();
-
-  // Save to revision history
   saveQuoteRevision(d);
 
-  // Encode quote data as base64 URL parameter
   const jsonStr = JSON.stringify(d);
   const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-
-  // Build the shareable URL
   const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
   const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
 
-  // Show the link in a modal
   showShareModal(shareUrl, d.clientName);
 }
 
 function showShareModal(url, clientName) {
-  // Remove existing modal
   const existing = document.getElementById('share-modal');
   if (existing) existing.remove();
 
@@ -736,10 +932,11 @@ function showShareModal(url, clientName) {
       </div>
       <div style="display:flex;gap:10px;flex-wrap:wrap;">
         <button onclick="copyShareLink()" style="background:#c9a84c;color:#000;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;" id="copy-link-btn">COPY LINK</button>
-        <button onclick="shareViaWhatsApp('${url}','${(clientName || '').replace(/'/g, "\\'")}');" style="background:#25D366;color:#fff;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;">SEND VIA WHATSAPP</button>
+        <button onclick="shareViaWhatsApp('${url}','${(clientName || '').replace(/'/g, "\\'")}');" style="background:#25D366;color:#fff;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;">WHATSAPP</button>
+        <button onclick="shareViaSMS('${url}','${(clientName || '').replace(/'/g, "\\'")}');" style="background:#3498DB;color:#fff;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;">SMS</button>
         <button onclick="document.getElementById('share-modal').remove();" style="background:transparent;border:1px solid #666;color:#aaa;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:4px;">CLOSE</button>
       </div>
-      <p style="color:#666;font-size:10px;margin-top:14px;line-height:1.6;">This link contains the full quote data encoded in the URL. The recipient can view, print, and accept the quote from their browser. The link will work as long as the website is live.</p>
+      <p style="color:#666;font-size:10px;margin-top:14px;line-height:1.6;">This link contains the full quote data encoded in the URL. The recipient can view, print, and accept the quote from their browser.</p>
     </div>
   `;
 
@@ -754,7 +951,7 @@ function copyShareLink() {
   navigator.clipboard.writeText(input.value).then(() => {
     const btn = document.getElementById('copy-link-btn');
     if (btn) {
-      btn.textContent = 'COPIED ✓';
+      btn.textContent = 'COPIED \u2713';
       btn.style.background = '#27AE60';
       setTimeout(() => { btn.textContent = 'COPY LINK'; btn.style.background = '#c9a84c'; }, 2000);
     }
@@ -766,24 +963,36 @@ function copyShareLink() {
 function shareViaWhatsApp(url, clientName) {
   const name = clientName || 'there';
   const message = `Hi ${name}, please find your Micro Cement King quote here: ${url}`;
-  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
-  window.open(waUrl, '_blank');
+  window.open('https://wa.me/?text=' + encodeURIComponent(message), '_blank');
 }
 
-// Direct WhatsApp button (from quote tab)
+function shareViaSMS(url, clientName) {
+  const name = clientName || 'there';
+  const message = `Hi ${name}, please find your Micro Cement King quote here: ${url}`;
+  window.open('sms:?body=' + encodeURIComponent(message));
+}
+
+// Direct buttons from quote tab
 function shareQuoteWhatsApp() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
-
   const jsonStr = JSON.stringify(d);
   const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
   const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
   const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
-
   const name = d.clientName || 'there';
-  const message = `Hi ${name}, please find your Micro Cement King quote here: ${shareUrl}`;
-  const waUrl = 'https://wa.me/?text=' + encodeURIComponent(message);
-  window.open(waUrl, '_blank');
+  window.open('https://wa.me/?text=' + encodeURIComponent(`Hi ${name}, please find your Micro Cement King quote here: ${shareUrl}`), '_blank');
+}
+
+function shareQuoteSMS() {
+  const d = extractQuoteData();
+  saveQuoteRevision(d);
+  const jsonStr = JSON.stringify(d);
+  const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+  const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+  const name = d.clientName || 'there';
+  window.open('sms:?body=' + encodeURIComponent(`Hi ${name}, please find your Micro Cement King quote here: ${shareUrl}`));
 }
 
 
@@ -802,8 +1011,6 @@ function getQuoteHistory() {
 
 function saveQuoteRevision(d) {
   const history = getQuoteHistory();
-
-  // Check if this quote number already exists
   const existing = history.filter(h => h.quoteNumber === d.quoteNumber);
   const revision = existing.length + 1;
 
@@ -818,8 +1025,6 @@ function saveQuoteRevision(d) {
   };
 
   history.unshift(entry);
-
-  // Keep only last 20 entries
   while (history.length > 20) history.pop();
 
   localStorage.setItem(QUOTE_HISTORY_KEY, JSON.stringify(history));
@@ -859,11 +1064,9 @@ function renderQuoteHistory() {
   });
 
   html += '</tbody></table>';
-
   if (history.length > 10) {
     html += `<div style="text-align:center;padding:10px;color:#666;font-size:10px;">Showing 10 of ${history.length} entries</div>`;
   }
-
   wrap.innerHTML = html;
 }
 
@@ -873,7 +1076,6 @@ function reloadQuoteFromHistory(idx) {
 
   const d = history[idx].data;
 
-  // Populate fields
   const fields = {
     'q-quote-number': d.quoteNumber,
     'q-date-display': d.dateIssued,
@@ -896,7 +1098,6 @@ function reloadQuoteFromHistory(idx) {
     if (el && val) el.textContent = val;
   });
 
-  // Pricing lines
   const body = document.getElementById('q-pricing-body');
   if (body) {
     body.innerHTML = '';
@@ -905,13 +1106,20 @@ function reloadQuoteFromHistory(idx) {
     }
   }
 
+  // Restore variation items
+  const varBody = document.getElementById('q-variation-body');
+  if (varBody) {
+    varBody.innerHTML = '';
+    if (d.variationItems && d.variationItems.length > 0) {
+      d.variationItems.forEach(v => addVariationLine(v.desc, v.hrs, v.mat));
+    }
+  }
+
   updateQuoteTotals();
 
-  // Scroll to top of quote tab
   const tab = document.getElementById('tab-quote');
   if (tab) tab.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
-  // Show confirmation
   const banner = document.createElement('div');
   banner.className = 'auto-populate-banner';
   banner.innerHTML = `<span class="apb-icon">&#9889;</span> QUOTE ${d.quoteNumber} (R${history[idx].revision}) RELOADED FROM HISTORY — REVIEW BEFORE SENDING`;
