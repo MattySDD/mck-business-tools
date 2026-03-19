@@ -51,6 +51,10 @@ const MCK_DEFAULTS = {
   // SECTION C — Material Costs: Rusico
   rusico_base_20kg: 580.00,
   rusico_top_10kg: 520.00,
+  ideal_binder_25l: 761.68,
+
+  // SECTION C — Material Costs: Colour Pack (all systems)
+  colour_pack_cost: 85.00,
 
   // SECTION C — Material Costs: Shared/Pooled
   primer_rr_5kg: 161.78,
@@ -67,8 +71,8 @@ const MCK_DEFAULTS = {
   solidro_top_spread: 2.5,
   mt_zero_spread: 1.1,
   mt_w_spread: 2.2,
-  rusico_base_spread: 1.1,
-  rusico_top_spread: 2.5,
+  rusico_base_spread: 1.0,
+  rusico_top_spread: 1.0,
 
   // SECTION D — Quote Defaults
   default_validity_hours: 48,
@@ -77,8 +81,8 @@ const MCK_DEFAULTS = {
   deposit_pct_over: 5,
   deposit_pct_under: 10,
   material_pct: 50,
-  upfront_discount_pct: 5,
-  upfront_discount_cap: 1000,
+  upfront_reduction_pct: 5,
+  upfront_reduction_cap: 1000,
   credit_limit: 10000,
   variation_rate: 150,
   variation_min_hours: 2,
@@ -238,6 +242,8 @@ const SETTINGS_ID_MAP = {
   // Rusico
   rusico_base_20kg: 'set-rusico-base',
   rusico_top_10kg: 'set-rusico-top',
+  ideal_binder_25l: 'set-ideal-binder',
+  colour_pack_cost: 'set-colour-pack',
   // Shared
   primer_rr_5kg: 'set-primer-rr',
   wb_blocker_5kg: 'set-wb-blocker',
@@ -256,8 +262,8 @@ const SETTINGS_ID_MAP = {
   rusico_top_spread: 'set-rusico-top-spread',
   // Quote Defaults
   credit_limit: 'set-credit-limit',
-  upfront_discount_pct: 'set-upfront-disc',
-  upfront_discount_cap: 'set-upfront-cap',
+  upfront_reduction_pct: 'set-upfront-disc',
+  upfront_reduction_cap: 'set-upfront-cap',
   measure_fee: 'set-measure-fee',
   overdue_admin_fee: 'set-overdue-fee',
   overdue_interest_pct_week: 'set-overdue-int',

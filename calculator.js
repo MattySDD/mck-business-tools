@@ -26,7 +26,11 @@ function switchTab(tabId) {
           c.height = 160;
         }
       });
-    }, 50);
+      // Re-draw MCK pre-loaded signature after canvas is sized
+      if (tabId === 'quote' && typeof preDrawMCKSignature === 'function') {
+        preDrawMCKSignature('q-mck-sig-canvas');
+      }
+    }, 100);
   }
 }
 
@@ -57,9 +61,15 @@ function getProducts() {
     mt_w:     { name:'MT-W Finish Coat 17.5kg',    packCost: s('mt_w_17_5kg') || 211.80,   packKg:17.5, sqmPerKg: s('mt_w_spread') || 2.2, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 17.5 * this.sqmPerKg; } },
     mt_pol:   { name:'MT-POL Liquid Polymer 17L',   packCost: s('mt_pol_17l') || 586.67,    packCoverage:46.75, unit:'17L pack' },
 
-    // RUSICO (spread rates from settings)
-    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, sqmPerKg: s('rusico_base_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
-    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, sqmPerKg: s('rusico_top_spread') || 2.5, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
+    // RUSICO (spread rates from settings — default 1.0 sqm/kg for both)
+    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, sqmPerKg: s('rusico_base_spread') || 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
+    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, sqmPerKg: s('rusico_top_spread') || 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
+
+    // IDEAL BINDER (Rusico system only)
+    ideal_binder: { name:'Ideal Binder 25L', packCost: s('ideal_binder_25l') || 761.68, packKg:25, sqmPerKg: 1.0, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
+
+    // COLOUR PACK (all systems — 1 pack per 50 sqm)
+    colour_pack:  { name:'Colour Pack', packCost: s('colour_pack_cost') || 85.00, packCoverage:50, unit:'pack (per 50sqm)' },
   };
 }
 
@@ -466,6 +476,13 @@ function recalc() {
   const wp120 = packsNeeded(wp120Sqm, 20);
   const mtPol = packsNeeded(polymerSqm, 46.75);
 
+  // IDEAL BINDER — Rusico system only, 1 per 25 sqm (1.0 sqm/kg, 25kg pack)
+  const rusicoSqm = lines.filter(l => l.sys === 'rusico').reduce((s,l) => s+l.sqm, 0);
+  const idealBinder = packsNeeded(rusicoSqm, PRODUCTS.ideal_binder.sqmPerPack);
+
+  // COLOUR PACK — all systems, 1 pack per 50 sqm
+  const colourPack = packsNeeded(totalSqm, 50);
+
   const pooledCost =
     (primerRR.packs * PRODUCTS.primer_rr.packCost) +
     (wbBlocker.packs * PRODUCTS.wb_blocker.packCost) +
@@ -474,6 +491,8 @@ function recalc() {
     (mesh.packs * PRODUCTS.mesh.packCost) +
     (wp120.packs * PRODUCTS.wp120.packCost) +
     (mtPol.packs * PRODUCTS.mt_pol.packCost) +
+    (idealBinder.packs * PRODUCTS.ideal_binder.packCost) +
+    (colourPack.packs * PRODUCTS.colour_pack.packCost) +
     CONSUMABLES;
 
   // ── SURFACE COAT COSTS ──
@@ -504,8 +523,8 @@ function recalc() {
 
   // ── MATERIAL TABLE (render FIRST to calculate adjusted material cost) ──
   renderMaterialTable('mat-table-wrap', {
-    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol,
-    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm,
+    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol, idealBinder, colourPack,
+    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm, rusicoSqm,
     surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
   });
 
@@ -741,6 +760,8 @@ function renderMaterialTable(wrapperId, d) {
     { p: PRODUCTS.micro_seal, key:'micro_seal', label:'Micro Seal', sqm: d.microSealSqm, data: d.mseal, desc:'Floors/Wet Areas/Benchtops/External' },
     { p: PRODUCTS.wp120, key:'wp120', label:'Velosit WP120', sqm: d.wp120Sqm, data: d.wp120, desc:'Wet areas only' },
     { p: PRODUCTS.mt_pol, key:'mt_pol', label:'MT-POL Polymer', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
+    { p: PRODUCTS.ideal_binder, key:'ideal_binder', label:'Ideal Binder', sqm: d.rusicoSqm, data: d.idealBinder, desc:'Rusico system only' },
+    { p: PRODUCTS.colour_pack, key:'colour_pack', label:'Colour Pack', sqm: d.totalSqm, data: d.colourPack, desc:'All systems (1 per 50 sqm)' },
   ];
 
   pooledRows.forEach(r => {

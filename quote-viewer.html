@@ -287,7 +287,7 @@ ${statusBanner}
     </tbody>
     <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
   </table>
-  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>${d.upfrontDiscPct || 5}% discount</strong> (capped at $${(d.upfrontDiscCap||1000).toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal || d.subtotal)}</strong>.</div>
+  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct || 5}% reduction</strong> (capped at $${(d.upfrontDiscCap||1000).toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal || d.subtotal)}</strong>.</div>
 </div>
 
 <!-- PAGE 5: TIMELINE + KEY TERMS -->

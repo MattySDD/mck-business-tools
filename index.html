@@ -378,7 +378,7 @@
 
         <!-- PAY-IN-FULL REDUCTION -->
         <div class="callout callout-gold" style="margin-top:14px;" id="q-upfront-callout">
-          <strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>5% discount</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong id="q-upfront-price">—</strong>
+          <strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>5% reduction</strong> (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong id="q-upfront-price">—</strong>
         </div>
 
         <div class="callout callout-info" style="margin-top:10px;">
@@ -621,7 +621,7 @@
           <div class="clause"><span class="clause-num">2.3</span><span class="clause-text">Works will not commence until cleared funds for the deposit and material claim are received.</span></div>
           <div class="clause"><span class="clause-num">2.4</span><span class="clause-text">The remaining balance is payable upon practical completion and must be paid within <strong>3 business days</strong> of the final invoice date, unless otherwise stated.</span></div>
           <div class="clause"><span class="clause-num">2.5</span><span class="clause-text">Time for payment is of the essence.</span></div>
-          <div class="clause"><span class="clause-num">2.6</span><span class="clause-text">If the full contract amount is paid prior to commencement, a 5% discount (capped at $1000) will be applied to the contract sum.</span></div>
+          <div class="clause"><span class="clause-num">2.6</span><span class="clause-text">If the full contract amount is paid prior to commencement, a 5% reduction (capped at $1000) will be applied to the contract sum.</span></div>
           <div class="clause"><span class="clause-num">2.7</span><span class="clause-text">If the deposit and material payment is not received in full within the 14-day timeframe, the scheduled start date may be released or delayed without further notice.</span></div>
         </div>
       </div>
@@ -976,9 +976,10 @@
             </div>
             <div class="settings-group">
               <div class="settings-group-title">RUSICO SYSTEM</div>
-              <div class="settings-row"><label>Rusico Base 20kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_price" step="0.01"></div>
-              <div class="settings-row"><label>Rusico Finish 20kg ($)</label><input type="number" id="set-rusico-finish" data-key="rusico_finish_price" step="0.01"></div>
-              <div class="settings-row"><label>Rusico Sealer 5L ($)</label><input type="number" id="set-rusico-sealer" data-key="rusico_sealer_price" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Base Coat 20kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_20kg" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Finish Coat 10kg ($)</label><input type="number" id="set-rusico-top" data-key="rusico_top_10kg" step="0.01"></div>
+              <div class="settings-row"><label>Ideal Binder 25L ($)</label><input type="number" id="set-ideal-binder" data-key="ideal_binder_25l" step="0.01"></div>
+              <div class="settings-row"><label>Colour Pack ($)</label><input type="number" id="set-colour-pack" data-key="colour_pack_cost" step="0.01"></div>
             </div>
             <div class="settings-group">
               <div class="settings-group-title">COMMON MATERIALS</div>
@@ -1025,8 +1026,8 @@
             <div class="settings-group">
               <div class="settings-group-title">PAYMENT &amp; CREDIT</div>
               <div class="settings-row"><label>Credit limit ($)</label><input type="number" id="set-credit-limit" data-key="credit_limit" step="1000"></div>
-              <div class="settings-row"><label>Upfront discount (%)</label><input type="number" id="set-upfront-disc" data-key="upfront_discount_pct" step="1"></div>
-              <div class="settings-row"><label>Upfront discount cap ($)</label><input type="number" id="set-upfront-cap" data-key="upfront_discount_cap" step="100"></div>
+              <div class="settings-row"><label>Upfront reduction (%)</label><input type="number" id="set-upfront-disc" data-key="upfront_reduction_pct" step="1"></div>
+              <div class="settings-row"><label>Upfront reduction cap ($)</label><input type="number" id="set-upfront-cap" data-key="upfront_reduction_cap" step="100"></div>
               <div class="settings-row"><label>On-site measure fee ($)</label><input type="number" id="set-measure-fee" data-key="measure_fee" step="10"></div>
             </div>
             <div class="settings-group">
@@ -1058,10 +1059,10 @@
 </div><!-- /tab-settings -->
 
 
-<script src="settings.js?v=4"></script>
-<script src="calculator.js?v=4"></script>
-<script src="quote.js?v=4"></script>
-<script src="ai-agent.js?v=4"></script>
+<script src="settings.js?v=5"></script>
+<script src="calculator.js?v=5"></script>
+<script src="quote.js?v=5"></script>
+<script src="ai-agent.js?v=5"></script>
 
 </body>
 </html>

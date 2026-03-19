@@ -182,8 +182,8 @@ function updateQuoteTotals() {
   const depUnder = s('deposit_pct_under') || 10;
   const matPct = s('material_pct') || 50;
   const creditLimit = s('credit_limit') || 10000;
-  const upfrontDiscPct = s('upfront_discount_pct') || 5;
-  const upfrontDiscCap = s('upfront_discount_cap') || 1000;
+  const upfrontDiscPct = s('upfront_reduction_pct') || 5;
+  const upfrontDiscCap = s('upfront_reduction_cap') || 1000;
 
   const depositPct = subtotal > threshold ? depOver : depUnder;
   const depositAmt = subtotal * (depositPct / 100);
@@ -209,12 +209,12 @@ function updateQuoteTotals() {
     }
   }
 
-  // Pay-in-full discount
-  const upfrontEl = document.getElementById('q-upfront-discount');
+  // Pay-in-full reduction
+  const upfrontEl = document.getElementById('q-upfront-callout');
   if (upfrontEl) {
     const disc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
     const discTotal = subtotal - disc;
-    upfrontEl.innerHTML = `<strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>${upfrontDiscPct}% discount</strong> (capped at $${upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong>$${discTotal.toLocaleString(undefined, {minimumFractionDigits:2})}</strong> (saving $${disc.toLocaleString(undefined, {minimumFractionDigits:2})}).`;
+    upfrontEl.innerHTML = `<strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${upfrontDiscPct}% reduction</strong> (capped at $${upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong>$${discTotal.toLocaleString(undefined, {minimumFractionDigits:2})}</strong> (saving $${disc.toLocaleString(undefined, {minimumFractionDigits:2})}).`;
   }
 
   if (subtotal === 0) {
@@ -530,8 +530,8 @@ function extractQuoteData() {
   const depUnder = st('deposit_pct_under') || 10;
   const matPct = st('material_pct') || 50;
   const creditLimit = st('credit_limit') || 10000;
-  const upfrontDiscPct = st('upfront_discount_pct') || 5;
-  const upfrontDiscCap = st('upfront_discount_cap') || 1000;
+  const upfrontDiscPct = st('upfront_reduction_pct') || 5;
+  const upfrontDiscCap = st('upfront_reduction_cap') || 1000;
   const variationRate = st('variation_rate') || 150;
   const variationMinHrs = st('variation_min_hours') || 2;
   const variationMatAllowance = st('variation_material_allowance') || 500;
@@ -818,7 +818,7 @@ ${statusBanner}
     </tbody>
     <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
   </table>
-  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT DISCOUNT:</strong> A <strong>${d.upfrontDiscPct}% discount</strong> (capped at $${d.upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal)}</strong> (saving ${$(d.upfrontDisc)}).</div>
+  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct}% reduction</strong> (capped at $${d.upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal)}</strong> (saving ${$(d.upfrontDisc)}).</div>
 </div>
 
 <!-- PAGE 5: TIMELINE + KEY TERMS -->
