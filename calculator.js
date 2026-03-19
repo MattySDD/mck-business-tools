@@ -48,18 +48,18 @@ function getProducts() {
     micro_seal:   { name:'Micro Seal 5.5L',              packCost: s('micro_seal_5_5l') || 198.00, packCoverage:30, unit:'5.5L pack' },
     wp120:        { name:'Velosit WP120 20kg',           packCost: s('wp120_20kg') || 151.63,    packCoverage:20,  unit:'20kg pack' },
 
-    // SOLIDRO
-    solidro_zero: { name:'Solidro Zero 20kg',  packCost: s('solidro_zero_20kg') || 745.80, packKg:20, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:22 },
-    solidro_top:  { name:'Solidro Top 10kg',   packCost: s('solidro_top_10kg') || 627.00,  packKg:10, kgPerSqm:1/2.5, sqmPerKg:2.5, sqmPerPack:25 },
+    // SOLIDRO (spread rates from settings)
+    solidro_zero: { name:'Solidro Zero 20kg',  packCost: s('solidro_zero_20kg') || 745.80, packKg:20, sqmPerKg: s('solidro_zero_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
+    solidro_top:  { name:'Solidro Top 10kg',   packCost: s('solidro_top_10kg') || 627.00,  packKg:10, sqmPerKg: s('solidro_top_spread') || 2.5, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
 
-    // MICRO CEMENT (renamed from Microtopping)
-    mt_zero:  { name:'MT-Zero Base Coat 25kg',     packCost: s('mt_zero_25kg') || 259.17,  packKg:25, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:27.5 },
-    mt_w:     { name:'MT-W Finish Coat 17.5kg',    packCost: s('mt_w_17_5kg') || 211.80,   packKg:17.5, kgPerSqm:1/2.2, sqmPerKg:2.2, sqmPerPack:38.5 },
+    // MICRO CEMENT (spread rates from settings)
+    mt_zero:  { name:'MT-Zero Base Coat 25kg',     packCost: s('mt_zero_25kg') || 259.17,  packKg:25, sqmPerKg: s('mt_zero_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 25 * this.sqmPerKg; } },
+    mt_w:     { name:'MT-W Finish Coat 17.5kg',    packCost: s('mt_w_17_5kg') || 211.80,   packKg:17.5, sqmPerKg: s('mt_w_spread') || 2.2, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 17.5 * this.sqmPerKg; } },
     mt_pol:   { name:'MT-POL Liquid Polymer 17L',   packCost: s('mt_pol_17l') || 586.67,    packCoverage:46.75, unit:'17L pack' },
 
-    // RUSICO (External/Outdoor)
-    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, kgPerSqm:1/1.1, sqmPerKg:1.1, sqmPerPack:22 },
-    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, kgPerSqm:1/2.5, sqmPerKg:2.5, sqmPerPack:25 },
+    // RUSICO (spread rates from settings)
+    rusico_base:  { name:'Rusico Base Coat 20kg',   packCost: s('rusico_base_20kg') || 580.00,  packKg:20, sqmPerKg: s('rusico_base_spread') || 1.1, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 20 * this.sqmPerKg; } },
+    rusico_top:   { name:'Rusico Finish Coat 10kg', packCost: s('rusico_top_10kg') || 520.00,   packKg:10, sqmPerKg: s('rusico_top_spread') || 2.5, get kgPerSqm() { return 1/this.sqmPerKg; }, get sqmPerPack() { return 10 * this.sqmPerKg; } },
   };
 }
 
@@ -502,8 +502,16 @@ function recalc() {
   const variationCost = calcVars.totalCost;
   const variationRevenue = calcVars.totalRevenue;
 
-  // ── TOTALS (including variations) ──
-  const baseJobCost = totalMatCost + labourCost;
+  // ── MATERIAL TABLE (render FIRST to calculate adjusted material cost) ──
+  renderMaterialTable('mat-table-wrap', {
+    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol,
+    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm,
+    surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
+  });
+
+  // ── TOTALS (including variations + order qty overrides) ──
+  const effectiveMatCost = (window._adjustedMatCost !== undefined && Object.keys(materialOrderOverrides).length > 0) ? window._adjustedMatCost : totalMatCost;
+  const baseJobCost = effectiveMatCost + labourCost;
   const totalJobCost = baseJobCost + variationCost;
 
   // ── MCK RECOMMENDED SELL PRICE ──
@@ -527,7 +535,7 @@ function recalc() {
   }
 
   // ── UPDATE SUMMARY CARDS ──
-  setText('r-mat-cost', fmt(totalMatCost));
+  setText('r-mat-cost', fmt(effectiveMatCost));
   setText('r-mat-sub', getSystemLabel(lines) + ' system');
   setText('r-lab-cost', fmt(labourCost));
   setText('r-lab-sub', totalDays + ' days × 8hrs × ' + fmt(crewConfig.rate) + '/hr' + (totalDays === MIN_JOB_DAYS && adjustedDays < MIN_JOB_DAYS ? ' (MIN 4-DAY PROCESS)' : ''));
@@ -537,13 +545,6 @@ function recalc() {
 
   // ── SYSTEM COMPARISON TABLE ──
   renderSystemComparison(surfaceCalcs, pooledCost, labourCost, totalSqm);
-
-  // ── MATERIAL TABLE ──
-  renderMaterialTable('mat-table-wrap', {
-    primerRR, wbBlocker, pu100, mseal, mesh, wp120, mtPol,
-    primerRRSqm, wbBlockerSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm,
-    surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
-  });
 
   // ── SURFACE BREAKDOWN ──
   renderSurfaceBreakdown(surfaceCalcs);
@@ -626,15 +627,54 @@ function renderSystemComparison(surfaceCalcs, pooledCost, labourCost, totalSqm) 
   });
 }
 
+// ── MATERIAL ORDER QTY OVERRIDES ──────────────────────────
+let materialOrderOverrides = {}; // key: product identifier, value: order qty
+
+function onOrderQtyChange(key, calcQty, packCost) {
+  const input = document.getElementById('oq-' + key);
+  if (!input) return;
+  const val = parseInt(input.value);
+  if (isNaN(val) || val === calcQty) {
+    delete materialOrderOverrides[key];
+  } else {
+    materialOrderOverrides[key] = val;
+  }
+  recalcMaterialCostFromOverrides();
+}
+
+function resetOrderQty(key) {
+  delete materialOrderOverrides[key];
+  recalc();
+}
+
+function resetAllOrderQty() {
+  materialOrderOverrides = {};
+  recalc();
+}
+
+function recalcMaterialCostFromOverrides() {
+  // Re-run recalc to pick up overrides
+  recalc();
+}
+
+function getOrderQty(key, calcQty) {
+  return materialOrderOverrides[key] !== undefined ? materialOrderOverrides[key] : calcQty;
+}
+
 // ── RENDER MATERIAL TABLE ──────────────────────────────────
 function renderMaterialTable(wrapperId, d) {
   const PRODUCTS = getProducts();
 
-  let html = `<table class="mat-table">
+  let html = `<div style="margin-bottom:10px;text-align:right;"><button onclick="resetAllOrderQty()" class="add-surface-btn" style="font-size:10px;padding:6px 14px;">RESET ALL TO CALCULATED</button></div>`;
+  html += `<table class="mat-table">
     <thead><tr>
-      <th>PRODUCT</th><th>APPLIES TO</th><th class="right">PACKS</th>
+      <th>PRODUCT</th><th>APPLIES TO</th><th class="right">CALC QTY</th>
+      <th class="right" style="min-width:90px;">ORDER QTY</th>
       <th class="right">LEFTOVER</th><th class="right">UNIT COST</th><th class="right">LINE COST</th>
     </tr></thead><tbody>`;
+
+  let adjustedTotalMatCost = 0;
+  const matLineItems = [];
 
   // SURFACE COATS (grouped by system)
   const sysSurfaces = {};
@@ -645,79 +685,113 @@ function renderMaterialTable(wrapperId, d) {
 
   Object.entries(sysSurfaces).forEach(([sys, surfaces]) => {
     const sysLabel = { solidro:'SOLIDRO', microcement:'MICRO CEMENT', rusico:'RUSICO' }[sys];
-    html += `<tr class="system-header-row"><td colspan="6" style="color:var(--gold);font-weight:700;text-transform:uppercase;padding:12px 10px;background:rgba(201,168,76,0.08);">${sysLabel} SYSTEM</td></tr>`;
+    html += `<tr class="system-header-row"><td colspan="7" style="color:var(--gold);font-weight:700;text-transform:uppercase;padding:12px 10px;background:rgba(201,168,76,0.08);">${sysLabel} SYSTEM</td></tr>`;
 
     // Base coat
     let totalBasePacks = 0, totalBaseKg = 0;
     surfaces.forEach(l => { totalBasePacks += l.basePacks; totalBaseKg += parseFloat(l.baseKg); });
     const bp = surfaces[0].baseProduct;
-    const baseLeftoverKg = (totalBasePacks * bp.packKg) - totalBaseKg;
+    const baseKey = sys + '_base';
+    const baseOrderQty = getOrderQty(baseKey, totalBasePacks);
+    const baseLeftoverKg = (baseOrderQty * bp.packKg) - totalBaseKg;
     const baseLeftoverSqm = baseLeftoverKg * bp.sqmPerKg;
+    const baseCost = baseOrderQty * bp.packCost;
+    adjustedTotalMatCost += baseCost;
+    const baseChanged = baseOrderQty !== totalBasePacks;
     html += `<tr>
       <td>${bp.name}</td>
       <td>Base coat — ${surfaces.map(l=>l.name).join(', ')} (1 coat)</td>
       <td class="right">${totalBasePacks}</td>
+      <td class="right"><input type="number" id="oq-${baseKey}" value="${baseOrderQty}" min="0" style="width:55px;background:#1a1a1a;color:${baseChanged?'var(--amber)':'#fff'};border:1px solid ${baseChanged?'var(--amber)':'#333'};padding:4px 6px;text-align:center;font-size:12px;border-radius:3px;" oninput="onOrderQtyChange('${baseKey}',${totalBasePacks},${bp.packCost})"> ${baseChanged?'<button onclick="resetOrderQty(\''+baseKey+'\')" style="background:transparent;border:none;color:var(--amber);cursor:pointer;font-size:10px;padding:2px 4px;" title="Reset">↺</button>':''}</td>
       <td class="right">${baseLeftoverSqm.toFixed(1)} sqm</td>
       <td class="right">${fmt(bp.packCost)}</td>
-      <td class="right">${fmt(totalBasePacks * bp.packCost)}</td>
+      <td class="right" style="${baseChanged?'color:var(--amber);font-weight:700;':''}">${fmt(baseCost)}</td>
     </tr>`;
 
     // Top coat
     let totalTopPacks = 0, totalTopKg = 0;
     surfaces.forEach(l => { totalTopPacks += l.topPacks; totalTopKg += parseFloat(l.topKg); });
     const tp = surfaces[0].topProduct;
-    const topLeftoverKg = (totalTopPacks * tp.packKg) - totalTopKg;
+    const topKey = sys + '_top';
+    const topOrderQty = getOrderQty(topKey, totalTopPacks);
+    const topLeftoverKg = (topOrderQty * tp.packKg) - totalTopKg;
     const topLeftoverSqm = topLeftoverKg * tp.sqmPerKg;
+    const topCost = topOrderQty * tp.packCost;
+    adjustedTotalMatCost += topCost;
+    const topChanged = topOrderQty !== totalTopPacks;
     html += `<tr>
       <td>${tp.name}</td>
       <td>Top coat — ${surfaces.map(l=>l.name + (l.levelled?' (1 coat)':' (2 coats)')).join(', ')}</td>
       <td class="right">${totalTopPacks}</td>
+      <td class="right"><input type="number" id="oq-${topKey}" value="${topOrderQty}" min="0" style="width:55px;background:#1a1a1a;color:${topChanged?'var(--amber)':'#fff'};border:1px solid ${topChanged?'var(--amber)':'#333'};padding:4px 6px;text-align:center;font-size:12px;border-radius:3px;" oninput="onOrderQtyChange('${topKey}',${totalTopPacks},${tp.packCost})"> ${topChanged?'<button onclick="resetOrderQty(\''+topKey+'\')" style="background:transparent;border:none;color:var(--amber);cursor:pointer;font-size:10px;padding:2px 4px;" title="Reset">↺</button>':''}</td>
       <td class="right">${topLeftoverSqm.toFixed(1)} sqm</td>
       <td class="right">${fmt(tp.packCost)}</td>
-      <td class="right">${fmt(totalTopPacks * tp.packCost)}</td>
+      <td class="right" style="${topChanged?'color:var(--amber);font-weight:700;':''}">${fmt(topCost)}</td>
     </tr>`;
   });
 
   // POOLED PRODUCTS
-  html += `<tr class="system-header-row"><td colspan="6" style="color:var(--gold);font-weight:700;padding:12px 10px;background:rgba(201,168,76,0.08);">POOLED MATERIALS</td></tr>`;
+  html += `<tr class="system-header-row"><td colspan="7" style="color:var(--gold);font-weight:700;padding:12px 10px;background:rgba(201,168,76,0.08);">POOLED MATERIALS</td></tr>`;
 
   const pooledRows = [
-    { p: PRODUCTS.primer_rr, label:'PRIMER-RR', sqm: d.primerRRSqm, data: d.primerRR, desc:'Surfaces requiring primer' },
-    { p: PRODUCTS.wb_blocker, label:'WB Mesh Blocker', sqm: d.wbBlockerSqm, data: d.wbBlocker, desc:'Floors/Wet Areas/Plasterboard walls' },
-    { p: PRODUCTS.mesh, label:'Fibreglass Mesh', sqm: d.meshSqm, data: d.mesh, desc:'Floors/Wet Areas/Benchtops (not levelled)' },
-    { p: PRODUCTS.pu100, label:'PU100 Sealer', sqm: d.totalSqm, data: d.pu100, desc:'All surfaces' },
-    { p: PRODUCTS.micro_seal, label:'Micro Seal', sqm: d.microSealSqm, data: d.mseal, desc:'Floors/Wet Areas/Benchtops/External' },
-    { p: PRODUCTS.wp120, label:'Velosit WP120', sqm: d.wp120Sqm, data: d.wp120, desc:'Wet areas only' },
-    { p: PRODUCTS.mt_pol, label:'MT-POL Polymer', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
+    { p: PRODUCTS.primer_rr, key:'primer_rr', label:'PRIMER-RR', sqm: d.primerRRSqm, data: d.primerRR, desc:'Surfaces requiring primer' },
+    { p: PRODUCTS.wb_blocker, key:'wb_blocker', label:'WB Mesh Blocker', sqm: d.wbBlockerSqm, data: d.wbBlocker, desc:'Floors/Wet Areas/Plasterboard walls' },
+    { p: PRODUCTS.mesh, key:'mesh', label:'Fibreglass Mesh', sqm: d.meshSqm, data: d.mesh, desc:'Floors/Wet Areas/Benchtops (not levelled)' },
+    { p: PRODUCTS.pu100, key:'pu100', label:'PU100 Sealer', sqm: d.totalSqm, data: d.pu100, desc:'All surfaces' },
+    { p: PRODUCTS.micro_seal, key:'micro_seal', label:'Micro Seal', sqm: d.microSealSqm, data: d.mseal, desc:'Floors/Wet Areas/Benchtops/External' },
+    { p: PRODUCTS.wp120, key:'wp120', label:'Velosit WP120', sqm: d.wp120Sqm, data: d.wp120, desc:'Wet areas only' },
+    { p: PRODUCTS.mt_pol, key:'mt_pol', label:'MT-POL Polymer', sqm: d.polymerSqm, data: d.mtPol, desc:'Micro Cement system only' },
   ];
 
   pooledRows.forEach(r => {
     const applies = r.sqm > 0 ? `${r.desc} (${r.sqm.toFixed(0)} sqm)` : 'Not required';
+    const calcPacks = r.data.packs;
+    const orderQty = getOrderQty(r.key, calcPacks);
+    const lineCost = orderQty * r.p.packCost;
+    adjustedTotalMatCost += lineCost;
+    const changed = orderQty !== calcPacks;
+    const leftover = r.sqm > 0 ? ((orderQty * (r.p.packCoverage || 1)) - r.sqm).toFixed(1) + ' sqm' : '—';
     html += `<tr>
       <td>${r.p.name} <span class="pooled-badge">POOLED</span></td>
       <td>${applies}</td>
-      <td class="right">${r.data.packs}</td>
-      <td class="right">${r.data.leftover.toFixed(1)} sqm</td>
+      <td class="right">${calcPacks}</td>
+      <td class="right"><input type="number" id="oq-${r.key}" value="${orderQty}" min="0" style="width:55px;background:#1a1a1a;color:${changed?'var(--amber)':'#fff'};border:1px solid ${changed?'var(--amber)':'#333'};padding:4px 6px;text-align:center;font-size:12px;border-radius:3px;" oninput="onOrderQtyChange('${r.key}',${calcPacks},${r.p.packCost})"> ${changed?'<button onclick="resetOrderQty(\''+r.key+'\')" style="background:transparent;border:none;color:var(--amber);cursor:pointer;font-size:10px;padding:2px 4px;" title="Reset">↺</button>':''}</td>
+      <td class="right">${leftover}</td>
       <td class="right">${fmt(r.p.packCost)}</td>
-      <td class="right">${fmt(r.data.packs * r.p.packCost)}</td>
+      <td class="right" style="${changed?'color:var(--amber);font-weight:700;':''}">${fmt(lineCost)}</td>
     </tr>`;
   });
 
   // CONSUMABLES
+  adjustedTotalMatCost += CONSUMABLES;
   html += `<tr>
     <td>Consumables (flat per job)</td><td>All jobs</td>
     <td class="right">—</td><td class="right">—</td>
-    <td class="right">—</td><td class="right">${fmt(CONSUMABLES)}</td>
+    <td class="right">—</td><td class="right">—</td><td class="right">${fmt(CONSUMABLES)}</td>
   </tr>`;
+
+  // Check if any overrides exist
+  const hasOverrides = Object.keys(materialOrderOverrides).length > 0;
+  const origTotal = d.totalMatCost;
+  const diff = adjustedTotalMatCost - origTotal;
 
   html += `</tbody><tfoot>
     <tr class="total-row">
-      <td colspan="5">TOTAL MATERIAL COST</td>
-      <td class="right">${fmt(d.totalMatCost)}</td>
+      <td colspan="6">TOTAL MATERIAL COST${hasOverrides ? ' (ADJUSTED)' : ''}</td>
+      <td class="right" style="${hasOverrides?'color:var(--amber);':''}">` + fmt(adjustedTotalMatCost) + `</td>
     </tr>
   </tfoot></table>`;
 
+  if (hasOverrides) {
+    html += `<div style="margin-top:8px;font-size:12px;color:var(--amber);">
+      ORDER QTY ADJUSTED — Material cost ${diff >= 0 ? 'increased' : 'decreased'} by ${fmt(Math.abs(diff))} from calculated ${fmt(origTotal)}
+    </div>`;
+  }
+
   document.getElementById(wrapperId).innerHTML = html;
+
+  // Store adjusted material cost for margin recalc
+  window._adjustedMatCost = adjustedTotalMatCost;
 }
 
 // ── RENDER SURFACE BREAKDOWN ───────────────────────────────

@@ -88,16 +88,24 @@ const MCK_DEFAULTS = {
   measure_fee: 220,
 };
 
-// ── GET / SET ────────────────────────────────────────────
+const MCK_SETTINGS_BACKUP_KEY = 'mck_settings_backup';
+
+// ── GET / SET ────────────────────────────────────────
+// FIX 4: NEVER overwrite existing localStorage on page load.
+// Only write defaults if localStorage has NO settings at all.
 function getMCKSettings() {
   try {
     const stored = localStorage.getItem(MCK_SETTINGS_KEY);
     if (stored) {
       const parsed = JSON.parse(stored);
+      // Merge with defaults to fill any NEW keys added in updates
       return { ...MCK_DEFAULTS, ...parsed };
     }
   } catch (e) {}
-  return { ...MCK_DEFAULTS };
+  // First time ever — no stored settings exist. Save defaults once.
+  const defaults = { ...MCK_DEFAULTS };
+  localStorage.setItem(MCK_SETTINGS_KEY, JSON.stringify(defaults));
+  return defaults;
 }
 
 function saveMCKSettings(settings) {
@@ -107,6 +115,42 @@ function saveMCKSettings(settings) {
 function getSetting(key) {
   const s = getMCKSettings();
   return s[key] !== undefined ? s[key] : MCK_DEFAULTS[key];
+}
+
+// ── LOCK & RESTORE PRICES ────────────────────────────
+function lockPrices() {
+  const current = getMCKSettings();
+  localStorage.setItem(MCK_SETTINGS_BACKUP_KEY, JSON.stringify(current));
+  updateSettingsStatus('PRICES LOCKED — Backup saved. You can restore from this backup at any time.');
+  const btn = event?.target;
+  if (btn) {
+    const orig = btn.textContent;
+    btn.textContent = 'LOCKED ✓';
+    setTimeout(() => { btn.textContent = orig; }, 2000);
+  }
+}
+
+function restoreFromBackup() {
+  const backup = localStorage.getItem(MCK_SETTINGS_BACKUP_KEY);
+  if (!backup) {
+    updateSettingsStatus('NO BACKUP FOUND — Lock prices first to create a backup.');
+    return;
+  }
+  try {
+    const parsed = JSON.parse(backup);
+    saveMCKSettings(parsed);
+    loadSettingsToForm();
+    updateSettingsStatus('PRICES RESTORED from backup successfully.');
+    const btn = event?.target;
+    if (btn) {
+      const orig = btn.textContent;
+      btn.textContent = 'RESTORED ✓';
+      btn.style.background = '#27AE60';
+      setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 2000);
+    }
+  } catch (e) {
+    updateSettingsStatus('BACKUP DATA CORRUPTED — Cannot restore.');
+  }
 }
 
 // ── AUTH ──────────────────────────────────────────────────
