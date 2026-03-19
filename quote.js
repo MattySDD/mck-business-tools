@@ -194,9 +194,10 @@ function updateQuoteTotals() {
   document.getElementById('q-deposit-amt').textContent = '$' + depositAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
   document.getElementById('q-deposit-pct').textContent = depositPct + '%';
   document.getElementById('q-material-amt').textContent = '$' + materialAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('q-final-amt').textContent = '$' + finalAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('q-final-pct').textContent = finalPct + '%';
   document.getElementById('q-payment-total').textContent = '$' + subtotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  // Recalculate progress payment rows if toggle is on
+  updateProgressPaymentAmounts(subtotal, depositPct, matPct);
 
   // Credit limit warning
   const creditWarn = document.getElementById('q-credit-warning');
@@ -218,11 +219,173 @@ function updateQuoteTotals() {
   }
 
   if (subtotal === 0) {
-    ['q-deposit-amt','q-material-amt','q-final-amt','q-payment-total'].forEach(id => {
-      document.getElementById(id).textContent = '—';
+    ['q-deposit-amt','q-material-amt','q-payment-total'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = '—';
     });
-    document.getElementById('q-deposit-pct').textContent = '—';
-    document.getElementById('q-final-pct').textContent = '—';
+    const depPctEl = document.getElementById('q-deposit-pct');
+    if (depPctEl) depPctEl.textContent = '—';
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
+// PROGRESS PAYMENT TOGGLE
+// ═══════════════════════════════════════════════════════════
+
+function toggleProgressPayment() {
+  const toggle = document.getElementById('q-progress-toggle');
+  const track = document.getElementById('q-progress-toggle-track');
+  const thumb = document.getElementById('q-progress-toggle-thumb');
+  const addWrap = document.getElementById('q-add-progress-wrap');
+  const isOn = toggle && toggle.checked;
+
+  if (track) track.style.background = isOn ? '#c9a84c' : '#333';
+  if (thumb) { thumb.style.background = isOn ? '#000' : '#666'; thumb.style.left = isOn ? '22px' : '2px'; }
+  if (addWrap) addWrap.style.display = isOn ? 'block' : 'none';
+
+  if (isOn) {
+    // Add default progress payment row if none exist
+    const existing = document.querySelectorAll('.q-progress-row');
+    if (existing.length === 0) addProgressPaymentRow();
+  } else {
+    // Remove all progress rows
+    document.querySelectorAll('.q-progress-row').forEach(r => r.remove());
+    renumberPaymentRows();
+  }
+
+  // Trigger recalc
+  updateQuoteTotals();
+}
+
+function addProgressPaymentRow(pct) {
+  const body = document.getElementById('q-payment-body');
+  const finalRow = document.getElementById('q-pay-row-final');
+  if (!body || !finalRow) return;
+
+  const rowCount = document.querySelectorAll('.q-progress-row').length;
+  const defaultPct = pct || 25;
+  const rowId = 'q-progress-row-' + Date.now();
+
+  const tr = document.createElement('tr');
+  tr.className = 'q-progress-row';
+  tr.id = rowId;
+  tr.innerHTML = `
+    <td class="stage-num" id="stage-num-${rowId}">—</td>
+    <td>
+      <strong>Progress Payment ${rowCount + 1}</strong><br>
+      <input type="text" value="Mid-job progress claim" style="background:#1a1a1a;border:1px solid #444;color:#fff;padding:3px 6px;font-size:11px;width:180px;border-radius:3px;" class="prog-desc" oninput="">
+    </td>
+    <td id="prog-amt-${rowId}">—</td>
+    <td>
+      <input type="number" value="${defaultPct}" min="1" max="90" step="1" class="prog-pct-input" style="width:55px;background:#1a1a1a;border:1px solid #c9a84c;color:#c9a84c;padding:3px 6px;font-size:12px;font-weight:700;border-radius:3px;text-align:center;" onchange="balanceProgressPayments()" oninput="balanceProgressPayments()">
+      <span style="color:#888;font-size:11px;">%</span>
+    </td>
+    <td style="font-style:italic;color:var(--grey-mid);">On milestone</td>
+    <td class="no-print"><button onclick="removeProgressRow('${rowId}')" style="background:transparent;border:1px solid #666;color:#666;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px;">&times;</button></td>
+  `;
+
+  // Insert before final row
+  body.insertBefore(tr, finalRow);
+  renumberPaymentRows();
+  balanceProgressPayments();
+}
+
+function removeProgressRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (row) row.remove();
+  renumberPaymentRows();
+  balanceProgressPayments();
+}
+
+function renumberPaymentRows() {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  const rows = body.querySelectorAll('tr');
+  let num = 1;
+  rows.forEach(row => {
+    const stageCell = row.querySelector('.stage-num');
+    if (stageCell) { stageCell.textContent = num; num++; }
+  });
+}
+
+function balanceProgressPayments() {
+  const s = typeof getSetting === 'function' ? getSetting : (k => null);
+  const threshold = s('deposit_threshold') || 20000;
+  const depOver = s('deposit_pct_over') || 5;
+  const depUnder = s('deposit_pct_under') || 10;
+  const matPct = s('material_pct') || 50;
+
+  // Get current subtotal
+  let subtotal = 0;
+  document.querySelectorAll('.q-line-item').forEach(line => {
+    const qty = parseFloat(line.querySelector('.qty').value) || 0;
+    const rate = parseFloat(line.querySelector('.rate').value) || 0;
+    subtotal += qty * rate;
+  });
+  document.querySelectorAll('.q-variation-item').forEach(row => {
+    const hrs = parseFloat(row.querySelector('.var-hrs')?.value) || 0;
+    const rate = parseFloat(row.querySelector('.var-rate')?.value) || 0;
+    const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
+    subtotal += (hrs * rate) + mat;
+  });
+
+  const depositPct = subtotal > threshold ? depOver : depUnder;
+  updateProgressPaymentAmounts(subtotal, depositPct, matPct);
+}
+
+function updateProgressPaymentAmounts(subtotal, depositPct, matPct) {
+  const toggle = document.getElementById('q-progress-toggle');
+  const progressRows = document.querySelectorAll('.q-progress-row');
+  const hasProgress = toggle && toggle.checked && progressRows.length > 0;
+
+  if (!hasProgress) {
+    // Standard 3-row schedule
+    const finalPct = 100 - depositPct - matPct;
+    const finalAmt = subtotal * (finalPct / 100);
+    const finalAmtEl = document.getElementById('q-final-amt');
+    const finalPctEl = document.getElementById('q-final-pct');
+    if (finalAmtEl) finalAmtEl.textContent = subtotal > 0 ? '$' + finalAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    if (finalPctEl) finalPctEl.textContent = subtotal > 0 ? finalPct + '%' : '—';
+    const pctTotalEl = document.getElementById('q-payment-pct-total');
+    if (pctTotalEl) pctTotalEl.textContent = '100%';
+    return;
+  }
+
+  // Progress payment schedule: sum all progress row percentages
+  let totalProgressPct = 0;
+  progressRows.forEach(row => {
+    const inp = row.querySelector('.prog-pct-input');
+    totalProgressPct += parseFloat(inp?.value) || 0;
+  });
+
+  // Final pct = 100 - deposit - material - all progress
+  const finalPct = Math.max(0, 100 - depositPct - matPct - totalProgressPct);
+  const finalAmt = subtotal * (finalPct / 100);
+
+  // Update progress row amounts
+  progressRows.forEach(row => {
+    const inp = row.querySelector('.prog-pct-input');
+    const pct = parseFloat(inp?.value) || 0;
+    const amt = subtotal * (pct / 100);
+    const amtId = row.id ? 'prog-amt-' + row.id : null;
+    if (amtId) {
+      const amtEl = document.getElementById(amtId);
+      if (amtEl) amtEl.textContent = subtotal > 0 ? '$' + amt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    }
+  });
+
+  const finalAmtEl = document.getElementById('q-final-amt');
+  const finalPctEl = document.getElementById('q-final-pct');
+  if (finalAmtEl) finalAmtEl.textContent = subtotal > 0 ? '$' + finalAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+  if (finalPctEl) finalPctEl.textContent = subtotal > 0 ? finalPct + '%' : '—';
+
+  // Show total pct
+  const totalPct = depositPct + matPct + totalProgressPct + finalPct;
+  const pctTotalEl = document.getElementById('q-payment-pct-total');
+  if (pctTotalEl) {
+    pctTotalEl.textContent = Math.round(totalPct) + '%';
+    pctTotalEl.style.color = Math.round(totalPct) === 100 ? '#c9a84c' : '#ff4444';
   }
 }
 
@@ -542,8 +705,22 @@ function extractQuoteData() {
   const depositPct = subtotal > threshold ? depOver : depUnder;
   const depositAmt = subtotal * (depositPct / 100);
   const materialAmt = subtotal * (matPct / 100);
-  const finalPct = 100 - depositPct - matPct;
-  const finalAmt = subtotal - depositAmt - materialAmt;
+
+  // Progress payment rows
+  const progressToggle = document.getElementById('q-progress-toggle');
+  const hasProgress = progressToggle && progressToggle.checked;
+  const progressPayments = [];
+  if (hasProgress) {
+    document.querySelectorAll('.q-progress-row').forEach(row => {
+      const desc = row.querySelector('.prog-desc')?.value || 'Progress Payment';
+      const pct = parseFloat(row.querySelector('.prog-pct-input')?.value) || 0;
+      const amt = subtotal * (pct / 100);
+      progressPayments.push({ desc, pct, amt });
+    });
+  }
+  const totalProgressPct = progressPayments.reduce((s, p) => s + p.pct, 0);
+  const finalPct = Math.max(0, 100 - depositPct - matPct - totalProgressPct);
+  const finalAmt = subtotal * (finalPct / 100);
   const upfrontDisc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
   const upfrontTotal = subtotal - upfrontDisc;
 
@@ -586,6 +763,7 @@ function extractQuoteData() {
     colourFinish, substrate, scope, startDate, duration, completion,
     lineItems, variationItems, subtotal, gst, grandTotal, baseSubtotal, varSubtotal,
     depositPct, depositAmt, materialAmt, finalPct, finalAmt, matPct,
+    progressPayments,
     creditLimit, upfrontDiscPct, upfrontDiscCap, upfrontDisc, upfrontTotal,
     variationRate, variationMinHrs, variationMatAllowance,
     overdueAdminFee, overdueInterest, measureFee,
@@ -652,7 +830,8 @@ html, body {
   font-size: 10pt; line-height: 1.5;
 }
 .container { max-width: 800px; margin: 0 auto; padding: 20pt; }
-.page-section { page-break-after: always; padding: 0; }
+.page-section { padding: 0; margin-bottom: 0; }
+.page-section + .page-section { page-break-before: always; }
 .page-section:last-child { page-break-after: auto; }
 .doc-header { border-bottom: 2px solid #c9a84c; padding-bottom: 16pt; margin-bottom: 16pt; }
 .header-row { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14pt; flex-wrap: wrap; gap: 12pt; }
@@ -725,8 +904,11 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 }
 @media print {
   html, body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  body { background: #0a0a0a !important; }
+  html, body { background: #0a0a0a !important; height: auto !important; min-height: 0 !important; }
+  .container { padding: 0 !important; }
   .action-bar, .no-print { display: none !important; }
+  .page-section { page-break-inside: avoid; }
+  .page-section + .page-section { page-break-before: always; }
 }
 </style>
 </head>
@@ -814,7 +996,8 @@ ${statusBanner}
     <tbody>
       <tr><td class="pay-stage">1</td><td><strong>Booking Deposit</strong><br><span class="pay-note">Secures your place in the schedule</span></td><td class="right">${$(d.depositAmt)}</td><td class="right">${d.depositPct}%</td><td class="pay-note">On acceptance</td></tr>
       <tr><td class="pay-stage">2</td><td><strong>Material Payment</strong><br><span class="pay-note">Works do not start until paid</span></td><td class="right">${$(d.materialAmt)}</td><td class="right">${d.matPct}%</td><td class="pay-note">Prior to start date</td></tr>
-      <tr><td class="pay-stage">3</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
+      ${(d.progressPayments||[]).map((p,i) => `<tr><td class="pay-stage">${3+i}</td><td><strong>${p.desc}</strong><br><span class="pay-note">Progress payment on milestone</span></td><td class="right">${$(p.amt)}</td><td class="right">${p.pct}%</td><td class="pay-note">On milestone</td></tr>`).join('')}
+      <tr><td class="pay-stage">${3+(d.progressPayments||[]).length}</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
     </tbody>
     <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
   </table>
@@ -886,17 +1069,26 @@ ${!showAcceptBtn ? `<script>window.onload=function(){setTimeout(function(){windo
 // ═══════════════════════════════════════════════════════════
 
 function generatePDFQuote() {
-  const d = extractQuoteData();
-  const html = buildQuoteHTML(d);
-  saveQuoteRevision(d);
-
-  const printWindow = window.open('', '_blank');
-  if (printWindow) {
-    printWindow.document.write(html);
-    printWindow.document.close();
-  } else {
-    alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
+  // Ensure MCK signature is pre-drawn before extracting data
+  // Re-draw in case canvas was resized since last draw
+  if (typeof preDrawMCKSignature === 'function') {
+    preDrawMCKSignature('q-mck-sig-canvas');
   }
+
+  // Small delay to ensure canvas render is complete
+  setTimeout(function() {
+    const d = extractQuoteData();
+    const html = buildQuoteHTML(d);
+    saveQuoteRevision(d);
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(html);
+      printWindow.document.close();
+    } else {
+      alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
+    }
+  }, 150);
 }
 
 

@@ -431,15 +431,35 @@
         <div class="callout callout-gold" style="margin-bottom:14px;">
           <strong>PAYMENT STRUCTURE:</strong> Booking deposit is <strong>5% if contract value exceeds $20,000</strong> or <strong>10% if contract value is under $20,000</strong>. Material payment is due before commencement. Works do not start until cleared funds are received.
         </div>
-        <table class="payment-table">
-          <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th style="width:22%">AMOUNT (EX GST)</th><th style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
-          <tbody>
-            <tr><td class="stage-num">1</td><td><strong>Booking Deposit</strong><br><span style="font-size:11px;color:var(--grey-mid);">Secures your place in the schedule</span></td><td id="q-deposit-amt">&nbsp;</td><td id="q-deposit-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">On acceptance</td></tr>
-            <tr><td class="stage-num">2</td><td><strong>Material Payment</strong><br><span style="font-size:11px;color:var(--grey-mid);">Works do not start until paid</span></td><td id="q-material-amt">&nbsp;</td><td>50%</td><td style="font-style:italic;color:var(--grey-mid);">Prior to start date</td></tr>
-            <tr><td class="stage-num">3</td><td><strong>Final Claim</strong><br><span style="font-size:11px;color:var(--grey-mid);">On practical completion and sign-off</span></td><td id="q-final-amt">&nbsp;</td><td id="q-final-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">Within 3 business days</td></tr>
+
+        <!-- Progress Payment Toggle -->
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;padding:10px 14px;background:#111;border:1px solid #333;border-radius:4px;">
+          <label style="display:flex;align-items:center;gap:10px;cursor:pointer;font-size:12px;font-weight:700;letter-spacing:1px;color:#c9a84c;">
+            <div style="position:relative;width:44px;height:24px;">
+              <input type="checkbox" id="q-progress-toggle" onchange="toggleProgressPayment()" style="opacity:0;width:0;height:0;position:absolute;">
+              <span id="q-progress-toggle-track" style="position:absolute;top:0;left:0;right:0;bottom:0;background:#333;border-radius:12px;transition:0.2s;cursor:pointer;"></span>
+              <span id="q-progress-toggle-thumb" style="position:absolute;top:2px;left:2px;width:20px;height:20px;background:#666;border-radius:50%;transition:0.2s;"></span>
+            </div>
+            INCLUDE PROGRESS PAYMENT?
+          </label>
+          <span style="font-size:11px;color:#888;">Adds a mid-job progress claim. All percentages auto-balance to 100%.</span>
+        </div>
+
+        <table class="payment-table" id="q-payment-table">
+          <thead><tr><th style="width:5%">#</th><th style="width:30%">STAGE</th><th style="width:20%">AMOUNT (EX GST)</th><th style="width:20%">% OF CONTRACT</th><th style="width:17%">DUE</th><th style="width:8%" class="no-print">%</th></tr></thead>
+          <tbody id="q-payment-body">
+            <tr id="q-pay-row-deposit"><td class="stage-num">1</td><td><strong>Booking Deposit</strong><br><span style="font-size:11px;color:var(--grey-mid);">Secures your place in the schedule</span></td><td id="q-deposit-amt">&nbsp;</td><td id="q-deposit-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">On acceptance</td><td class="no-print">—</td></tr>
+            <tr id="q-pay-row-material"><td class="stage-num">2</td><td><strong>Material Payment</strong><br><span style="font-size:11px;color:var(--grey-mid);">Works do not start until paid</span></td><td id="q-material-amt">&nbsp;</td><td id="q-material-pct">50%</td><td style="font-style:italic;color:var(--grey-mid);">Prior to start date</td><td class="no-print">—</td></tr>
+            <tr id="q-pay-row-final"><td class="stage-num" id="q-final-stage-num">3</td><td><strong>Final Claim</strong><br><span style="font-size:11px;color:var(--grey-mid);">On practical completion and sign-off</span></td><td id="q-final-amt">&nbsp;</td><td id="q-final-pct">—</td><td style="font-style:italic;color:var(--grey-mid);">Within 3 business days</td><td class="no-print">—</td></tr>
           </tbody>
-          <tfoot><tr><td colspan="2">TOTAL CONTRACT VALUE (EX GST)</td><td id="q-payment-total">&nbsp;</td><td>100%</td><td>&nbsp;</td></tr></tfoot>
+          <tfoot><tr><td colspan="2">TOTAL CONTRACT VALUE (EX GST)</td><td id="q-payment-total">&nbsp;</td><td id="q-payment-pct-total" style="font-weight:700;">100%</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr></tfoot>
         </table>
+
+        <!-- Add Progress Payment button (only visible when toggle is ON) -->
+        <div id="q-add-progress-wrap" style="display:none;margin-top:10px;">
+          <button class="btn-add-line no-print" onclick="addProgressPaymentRow()" style="font-size:11px;padding:6px 16px;">+ ADD PROGRESS PAYMENT ROW</button>
+          <span style="font-size:11px;color:#888;margin-left:10px;">Percentages auto-balance on change.</span>
+        </div>
       </div>
 
       <!-- 06 TIMELINE -->
@@ -1059,10 +1079,10 @@
 </div><!-- /tab-settings -->
 
 
-<script src="settings.js?v=5"></script>
-<script src="calculator.js?v=5"></script>
-<script src="quote.js?v=5"></script>
-<script src="ai-agent.js?v=5"></script>
+<script src="settings.js?v=6"></script>
+<script src="calculator.js?v=6"></script>
+<script src="quote.js?v=6"></script>
+<script src="ai-agent.js?v=6"></script>
 
 </body>
 </html>
