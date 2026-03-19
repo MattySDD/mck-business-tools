@@ -152,28 +152,68 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   <div class="loading"><h2>LOADING QUOTE...</h2></div>
 </div>
 
+<script src="quote-storage.js?v=1"></script>
 <script>
-(function() {
+(async function() {
   const container = document.getElementById('quote-container');
-  const $ = v => '$' + v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  const $ = v => '$' + (v != null ? Number(v) : 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 
   // Parse URL parameters
   const params = new URLSearchParams(window.location.search);
+  const quoteId = params.get('id');
   const base64Data = params.get('data');
 
-  if (!base64Data) {
+  let d;
+
+  if (quoteId) {
+    // NEW SYSTEM: Load from GitHub via quote ID
+    try {
+      const result = await MCK_QUOTE_STORAGE.loadQuote(quoteId);
+      if (result.success) {
+        d = result.data;
+      } else {
+        container.innerHTML = '<div class="error-state"><h2>QUOTE NOT FOUND</h2><p>Quote ID <strong>' + quoteId + '</strong> could not be found. It may have been removed or the link may be incorrect.</p><p style="margin-top:12pt;"><a href="index.html" style="color:#c9a84c;">Go to MCK Business Tools</a></p></div>';
+        return;
+      }
+    } catch (e) {
+      container.innerHTML = '<div class="error-state"><h2>LOADING ERROR</h2><p>Failed to load quote data. Please check your internet connection and try again.</p><p style="color:#666;font-size:9pt;margin-top:8pt;">Error: ' + e.message + '</p></div>';
+      return;
+    }
+  } else if (base64Data) {
+    // LEGACY SYSTEM: Decode from base64 URL (backwards compatibility)
+    try {
+      const jsonStr = decodeURIComponent(escape(atob(base64Data)));
+      d = JSON.parse(jsonStr);
+    } catch (e) {
+      container.innerHTML = '<div class="error-state"><h2>INVALID QUOTE DATA</h2><p>The quote data could not be decoded. The link may be corrupted. Please request a new link.</p></div>';
+      return;
+    }
+  } else {
     container.innerHTML = '<div class="error-state"><h2>NO QUOTE DATA</h2><p>This link does not contain valid quote data. Please request a new link from Micro Cement King.</p></div>';
     return;
   }
 
-  let d;
-  try {
-    const jsonStr = decodeURIComponent(escape(atob(base64Data)));
-    d = JSON.parse(jsonStr);
-  } catch (e) {
-    container.innerHTML = '<div class="error-state"><h2>INVALID QUOTE DATA</h2><p>The quote data could not be decoded. The link may be corrupted. Please request a new link.</p></div>';
-    return;
-  }
+  // ═══ SAFE DEFAULTS — ensures backwards compatibility with old base64 links ═══
+  d.validityLabel = d.validityLabel || '48 Hours';
+  d.validityBanner = d.validityBanner || 'QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE';
+  d.preparedBy = d.preparedBy || 'King Mannion';
+  d.subtotal = d.subtotal || 0;
+  d.gst = d.gst || (d.subtotal * 0.1);
+  d.grandTotal = d.grandTotal || (d.subtotal * 1.1);
+  d.depositPct = d.depositPct || 10;
+  d.depositAmt = d.depositAmt || (d.subtotal * 0.1);
+  d.matPct = d.matPct || 50;
+  d.materialAmt = d.materialAmt || (d.subtotal * 0.5);
+  d.finalPct = d.finalPct || 40;
+  d.finalAmt = d.finalAmt || (d.subtotal * 0.4);
+  d.upfrontTotal = d.upfrontTotal || (d.subtotal * 0.95);
+  d.lineItems = (d.lineItems || []).map(l => ({
+    ...l,
+    total: l.total != null ? l.total : ((l.qty || 0) * (l.rate || 0))
+  }));
+  d.inclusions = d.inclusions || [];
+  d.exclusions = d.exclusions || [];
+  d.measureFee = d.measureFee || 220;
 
   // Check expiry
   let isExpired = false;
@@ -339,6 +379,7 @@ ${statusBanner}
 
 <div class="action-bar no-print">
   <button class="action-btn ghost" onclick="window.print()">PRINT / SAVE PDF</button>
+  <button class="action-btn ghost" onclick="editQuote('${d.quoteNumber}')">EDIT QUOTE</button>
   ${!isExpired && status !== 'ACCEPTED' ? '<button class="action-btn" onclick="showAcceptModal()">ACCEPT &amp; SIGN</button>' : ''}
 </div>
 `;
@@ -446,6 +487,12 @@ ${statusBanner}
       }
     } catch(e) {}
   }
+
+  // Edit Quote — redirect to index.html with edit param
+  window.editQuote = function(quoteNumber) {
+    const baseUrl = window.location.href.replace(/quote-viewer\.html.*$/, '');
+    window.location.href = baseUrl + 'index.html?edit=' + encodeURIComponent(quoteNumber);
+  };
 
   // Update page title
   document.title = 'MCK Quote \u2014 ' + d.quoteNumber + ' \u2014 ' + (d.clientName || 'Client');

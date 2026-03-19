@@ -1096,16 +1096,39 @@ function generatePDFQuote() {
 // SHAREABLE QUOTE LINK
 // ═══════════════════════════════════════════════════════════
 
-function generateShareableLink() {
+async function generateShareableLink() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
 
-  const jsonStr = JSON.stringify(d);
-  const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-  const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+  // Show saving indicator
+  const btn = document.querySelector('[onclick*="generateShareableLink"]');
+  const origText = btn ? btn.textContent : '';
+  if (btn) { btn.textContent = 'SAVING...'; btn.disabled = true; }
 
-  showShareModal(shareUrl, d.clientName);
+  try {
+    const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
+    if (result.success) {
+      showShareModal(result.url, d.clientName);
+    } else {
+      // Fallback to base64 if GitHub save fails
+      console.warn('GitHub save failed, using base64 fallback:', result.error);
+      const jsonStr = JSON.stringify(d);
+      const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+      const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+      const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+      showShareModal(shareUrl, d.clientName);
+    }
+  } catch (e) {
+    console.error('Share error:', e);
+    // Fallback to base64
+    const jsonStr = JSON.stringify(d);
+    const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+    const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+    showShareModal(shareUrl, d.clientName);
+  } finally {
+    if (btn) { btn.textContent = origText; btn.disabled = false; }
+  }
 }
 
 function showShareModal(url, clientName) {
@@ -1165,24 +1188,28 @@ function shareViaSMS(url, clientName) {
 }
 
 // Direct buttons from quote tab
-function shareQuoteWhatsApp() {
+async function shareQuoteWhatsApp() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
-  const jsonStr = JSON.stringify(d);
-  const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-  const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+  const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
+  const shareUrl = result.success ? result.url : (() => {
+    const jsonStr = JSON.stringify(d);
+    const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    return window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'quote-viewer.html?data=' + base64;
+  })();
   const name = d.clientName || 'there';
   window.open('https://wa.me/?text=' + encodeURIComponent(`Hi ${name}, please find your Micro Cement King quote here: ${shareUrl}`), '_blank');
 }
 
-function shareQuoteSMS() {
+async function shareQuoteSMS() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
-  const jsonStr = JSON.stringify(d);
-  const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
-  const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-  const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+  const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
+  const shareUrl = result.success ? result.url : (() => {
+    const jsonStr = JSON.stringify(d);
+    const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    return window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'quote-viewer.html?data=' + base64;
+  })();
   const name = d.clientName || 'there';
   window.open('sms:?body=' + encodeURIComponent(`Hi ${name}, please find your Micro Cement King quote here: ${shareUrl}`));
 }
@@ -1329,7 +1356,187 @@ function clearQuoteHistory() {
 
 
 // ═══════════════════════════════════════════════════════════
+// EDIT MODE — Load quote from GitHub for editing
+// ═══════════════════════════════════════════════════════════
+
+async function loadQuoteForEditing(quoteId) {
+  if (!quoteId || typeof MCK_QUOTE_STORAGE === 'undefined') return false;
+
+  try {
+    const result = await MCK_QUOTE_STORAGE.loadQuote(quoteId);
+    if (!result.success || !result.data) {
+      console.error('Failed to load quote for editing:', result.error);
+      return false;
+    }
+
+    const d = result.data;
+
+    // Set quote number (keep the same ID for re-saving)
+    const qNum = document.getElementById('q-quote-number');
+    if (qNum) qNum.textContent = d.quoteNumber;
+
+    // Set date
+    const dateEl = document.getElementById('q-date-display');
+    if (dateEl) dateEl.textContent = d.dateIssued;
+
+    // Set text fields
+    const textFields = {
+      'q-prepared-by': d.preparedBy,
+      'q-client-name': d.clientName,
+      'q-client-phone': d.clientPhone,
+      'q-client-email': d.clientEmail,
+      'q-project-address': d.projectAddress,
+      'q-site-contact': d.siteContact,
+      'q-colour-finish': d.colourFinish,
+      'q-substrate': d.substrate,
+      'q-scope': d.scope,
+      'q-start-date': d.startDate,
+      'q-duration': d.duration,
+      'q-completion': d.completion,
+    };
+
+    Object.entries(textFields).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (!el || !val) return;
+      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') {
+        el.value = val;
+      } else {
+        el.textContent = val;
+      }
+    });
+
+    // Set validity if available
+    if (d.validityHours) {
+      const sel = document.getElementById('q-validity-select');
+      if (sel) {
+        sel.value = d.validityHours;
+        updateQuoteValidity();
+      }
+    }
+
+    // Populate line items
+    const body = document.getElementById('q-pricing-body');
+    if (body) {
+      body.innerHTML = '';
+      if (d.lineItems && d.lineItems.length > 0) {
+        d.lineItems.forEach(l => addQuoteLine(l.desc, l.qty, l.unit, l.rate));
+      }
+    }
+
+    // Populate variation items
+    const varBody = document.getElementById('q-variation-body');
+    if (varBody) {
+      varBody.innerHTML = '';
+      if (d.variationItems && d.variationItems.length > 0) {
+        d.variationItems.forEach(v => addVariationLine(v.desc, v.hrs, v.mat));
+      }
+    }
+
+    // Populate progress payments
+    if (d.progressPayments && d.progressPayments.length > 0) {
+      const toggle = document.getElementById('q-progress-toggle');
+      if (toggle) {
+        toggle.checked = true;
+        if (typeof toggleProgressPayment === 'function') toggleProgressPayment();
+        // Remove default row and add stored ones
+        const container = document.getElementById('q-progress-rows');
+        if (container) {
+          container.innerHTML = '';
+          d.progressPayments.forEach(p => {
+            if (typeof addProgressPaymentRow === 'function') addProgressPaymentRow();
+            const rows = container.querySelectorAll('.q-progress-row');
+            const lastRow = rows[rows.length - 1];
+            if (lastRow) {
+              const descInput = lastRow.querySelector('.prog-desc');
+              const pctInput = lastRow.querySelector('.prog-pct-input');
+              if (descInput) descInput.value = p.desc;
+              if (pctInput) pctInput.value = p.pct;
+            }
+          });
+        }
+      }
+    }
+
+    // Populate inclusions
+    if (d.inclusions && d.inclusions.length > 0) {
+      const incList = document.getElementById('q-inclusions');
+      if (incList) {
+        incList.innerHTML = '';
+        d.inclusions.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          li.contentEditable = true;
+          incList.appendChild(li);
+        });
+      }
+    }
+
+    // Populate exclusions
+    if (d.exclusions && d.exclusions.length > 0) {
+      const excList = document.getElementById('q-exclusions');
+      if (excList) {
+        excList.innerHTML = '';
+        d.exclusions.forEach(item => {
+          const li = document.createElement('li');
+          li.textContent = item;
+          li.contentEditable = true;
+          excList.appendChild(li);
+        });
+      }
+    }
+
+    // Populate signature fields
+    const sigTypedName = document.getElementById('q-sig-typed-name');
+    if (sigTypedName && d.clientTypedName) sigTypedName.value = d.clientTypedName;
+    const sigDate = document.getElementById('q-sig-date');
+    if (sigDate && d.clientSigDate) sigDate.value = d.clientSigDate;
+    const mckTypedName = document.getElementById('q-mck-typed-name');
+    if (mckTypedName && d.mckTypedName) mckTypedName.value = d.mckTypedName;
+    const mckSigDate = document.getElementById('q-mck-sig-date');
+    if (mckSigDate && d.mckSigDate) mckSigDate.value = d.mckSigDate;
+
+    // Update totals
+    updateQuoteTotals();
+
+    // Switch to quote tab
+    if (typeof switchTab === 'function') switchTab('quote');
+
+    // Show edit banner
+    const tab = document.getElementById('tab-quote');
+    if (tab) {
+      const existing = tab.querySelector('.auto-populate-banner');
+      if (existing) existing.remove();
+      const banner = document.createElement('div');
+      banner.className = 'auto-populate-banner';
+      banner.innerHTML = '<span class="apb-icon">&#9998;</span> EDITING QUOTE ' + d.quoteNumber + ' — CHANGES WILL SAVE TO THE SAME QUOTE ID';
+      tab.insertBefore(banner, tab.firstChild);
+    }
+
+    return true;
+  } catch (e) {
+    console.error('Error loading quote for editing:', e);
+    return false;
+  }
+}
+
+
+// ═══════════════════════════════════════════════════════════
 // INIT ON LOAD
 // ═══════════════════════════════════════════════════════════
 
-document.addEventListener('DOMContentLoaded', initQuote);
+document.addEventListener('DOMContentLoaded', async function() {
+  initQuote();
+
+  // Check for edit mode via URL parameter
+  const params = new URLSearchParams(window.location.search);
+  const editId = params.get('edit');
+  if (editId) {
+    // Small delay to ensure DOM is fully ready
+    setTimeout(async () => {
+      const loaded = await loadQuoteForEditing(editId);
+      if (!loaded) {
+        alert('Could not load quote ' + editId + ' for editing. It may not exist or there was a network error.');
+      }
+    }, 300);
+  }
+});
