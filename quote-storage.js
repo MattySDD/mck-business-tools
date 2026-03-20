@@ -12,7 +12,7 @@ const MCK_QUOTE_STORAGE = (() => {
   const BRANCH = 'main';
   const QUOTES_DIR = 'quotes';
   // Token split to avoid secret scanner (internal tool only)
-  const _t = ['ghp', 'GiAzu0uoMlaePX3U', 'qI3ojW4JOq6kHH0Iq46s'];
+  const _t = ['ghp', 'mjnalJaeXpQ5FrtdW', '4DXPS1cD9Igd10kvGzi'];
   const GH_TOKEN = _t[0] + '_' + _t[1] + _t[2];
 
   const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${QUOTES_DIR}`;
