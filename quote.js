@@ -22,6 +22,75 @@ const MCK_SIGNATURE_DATA_URL = (() => {
   return 'data:image/svg+xml;base64,' + btoa(svg);
 })();
 
+// ── ATTACHMENT HANDLING ──────────────────────────────────
+window._quoteAttachments = [];
+
+function handleFileUpload(event) {
+  const files = event.target.files;
+  if (!files || files.length === 0) return;
+  Array.from(files).forEach(file => {
+    if (file.size > 5 * 1024 * 1024) {
+      alert('File "' + file.name + '" exceeds 5MB limit. Skipping.');
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const att = {
+        name: file.name,
+        type: file.type,
+        size: file.size,
+        data: e.target.result
+      };
+      window._quoteAttachments.push(att);
+      renderAttachments();
+    };
+    reader.readAsDataURL(file);
+  });
+  event.target.value = '';
+}
+
+function removeAttachment(index) {
+  window._quoteAttachments.splice(index, 1);
+  renderAttachments();
+}
+
+function renderAttachments() {
+  const grid = document.getElementById('q-attachments-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  window._quoteAttachments.forEach((att, i) => {
+    const card = document.createElement('div');
+    card.className = 'attachment-card';
+    const isPDF = att.type === 'application/pdf';
+    if (isPDF) {
+      card.innerHTML = `<div class="attachment-pdf-icon">PDF</div><div class="att-name">${att.name}</div><div class="att-remove" onclick="removeAttachment(${i})">&times;</div>`;
+    } else {
+      card.innerHTML = `<img src="${att.data}" alt="${att.name}"><div class="att-name">${att.name}</div><div class="att-remove" onclick="removeAttachment(${i})">&times;</div>`;
+    }
+    grid.appendChild(card);
+  });
+}
+
+// ── SPECIAL CONDITIONS ─────────────────────────────────
+let _specialConditionCount = 0;
+
+function addSpecialCondition(text) {
+  _specialConditionCount++;
+  const list = document.getElementById('tc-special-conditions-list');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'special-condition-row';
+  row.style.cssText = 'display:flex;gap:10px;align-items:center;margin-bottom:8px;';
+  row.innerHTML = `<span class="clause-num" style="min-width:30px;">SC.${_specialConditionCount}</span><input type="text" class="sc-input" value="${text || ''}" placeholder="Enter special condition..." style="flex:1;padding:8px 12px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:var(--white);font-family:inherit;font-size:12px;"><button onclick="this.parentElement.remove()" style="background:none;border:1px solid #ff4444;color:#ff4444;border-radius:50%;width:24px;height:24px;cursor:pointer;font-size:14px;line-height:22px;">&times;</button>`;
+  list.appendChild(row);
+  if (!text) row.querySelector('input').focus();
+}
+
+function getSpecialConditions() {
+  const inputs = document.querySelectorAll('#tc-special-conditions-list .sc-input');
+  return Array.from(inputs).map(inp => inp.value.trim()).filter(v => v);
+}
+
 function initQuote() {
   const year = new Date().getFullYear();
   const rand = Math.floor(1000 + Math.random() * 9000);
@@ -752,6 +821,7 @@ function extractQuoteData() {
 
   // Typed names and dates
   const clientTypedName = (document.getElementById('q-sig-typed-name') || {}).value || '';
+  const clientPrintName = (document.getElementById('q-sig-print-name') || {}).value || '';
   const clientSigDate = (document.getElementById('q-sig-date') || {}).value || '';
   const mckTypedName = (document.getElementById('q-mck-typed-name') || {}).value || 'King Mannion';
   const mckTypedTitle = (document.getElementById('q-mck-typed-title') || {}).value || 'Director';
@@ -768,7 +838,9 @@ function extractQuoteData() {
     variationRate, variationMinHrs, variationMatAllowance,
     overdueAdminFee, overdueInterest, measureFee,
     inclusions, exclusions, sigDataURL, mckSigDataURL,
-    clientTypedName, clientSigDate, mckTypedName, mckTypedTitle, mckSigDate,
+    clientTypedName, clientPrintName, clientSigDate, mckTypedName, mckTypedTitle, mckSigDate,
+    attachments: window._quoteAttachments || [],
+    specialConditions: getSpecialConditions(),
     createdAt: new Date().toISOString(),
   };
 }
@@ -1029,6 +1101,22 @@ ${statusBanner}
   <div class="callout" style="margin-top:12pt;"><strong>FULL TERMS &amp; CONDITIONS:</strong> The above is a summary only. Full Payment Terms &amp; Conditions are set out in the companion document.</div>
 </div>
 
+${(d.attachments && d.attachments.length > 0) ? `
+<!-- SITE PHOTOS & PLANS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS &amp; MARKUPS</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180pt,1fr));gap:10pt;">
+    ${d.attachments.map(att => att.type === 'application/pdf' ? `<div style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:12pt;text-align:center;"><div style="font-size:24pt;color:#c8a84e;margin-bottom:6pt;">PDF</div><div style="font-size:8pt;color:#999;">${att.name}</div></div>` : `<div style="border:1px solid #333;border-radius:4px;overflow:hidden;"><img src="${att.data}" style="width:100%;height:auto;display:block;"><div style="padding:4pt 8pt;font-size:8pt;color:#999;background:#1a1a1a;">${att.name}</div></div>`).join('')}
+  </div>
+</div>` : ''}
+
+${(d.specialConditions && d.specialConditions.length > 0) ? `
+<!-- SPECIAL CONDITIONS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num" style="background:#c8a84e;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>
+  ${d.specialConditions.map((c, i) => `<div style="padding:6pt 0;border-bottom:1px solid #333;"><span style="color:#c8a84e;font-weight:700;margin-right:8pt;">SC.${i+1}</span><span style="color:#fff;">${c}</span></div>`).join('')}
+</div>` : ''}
+
 <!-- PAGE 6: SIGNATURES -->
 <div class="page-section">
   <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
@@ -1038,6 +1126,7 @@ ${statusBanner}
       <div class="sig-label">CLIENT SIGNATURE</div>
       <div class="sig-line">${d.sigDataURL ? `<img src="${d.sigDataURL}" alt="Client Signature">` : ''}</div>
       <div class="sig-sub">Full Name: <strong style="color:#fff;">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Print Name: <strong style="color:#fff;">${d.clientPrintName || '___________________________'}</strong></div>
       <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : '___________________________'}</strong></div>
     </div>
     <div class="sig-block">
@@ -1488,12 +1577,28 @@ async function loadQuoteForEditing(quoteId) {
     // Populate signature fields
     const sigTypedName = document.getElementById('q-sig-typed-name');
     if (sigTypedName && d.clientTypedName) sigTypedName.value = d.clientTypedName;
+    const sigPrintName = document.getElementById('q-sig-print-name');
+    if (sigPrintName && d.clientPrintName) sigPrintName.value = d.clientPrintName;
     const sigDate = document.getElementById('q-sig-date');
     if (sigDate && d.clientSigDate) sigDate.value = d.clientSigDate;
     const mckTypedName = document.getElementById('q-mck-typed-name');
     if (mckTypedName && d.mckTypedName) mckTypedName.value = d.mckTypedName;
     const mckSigDate = document.getElementById('q-mck-sig-date');
     if (mckSigDate && d.mckSigDate) mckSigDate.value = d.mckSigDate;
+
+    // Restore special conditions
+    if (d.specialConditions && d.specialConditions.length > 0) {
+      const scList = document.getElementById('tc-special-conditions-list');
+      if (scList) scList.innerHTML = '';
+      _specialConditionCount = 0;
+      d.specialConditions.forEach(c => addSpecialCondition(c));
+    }
+
+    // Restore attachments
+    if (d.attachments && d.attachments.length > 0) {
+      window._quoteAttachments = d.attachments;
+      renderAttachments();
+    }
 
     // Update totals
     updateQuoteTotals();

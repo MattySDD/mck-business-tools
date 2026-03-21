@@ -157,6 +157,14 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 (async function() {
   const container = document.getElementById('quote-container');
   const $ = v => '$' + (v != null ? Number(v) : 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  function formatDateForPDF(dateStr) {
+    if (!dateStr) return '___________________________';
+    try {
+      const parts = dateStr.split('-');
+      if (parts.length === 3) return parts[2] + '/' + parts[1] + '/' + parts[0];
+      return dateStr;
+    } catch(e) { return dateStr; }
+  }
 
   // Parse URL parameters
   const params = new URLSearchParams(window.location.search);
@@ -354,6 +362,22 @@ ${statusBanner}
   </div>
 </div>
 
+${(d.attachments && d.attachments.length > 0) ? `
+<!-- SITE PHOTOS & PLANS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS &amp; MARKUPS</h2></div>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180pt,1fr));gap:10pt;">
+    ${d.attachments.map(function(att){return att.type==='application/pdf' ? '<div style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:12pt;text-align:center;"><div style="font-size:24pt;color:#c9a84c;margin-bottom:6pt;">PDF</div><div style="font-size:8pt;color:#999;">'+att.name+'</div></div>' : '<div style="border:1px solid #333;border-radius:4px;overflow:hidden;"><img src="'+att.data+'" style="width:100%;height:auto;display:block;"><div style="padding:4pt 8pt;font-size:8pt;color:#999;background:#1a1a1a;">'+att.name+'</div></div>';}).join('')}
+  </div>
+</div>` : ''}
+
+${(d.specialConditions && d.specialConditions.length > 0) ? `
+<!-- SPECIAL CONDITIONS -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num" style="background:#c9a84c;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>
+  ${d.specialConditions.map(function(c,i){return '<div style="padding:6pt 0;border-bottom:1px solid #333;"><span style="color:#c9a84c;font-weight:700;margin-right:8pt;">SC.'+(i+1)+'</span><span style="color:#fff;">'+c+'</span></div>';}).join('')}
+</div>` : ''}
+
 <!-- PAGE 6: SIGNATURES -->
 <div class="page-section">
   <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
@@ -362,15 +386,16 @@ ${statusBanner}
     <div class="sig-block">
       <div class="sig-label">CLIENT SIGNATURE</div>
       <div class="sig-line" id="client-sig-line">${d.sigDataURL ? '<img src="'+d.sigDataURL+'" alt="Client Signature">' : ''}</div>
-      <div class="sig-sub">Full Name: ${d.clientName || '___________________________'}</div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: <span id="client-sig-date">___________________________</span></div>
+      <div class="sig-sub">Full Name: <strong style="color:#fff;">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Print Name: <strong style="color:#fff;">${d.clientPrintName || '___________________________'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : '___________________________'}</span></strong></div>
     </div>
     <div class="sig-block">
       <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
       <div class="sig-line">${d.mckSigDataURL ? '<img src="'+d.mckSigDataURL+'" alt="MCK Signature">' : ''}</div>
-      <div class="sig-sub">Name: King Mannion</div>
-      <div class="sig-sub" style="margin-top:4pt;">Title: Director</div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: ___________________________</div>
+      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.mckSigDate ? formatDateForPDF(d.mckSigDate) : '___________________________'}</strong></div>
     </div>
   </div>
   <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>

@@ -498,6 +498,21 @@
         </div>
       </div>
 
+      <!-- 07B SITE PHOTOS & PLANS -->
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS &amp; MARKUPS</h2></div>
+        <p style="color:var(--grey-mid);font-size:12px;margin-bottom:16px;">Attach site photos, plans, or marked-up drawings for reference</p>
+        <div id="q-attachments-container">
+          <div id="q-attachments-grid" class="attachments-grid"></div>
+          <div style="margin-top:12px;">
+            <label class="add-surface-btn" style="cursor:pointer;display:inline-block;">
+              <input type="file" id="q-file-upload" accept="image/jpeg,image/png,application/pdf" multiple style="display:none;" onchange="handleFileUpload(event)">
+              + ATTACH FILES (JPG, PNG, PDF)
+            </label>
+          </div>
+        </div>
+      </div>
+
       <!-- 08 SIGNATURE -->
       <div class="section">
         <div class="section-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
@@ -522,12 +537,16 @@
           </div>
           <div class="sig-fields-row">
             <div class="sig-field">
-              <label class="sig-field-label">FULL NAME (TYPED)</label>
-              <input type="text" id="q-sig-typed-name" class="sig-field-input" placeholder="Type your full name here">
+              <label class="sig-field-label">FULL NAME</label>
+              <input type="text" id="q-sig-typed-name" class="sig-field-input sig-editable" placeholder="Type client full name">
+            </div>
+            <div class="sig-field">
+              <label class="sig-field-label">PRINT NAME</label>
+              <input type="text" id="q-sig-print-name" class="sig-field-input sig-editable" placeholder="Type client print name">
             </div>
             <div class="sig-field">
               <label class="sig-field-label">DATE</label>
-              <input type="date" id="q-sig-date" class="sig-field-input">
+              <input type="date" id="q-sig-date" class="sig-field-input sig-editable">
             </div>
           </div>
         </div>
@@ -558,7 +577,7 @@
             </div>
             <div class="sig-field">
               <label class="sig-field-label">DATE</label>
-              <input type="date" id="q-mck-sig-date" class="sig-field-input">
+              <input type="date" id="q-mck-sig-date" class="sig-field-input sig-editable">
             </div>
           </div>
         </div>
@@ -628,6 +647,17 @@
     </div>
 
     <div class="doc-body" id="tc-body">
+      <!-- SPECIAL CONDITIONS (editable, appears before standard T&Cs) -->
+      <div class="section" id="tc-special-conditions-section">
+        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num" style="background:var(--gold);color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>
+          <p style="color:var(--grey-mid);font-size:11px;margin-bottom:12px;">Add project-specific conditions below. These appear before the standard terms.</p>
+          <div id="tc-special-conditions-list"></div>
+          <div style="margin-top:12px;" class="no-print">
+            <button class="add-surface-btn" onclick="addSpecialCondition()">+ ADD CONDITION</button>
+          </div>
+        </div>
+      </div>
+
       <!-- Section 1 -->
       <div class="section">
         <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">1</div><h2>FORMATION OF CONTRACT</h2></div>
@@ -1083,11 +1113,11 @@
 </div><!-- /tab-settings -->
 
 
-<script src="settings.js?v=10"></script>
-<script src="calculator.js?v=10"></script>
-<script src="quote-storage.js?v=10"></script>
-<script src="quote.js?v=10"></script>
-<script src="ai-agent.js?v=10"></script>
+<script src="settings.js?v=12"></script>
+<script src="calculator.js?v=12"></script>
+<script src="quote-storage.js?v=12"></script>
+<script src="quote.js?v=12"></script>
+<script src="ai-agent.js?v=12"></script>
 
 </body>
 </html>
