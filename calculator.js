@@ -1088,7 +1088,7 @@ function renderLabourBreakdown(prepDays, floorDays, wallDays, sealerDays, totalD
   if (!wrap) return;
   const crewLabel = document.querySelector('#crew-grid .crew-option.active .crew-label')?.textContent || '';
   const prepLabel = document.querySelector('#prep-grid .crew-option.active .crew-label')?.textContent || '';
-  const minNote = totalDays > adjustedDays ? `<div class="callout callout-gold" style="margin-top:10px;"><strong>MINIMUM 4-DAY PROCESS APPLIED</strong> — Calculated ${adjustedDays} days, enforced minimum of ${MIN_JOB_DAYS} days (prep + base coat + top coat + seal)</div>` : '';
+  const minNote = totalDays > adjustedDays ? `<div class="callout callout-gold" style="margin-top:10px;"><strong>MINIMUM 4-DAY PROCESS APPLIED</strong> — Calculated ${adjustedDays} days, enforced minimum of ${getMinJobDays()} days (prep + base coat + top coat + seal)</div>` : '';
 
   wrap.innerHTML = `
     <div class="results-grid wide">
