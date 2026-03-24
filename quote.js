@@ -1189,58 +1189,90 @@ async function generateShareableLink() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
 
-  // Show saving indicator
-  const btn = document.querySelector('[onclick*="generateShareableLink"]');
-  const origText = btn ? btn.textContent : '';
-  if (btn) { btn.textContent = 'SAVING...'; btn.disabled = true; }
+  // Show saving indicator on all share buttons
+  const btns = document.querySelectorAll('[onclick*="generateShareableLink"]');
+  const origTexts = [];
+  btns.forEach(btn => { origTexts.push(btn.textContent); btn.textContent = 'SAVING...'; btn.disabled = true; });
 
   try {
     const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
     if (result.success) {
-      showShareModal(result.url, d.clientName);
+      showShareModal(result.urls, d.clientName, d.quoteNumber);
     } else {
       // Fallback to base64 if GitHub save fails
       console.warn('GitHub save failed, using base64 fallback:', result.error);
       const jsonStr = JSON.stringify(d);
       const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
       const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-      const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
-      showShareModal(shareUrl, d.clientName);
+      const fallbackUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+      showShareModal({ client: fallbackUrl, tc: fallbackUrl, internal: fallbackUrl }, d.clientName, d.quoteNumber);
     }
   } catch (e) {
     console.error('Share error:', e);
-    // Fallback to base64
     const jsonStr = JSON.stringify(d);
     const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
     const baseUrl = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
-    const shareUrl = baseUrl + 'quote-viewer.html?data=' + base64;
-    showShareModal(shareUrl, d.clientName);
+    const fallbackUrl = baseUrl + 'quote-viewer.html?data=' + base64;
+    showShareModal({ client: fallbackUrl, tc: fallbackUrl, internal: fallbackUrl }, d.clientName, d.quoteNumber);
   } finally {
-    if (btn) { btn.textContent = origText; btn.disabled = false; }
+    btns.forEach((btn, i) => { btn.textContent = origTexts[i] || 'SHARE QUOTE LINK'; btn.disabled = false; });
   }
 }
 
-function showShareModal(url, clientName) {
+function showShareModal(urls, clientName, quoteNumber) {
   const existing = document.getElementById('share-modal');
   if (existing) existing.remove();
+
+  // urls = { client, tc, internal }
+  const clientUrl = urls.client || urls.internal || '';
+  const tcUrl = urls.tc || '';
+  const internalUrl = urls.internal || '';
+  const safeName = (clientName || '').replace(/'/g, "\\'");
 
   const modal = document.createElement('div');
   modal.id = 'share-modal';
   modal.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:9999;display:flex;align-items:center;justify-content:center;padding:20px;';
 
   modal.innerHTML = `
-    <div style="background:#111;border:1px solid #c9a84c;border-radius:8px;padding:30px;max-width:600px;width:100%;max-height:90vh;overflow-y:auto;">
-      <h3 style="color:#c9a84c;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 20px 0;">SHAREABLE QUOTE LINK</h3>
-      <div style="background:#0a0a0a;border:1px solid #333;border-radius:4px;padding:12px;margin-bottom:16px;word-break:break-all;">
-        <input type="text" id="share-url-input" value="${url}" readonly style="width:100%;background:transparent;border:none;color:#fff;font-family:monospace;font-size:11px;outline:none;">
+    <div style="background:#111;border:1px solid #c9a84c;border-radius:8px;padding:30px;max-width:650px;width:100%;max-height:90vh;overflow-y:auto;">
+      <h3 style="color:#c9a84c;font-size:14px;font-weight:800;letter-spacing:2px;text-transform:uppercase;margin:0 0 6px 0;">SHARE QUOTE ${quoteNumber || ''}</h3>
+      <p style="color:#666;font-size:10px;margin:0 0 20px 0;">Choose the link type below. Client link hides all internal data. T&C link shows terms only.</p>
+
+      <!-- CLIENT LINK -->
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="background:#27AE60;color:#fff;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px;">CLIENT</span><span style="color:#aaa;font-size:10px;">Quote + T&Cs — no internal data visible</span></div>
+        <div style="background:#0a0a0a;border:1px solid #333;border-radius:4px;padding:10px;display:flex;gap:8px;align-items:center;">
+          <input type="text" id="share-url-client" value="${clientUrl}" readonly style="flex:1;background:transparent;border:none;color:#fff;font-family:monospace;font-size:10px;outline:none;">
+          <button onclick="copyLink('share-url-client',this)" style="background:#27AE60;color:#fff;border:none;padding:8px 14px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;white-space:nowrap;">COPY</button>
+        </div>
+        <div style="display:flex;gap:6px;margin-top:6px;">
+          <button onclick="shareViaWhatsApp('${clientUrl}','${safeName}');" style="background:#25D366;color:#fff;border:none;padding:8px 16px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;">WHATSAPP</button>
+          <button onclick="shareViaSMS('${clientUrl}','${safeName}');" style="background:#3498DB;color:#fff;border:none;padding:8px 16px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;">SMS</button>
+          <button onclick="shareViaEmail('${clientUrl}','${safeName}','${quoteNumber || ''}');" style="background:#c9a84c;color:#000;border:none;padding:8px 16px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;">EMAIL</button>
+        </div>
       </div>
-      <div style="display:flex;gap:10px;flex-wrap:wrap;">
-        <button onclick="copyShareLink()" style="background:#c9a84c;color:#000;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;" id="copy-link-btn">COPY LINK</button>
-        <button onclick="shareViaWhatsApp('${url}','${(clientName || '').replace(/'/g, "\\'")}');" style="background:#25D366;color:#fff;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;">WHATSAPP</button>
-        <button onclick="shareViaSMS('${url}','${(clientName || '').replace(/'/g, "\\'")}');" style="background:#3498DB;color:#fff;border:none;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:4px;">SMS</button>
-        <button onclick="document.getElementById('share-modal').remove();" style="background:transparent;border:1px solid #666;color:#aaa;padding:12px 24px;font-family:inherit;font-size:11px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:4px;">CLOSE</button>
+
+      <!-- T&C ONLY LINK -->
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="background:#3498DB;color:#fff;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px;">T&C ONLY</span><span style="color:#aaa;font-size:10px;">Terms & Conditions + signature pad only</span></div>
+        <div style="background:#0a0a0a;border:1px solid #333;border-radius:4px;padding:10px;display:flex;gap:8px;align-items:center;">
+          <input type="text" id="share-url-tc" value="${tcUrl}" readonly style="flex:1;background:transparent;border:none;color:#fff;font-family:monospace;font-size:10px;outline:none;">
+          <button onclick="copyLink('share-url-tc',this)" style="background:#3498DB;color:#fff;border:none;padding:8px 14px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;white-space:nowrap;">COPY</button>
+        </div>
       </div>
-      <p style="color:#666;font-size:10px;margin-top:14px;line-height:1.6;">This link contains the full quote data encoded in the URL. The recipient can view, print, and accept the quote from their browser.</p>
+
+      <!-- INTERNAL LINK -->
+      <div style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="background:#c9a84c;color:#000;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px;">INTERNAL</span><span style="color:#aaa;font-size:10px;">Full view with margins + edit button</span></div>
+        <div style="background:#0a0a0a;border:1px solid #333;border-radius:4px;padding:10px;display:flex;gap:8px;align-items:center;">
+          <input type="text" id="share-url-internal" value="${internalUrl}" readonly style="flex:1;background:transparent;border:none;color:#fff;font-family:monospace;font-size:10px;outline:none;">
+          <button onclick="copyLink('share-url-internal',this)" style="background:#c9a84c;color:#000;border:none;padding:8px 14px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;white-space:nowrap;">COPY</button>
+        </div>
+      </div>
+
+      <div style="text-align:center;margin-top:16px;">
+        <button onclick="document.getElementById('share-modal').remove();" style="background:transparent;border:1px solid #666;color:#aaa;padding:12px 32px;font-family:inherit;font-size:11px;font-weight:700;text-transform:uppercase;cursor:pointer;border-radius:4px;">CLOSE</button>
+      </div>
     </div>
   `;
 
@@ -1248,20 +1280,25 @@ function showShareModal(url, clientName) {
   modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
 }
 
-function copyShareLink() {
-  const input = document.getElementById('share-url-input');
+function copyLink(inputId, btn) {
+  const input = document.getElementById(inputId);
   if (!input) return;
   input.select();
   navigator.clipboard.writeText(input.value).then(() => {
-    const btn = document.getElementById('copy-link-btn');
     if (btn) {
+      const origText = btn.textContent;
+      const origBg = btn.style.background;
       btn.textContent = 'COPIED \u2713';
-      btn.style.background = '#27AE60';
-      setTimeout(() => { btn.textContent = 'COPY LINK'; btn.style.background = '#c9a84c'; }, 2000);
+      setTimeout(() => { btn.textContent = origText; }, 2000);
     }
   }).catch(() => {
     document.execCommand('copy');
   });
+}
+
+// Legacy alias
+function copyShareLink() {
+  copyLink('share-url-client', document.getElementById('copy-link-btn'));
 }
 
 function shareViaWhatsApp(url, clientName) {
@@ -1276,12 +1313,19 @@ function shareViaSMS(url, clientName) {
   window.open('sms:?body=' + encodeURIComponent(message));
 }
 
-// Direct buttons from quote tab
+function shareViaEmail(url, clientName, quoteNumber) {
+  const name = clientName || 'there';
+  const subject = encodeURIComponent('Micro Cement King Quote' + (quoteNumber ? ' — ' + quoteNumber : ''));
+  const body = encodeURIComponent(`Hi ${name},\n\nPlease find your Micro Cement King quote here:\n${url}\n\nIf you have any questions, please don't hesitate to reach out.\n\nKind regards,\nMicro Cement King\n0468 053 819\nprojects@microcementking.com.au`);
+  window.open('mailto:?subject=' + subject + '&body=' + body);
+}
+
+// Direct buttons from quote tab — always use CLIENT link
 async function shareQuoteWhatsApp() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
   const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
-  const shareUrl = result.success ? result.url : (() => {
+  const shareUrl = result.success ? result.urls.client : (() => {
     const jsonStr = JSON.stringify(d);
     const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
     return window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'quote-viewer.html?data=' + base64;
@@ -1294,7 +1338,7 @@ async function shareQuoteSMS() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
   const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
-  const shareUrl = result.success ? result.url : (() => {
+  const shareUrl = result.success ? result.urls.client : (() => {
     const jsonStr = JSON.stringify(d);
     const base64 = btoa(unescape(encodeURIComponent(jsonStr)));
     return window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/') + 'quote-viewer.html?data=' + base64;

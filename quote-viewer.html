@@ -96,6 +96,18 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 .tc-item { background: #111111 !important; border: 1px solid #333; border-radius: 3px; padding: 8pt 10pt; font-size: 8pt; color: #ffffff; line-height: 1.5; }
 .tc-item .tc-head { color: #c9a84c; font-weight: 700; font-size: 7pt; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3pt; }
 
+/* Full T&Cs styling */
+.tc-section { margin-bottom: 20pt; }
+.tc-section-head { display: flex; align-items: center; gap: 10pt; margin-bottom: 10pt; padding-bottom: 6pt; border-bottom: 1px solid #333; }
+.tc-section-num { background: #c9a84c !important; color: #000 !important; font-weight: 800; font-size: 9pt; padding: 3pt 8pt; border-radius: 3px; min-width: 24pt; text-align: center; }
+.tc-section-head h2 { margin: 0; font-size: 10pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+.clause { display: flex; gap: 8pt; padding: 4pt 0; font-size: 9pt; line-height: 1.6; }
+.clause-num { color: #c9a84c; font-weight: 700; min-width: 30pt; font-size: 8pt; }
+.clause-text { color: #ddd; }
+.sub-clauses { padding-left: 38pt; }
+.sub-clause { display: flex; gap: 8pt; padding: 2pt 0; font-size: 8.5pt; }
+.sub-num { color: #c9a84c; font-weight: 600; min-width: 40pt; font-size: 7.5pt; }
+
 /* Signatures */
 .sig-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24pt; margin-top: 16pt; }
 .sig-label { font-size: 7pt; color: #c9a84c; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 6pt; }
@@ -111,7 +123,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 
 /* Action Bar */
 .action-bar { text-align: center; margin: 24pt 0; }
-.action-btn { background: #c9a84c; color: #000; border: none; padding: 14px 36px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px; margin: 0 8px; }
+.action-btn { background: #c9a84c; color: #000; border: none; padding: 14px 36px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px; margin: 0 8px; display: inline-block; }
 .action-btn:hover { opacity: 0.9; }
 .action-btn.ghost { background: transparent; border: 2px solid #c9a84c; color: #c9a84c; }
 
@@ -121,6 +133,14 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 .sig-modal h3 { color: #c9a84c; margin: 0 0 16px 0; font-size: 14px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; }
 .sig-modal canvas { background: #fff; border: 2px solid #c9a84c; border-radius: 4px; cursor: crosshair; width: 100%; touch-action: none; }
 .sig-modal .btn-row { display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap; }
+.sig-modal label { display: block; color: #c9a84c; font-size: 7pt; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; margin-top: 12px; }
+.sig-modal input { width: 100%; padding: 8px 12px; background: #0a0a0a; border: 1px solid #333; border-radius: 3px; color: #fff; font-family: inherit; font-size: 11px; }
+
+/* Saving indicator */
+.saving-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.8); z-index: 10000; display: flex; align-items: center; justify-content: center; }
+.saving-box { background: #111; border: 2px solid #c9a84c; border-radius: 8px; padding: 40px; text-align: center; }
+.saving-box h3 { color: #c9a84c; margin: 0 0 8px 0; font-size: 14px; letter-spacing: 2px; }
+.saving-box p { color: #aaa; margin: 0; font-size: 11px; }
 
 /* Error state */
 .error-state { text-align: center; padding: 60px 20px; }
@@ -130,6 +150,12 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
 /* Loading */
 .loading { text-align: center; padding: 80px 20px; }
 .loading h2 { color: #c9a84c; font-size: 14pt; letter-spacing: 2px; }
+
+/* View mode badge */
+.view-badge { display: inline-block; padding: 4pt 12pt; border-radius: 3px; font-size: 7pt; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12pt; }
+.view-badge.client { background: #27AE60; color: #fff; }
+.view-badge.internal { background: #c9a84c; color: #000; }
+.view-badge.tc { background: #3498DB; color: #fff; }
 
 @media (max-width: 600px) {
   .meta-grid { grid-template-columns: 1fr 1fr; }
@@ -152,7 +178,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   <div class="loading"><h2>LOADING QUOTE...</h2></div>
 </div>
 
-<script src="quote-storage.js?v=1"></script>
+<script src="quote-storage.js?v=2"></script>
 <script>
 (async function() {
   const container = document.getElementById('quote-container');
@@ -170,11 +196,16 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   const params = new URLSearchParams(window.location.search);
   const quoteId = params.get('id');
   const base64Data = params.get('data');
+  const viewMode = params.get('view') || 'internal'; // 'client', 'tc', or 'internal'
+
+  const isClient = viewMode === 'client';
+  const isTcOnly = viewMode === 'tc';
+  const isInternal = viewMode === 'internal' || (!isClient && !isTcOnly);
 
   let d;
 
   if (quoteId) {
-    // NEW SYSTEM: Load from GitHub via quote ID
+    // Load from GitHub via quote ID
     try {
       const result = await MCK_QUOTE_STORAGE.loadQuote(quoteId);
       if (result.success) {
@@ -188,7 +219,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
       return;
     }
   } else if (base64Data) {
-    // LEGACY SYSTEM: Decode from base64 URL (backwards compatibility)
+    // LEGACY: Decode from base64 URL (backwards compatibility)
     try {
       const jsonStr = decodeURIComponent(escape(atob(base64Data)));
       d = JSON.parse(jsonStr);
@@ -196,12 +227,15 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
       container.innerHTML = '<div class="error-state"><h2>INVALID QUOTE DATA</h2><p>The quote data could not be decoded. The link may be corrupted. Please request a new link.</p></div>';
       return;
     }
+  } else if (isTcOnly && !quoteId) {
+    // T&C only view without a quote — show standalone T&Cs
+    d = { quoteNumber: 'N/A', specialConditions: [] };
   } else {
     container.innerHTML = '<div class="error-state"><h2>NO QUOTE DATA</h2><p>This link does not contain valid quote data. Please request a new link from Micro Cement King.</p></div>';
     return;
   }
 
-  // ═══ SAFE DEFAULTS — ensures backwards compatibility with old base64 links ═══
+  // ═══ SAFE DEFAULTS ═══
   d.validityLabel = d.validityLabel || '48 Hours';
   d.validityBanner = d.validityBanner || 'QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE';
   d.preparedBy = d.preparedBy || 'King Mannion';
@@ -219,13 +253,19 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
     ...l,
     total: l.total != null ? l.total : ((l.qty || 0) * (l.rate || 0))
   }));
+  d.variationItems = d.variationItems || [];
   d.inclusions = d.inclusions || [];
   d.exclusions = d.exclusions || [];
+  d.specialConditions = d.specialConditions || [];
+  d.attachments = d.attachments || [];
+  d.progressPayments = d.progressPayments || [];
   d.measureFee = d.measureFee || 220;
+  d.baseSubtotal = d.baseSubtotal || d.subtotal;
+  d.varSubtotal = d.varSubtotal || 0;
 
   // Check expiry
   let isExpired = false;
-  let status = 'PENDING';
+  let status = d.status || 'PENDING';
   if (d.createdAt && d.validityHours) {
     const created = new Date(d.createdAt);
     const expiry = new Date(created.getTime() + d.validityHours * 60 * 60 * 1000);
@@ -235,11 +275,224 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
     }
   }
 
-  // Check if accepted (stored in localStorage by quote number)
+  // Check if accepted (stored in quote data or localStorage)
   const acceptedKey = 'mck_quote_accepted_' + d.quoteNumber;
-  if (localStorage.getItem(acceptedKey)) {
+  if (d.clientAcceptedAt || localStorage.getItem(acceptedKey)) {
     status = 'ACCEPTED';
   }
+
+  // ═══════════════════════════════════════════════════════════
+  // T&C ONLY VIEW
+  // ═══════════════════════════════════════════════════════════
+  if (isTcOnly) {
+    document.title = 'MCK Terms & Conditions' + (d.quoteNumber !== 'N/A' ? ' — ' + d.quoteNumber : '');
+
+    let scHTML = '';
+    if (d.specialConditions && d.specialConditions.length > 0) {
+      scHTML = '<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num" style="background:#c9a84c;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>' +
+        d.specialConditions.map(function(c,i){return '<div class="clause"><span class="clause-num">SC.'+(i+1)+'</span><span class="clause-text">'+c+'</span></div>';}).join('') +
+      '</div>';
+    }
+
+    container.innerHTML = `
+<div class="view-badge tc">TERMS & CONDITIONS</div>
+<div class="doc-header">
+  <div class="header-row">
+    <div class="brand-block">
+      <div class="label">PAYMENT TERMS & CONDITIONS</div>
+      <h1 style="font-size:18pt;">RENDER RENDER PTY LTD<br><span style="font-size:14pt;">trading as MICRO CEMENT KING</span></h1>
+    </div>
+    <div class="contact-block">
+      <div><strong>RENDER RENDER PTY LTD</strong> 0468 041 477</div>
+      <div><strong>MICRO CEMENT KING</strong> 0468 053 819</div>
+      <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
+      <div><strong>WEB</strong> renderking.com.au | microcementking.com.au</div>
+      <div style="margin-top:6pt;font-size:7.5pt;color:#666;">All prices ex GST unless stated</div>
+    </div>
+  </div>
+</div>
+
+${d.quoteNumber !== 'N/A' ? '<div class="callout" style="margin-bottom:16pt;"><strong>QUOTE REFERENCE:</strong> ' + d.quoteNumber + (d.clientName ? ' — ' + d.clientName : '') + '</div>' : ''}
+
+${scHTML}
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">1</div><h2>FORMATION OF CONTRACT</h2></div>
+  <div class="clause"><span class="clause-num">1.1</span><span class="clause-text">Acceptance of a quote, payment of a deposit, or written confirmation constitutes a legally binding agreement/contract with Render Render Pty Ltd trading as Micro Cement King.</span></div>
+  <div class="clause"><span class="clause-num">1.2</span><span class="clause-text">This agreement is governed by the Queensland Building and Construction Commission Act 1991 (QBCC Act) and the Building Industry Fairness (Security of Payment) Act 2017 (BIF Act) where applicable.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">2</div><h2>DEPOSIT & PAYMENT TERMS</h2></div>
+  <div class="clause"><span class="clause-num">2.1</span><span class="clause-text">A deposit payment of 5-10% is required to secure your project.</span></div>
+  <div class="clause"><span class="clause-num">2.2</span><span class="clause-text"><strong><u>50% material invoice</u></strong> will be issued following contract acceptance and approval.</span></div>
+  <div class="clause"><span class="clause-num">2.3</span><span class="clause-text">Works will not commence until cleared funds for the deposit and material claim are received.</span></div>
+  <div class="clause"><span class="clause-num">2.4</span><span class="clause-text">The remaining balance is payable upon practical completion and must be paid within <strong>3 business days</strong> of the final invoice date, unless otherwise stated.</span></div>
+  <div class="clause"><span class="clause-num">2.5</span><span class="clause-text">Time for payment is of the essence.</span></div>
+  <div class="clause"><span class="clause-num">2.6</span><span class="clause-text">If the full contract amount is paid prior to commencement, a 5% reduction (capped at $1000) will be applied to the contract sum.</span></div>
+  <div class="clause"><span class="clause-num">2.7</span><span class="clause-text">If the deposit and material payment is not received in full within the 14-day timeframe, the scheduled start date may be released or delayed without further notice.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">3</div><h2>CREDIT LIMIT PAYMENTS AND RECOVERY</h2></div>
+  <div class="clause"><span class="clause-num">3.1</span><span class="clause-text">A maximum credit limit of $10,000 AUD is extended at the sole discretion of Render Render Pty Ltd trading as Micro Cement King.</span></div>
+  <div class="clause"><span class="clause-num">3.2</span><span class="clause-text">Once the value of work completed and/or outstanding invoices exceeds this credit threshold, a progress claim will be issued in accordance with the BIF Act and must be paid within 1 business day before further work continues.</span></div>
+  <div class="clause"><span class="clause-num">3.3</span><span class="clause-text">Progress payments help maintain the pace and continuity of the job and ensure delivery schedules are upheld.</span></div>
+  <div class="clause"><span class="clause-num">3.4</span><span class="clause-text">All invoices are due strictly by the date stated on the invoice.</span></div>
+  <div class="clause"><span class="clause-num">3.5</span><span class="clause-text">Any invoice unpaid after the due date is considered overdue.</span></div>
+  <div class="clause"><span class="clause-num">3.6</span><span class="clause-text">An administrative fee of $220 (including GST) will be applied to overdue accounts to cover recovery administration.</span></div>
+  <div class="clause"><span class="clause-num">3.7</span><span class="clause-text">A 3-day grace period may be applied at the discretion of the Director to waive the administrative fee. If payment remains outstanding after this period, interest will accrue on overdue amounts at a rate of <strong>3% per week</strong>, calculated and invoiced weekly until paid in full.</span></div>
+  <div class="clause"><span class="clause-num">3.8</span><span class="clause-text">All payment claims issued under these terms are legally compliant with the Building Industry Fairness (Security of Payment) Act 2017 (QLD).</span></div>
+  <div class="clause"><span class="clause-num">3.9</span><span class="clause-text">The client is liable for all debt recovery costs associated with overdue accounts, including legal fees, adjudication applications, enforcement costs, and collection agency commissions.</span></div>
+  <div class="clause"><span class="clause-num">3.10</span><span class="clause-text">Accounts unpaid beyond <strong>30 days</strong> from the due date will be:</span></div>
+  <div class="sub-clauses">
+    <div class="sub-clause"><span class="sub-num">3.10.1</span><span class="clause-text">Registered as a formal debt with Creditor Watch</span></div>
+    <div class="sub-clause"><span class="sub-num">3.10.2</span><span class="clause-text">Referred to Creditor Watch recovery agents</span></div>
+    <div class="sub-clause"><span class="sub-num">3.10.3</span><span class="clause-text">Listed with recognised credit reporting agencies with Creditor Watch</span></div>
+    <div class="sub-clause"><span class="sub-num">3.10.4</span><span class="clause-text">Subject to legal proceedings without further notice</span></div>
+  </div>
+  <div class="clause"><span class="clause-num">3.11</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves all rights available under the Building Industry Fairness (Security of Payment) Act 2017 (QLD), including the right to lodge a subcontractor's charge, submit a payment withholding request, or take any other lawful recovery action until full settlement is received.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">4</div><h2>SUSPENSION OF WORKS</h2></div>
+  <div class="clause"><span class="clause-num">4.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves the right to suspend works immediately if payment terms are breached.</span></div>
+  <div class="clause"><span class="clause-num">4.2</span><span class="clause-text">Any suspension due to non-payment may result in rescheduling and additional costs.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">5</div><h2>OWNERSHIP OF MATERIALS AND WORKS</h2></div>
+  <div class="clause"><span class="clause-num">5.1</span><span class="clause-text">All materials, finishes, and works supplied by Render Render Pty Ltd trading as Micro Cement King remain the property of the contractor until payment is received in full for all claims associated with the contract.</span></div>
+  <div class="clause"><span class="clause-num">5.2</span><span class="clause-text">Legal ownership transfers only once full settlement is cleared and confirmed.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">6</div><h2>WORK SUSPENSION AND SUBCONTRACTING LIMITATIONS</h2></div>
+  <div class="clause"><span class="clause-num">6.1</span><span class="clause-text">If any invoice remains unpaid beyond its due date or the agreed credit limit is exceeded, Render Render Pty Ltd trading as Micro Cement King reserves the right to stop work immediately.</span></div>
+  <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">In the event of a payment dispute or unresolved claim, no third-party contractors, builders, or suppliers are to be engaged to rectify, modify, or continue any work originally performed by Render Render Pty Ltd trading as Micro Cement King without prior written agreement from the Director.</span></div>
+  <div class="clause"><span class="clause-num">6.3</span><span class="clause-text">This clause ensures the integrity of the job and allows for proper dispute handling without interference or miscommunication.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">7</div><h2>VARIATIONS AND DELAYS</h2></div>
+  <div class="clause"><span class="clause-num">7.1</span><span class="clause-text">Any changes to the original scope of work must be submitted in writing and confirmed by both parties prior to execution.</span></div>
+  <div class="clause"><span class="clause-num">7.2</span><span class="clause-text">Additional work or alterations will be costed accordingly and billed as a variation, which may be invoiced separately or included in the final claim.</span></div>
+  <div class="clause"><span class="clause-num">7.3</span><span class="clause-text">Delays caused by weather, site restrictions, or other trades may require rescheduling or additional charges, which will be communicated clearly at the time.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">8</div><h2>WORKMANSHIP WARRANTY</h2></div>
+  <div class="clause"><span class="clause-num">8.1</span><span class="clause-text">All workmanship is covered under statutory warranties as required by Queensland law.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">9</div><h2>SUPPLIER PRODUCT WARRANTY</h2></div>
+  <div class="clause"><span class="clause-num">9.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King uses only premium, industry-leading products and materials supplied by trusted manufacturers with proven quality.</span></div>
+  <div class="clause"><span class="clause-num">9.2</span><span class="clause-text">All finishes, sealers, coatings, and specialised products used in your project are backed by the warranties of their respective suppliers.</span></div>
+  <div class="clause"><span class="clause-num">9.3</span><span class="clause-text">We confidently pass these protections on to you, ensuring that your investment is safeguarded by both our workmanship and the quality of the materials we use.</span></div>
+</div>
+
+<div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">10</div><h2>TERMINATION</h2></div>
+  <div class="clause"><span class="clause-num">10.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves the right to terminate this agreement if payment terms are repeatedly breached, site conditions become unworkable, or if outside contractors are engaged before a written dispute is resolved.</span></div>
+  <div class="clause"><span class="clause-num">10.2</span><span class="clause-text">Upon termination, any work completed up to that point will be invoiced and is payable immediately.</span></div>
+</div>
+
+<div style="text-align:center;padding:16pt 0;color:#666;font-size:9pt;letter-spacing:2px;">— END OF TERMS —</div>
+
+<!-- SIGNATURE SECTION -->
+<div class="page-section">
+  <div class="sec-hd"><div class="sec-num">SIG</div><h2>ACKNOWLEDGEMENT & SIGNATURE</h2></div>
+  <div class="callout" style="margin-bottom:18pt;"><strong>By signing below, the client acknowledges they have read, understood, and agree to all Payment Terms & Conditions set out in this document.</strong></div>
+  <div class="sig-grid">
+    <div class="sig-block">
+      <div class="sig-label">CLIENT SIGNATURE</div>
+      <div class="sig-line" id="client-sig-line"></div>
+      <div class="sig-sub">Full Name: <strong style="color:#fff;" id="tc-client-name">${d.clientName || '___________________________'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">___________________________</span></strong></div>
+    </div>
+    <div class="sig-block">
+      <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
+      <div class="sig-line">${d.mckSigDataURL ? '<img src="'+d.mckSigDataURL+'" alt="MCK Signature">' : ''}</div>
+      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
+    </div>
+  </div>
+</div>
+
+<div class="doc-footer"><span class="gold">RENDER RENDER PTY LTD trading as MICRO CEMENT KING</span> — Payment Terms & Conditions<br>RK: 0468 041 477 | MCK: 0468 053 819 | projects@microcementking.com.au</div>
+
+<div class="action-bar no-print">
+  <button class="action-btn ghost" onclick="window.print()">PRINT / SAVE PDF</button>
+  <button class="action-btn" onclick="showTcAcceptModal()">ACCEPT & SIGN T&Cs</button>
+</div>
+`;
+
+    // T&C Accept modal
+    window.showTcAcceptModal = function() {
+      const overlay = document.createElement('div');
+      overlay.className = 'sig-modal-overlay';
+      overlay.id = 'tc-accept-modal';
+      overlay.innerHTML = '<div class="sig-modal">' +
+        '<h3>ACCEPT TERMS & CONDITIONS</h3>' +
+        '<p style="color:#aaa;font-size:10px;margin:0 0 14px 0;">Draw your signature below to accept the Payment Terms & Conditions.</p>' +
+        '<canvas id="tc-accept-sig-canvas" width="440" height="160"></canvas>' +
+        '<label>FULL NAME</label>' +
+        '<input type="text" id="tc-accept-name" placeholder="Type your full name" value="' + (d.clientName || '') + '">' +
+        '<div class="btn-row">' +
+          '<button class="action-btn" onclick="submitTcAcceptance()" style="padding:10px 24px;font-size:11px;">SUBMIT</button>' +
+          '<button class="action-btn ghost" onclick="clearTcAcceptSig()" style="padding:10px 24px;font-size:11px;">CLEAR</button>' +
+          '<button class="action-btn ghost" onclick="document.getElementById(\'tc-accept-modal\').remove();" style="padding:10px 24px;font-size:11px;border-color:#666;color:#666;">CANCEL</button>' +
+        '</div></div>';
+      document.body.appendChild(overlay);
+      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+      initModalCanvas('tc-accept-sig-canvas');
+    };
+
+    window.clearTcAcceptSig = function() {
+      const c = document.getElementById('tc-accept-sig-canvas');
+      if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+    };
+
+    window.submitTcAcceptance = async function() {
+      const canvas = document.getElementById('tc-accept-sig-canvas');
+      if (!canvas) return;
+      const blank = document.createElement('canvas');
+      blank.width = canvas.width; blank.height = canvas.height;
+      if (canvas.toDataURL() === blank.toDataURL()) { alert('Please sign before submitting.'); return; }
+
+      const name = (document.getElementById('tc-accept-name') || {}).value || '';
+      const sigData = canvas.toDataURL();
+      const now = new Date();
+
+      // Update UI
+      const sigLine = document.getElementById('client-sig-line');
+      if (sigLine) sigLine.innerHTML = '<img src="' + sigData + '" alt="Client Signature">';
+      const nameEl = document.getElementById('tc-client-name');
+      if (nameEl) nameEl.textContent = name || d.clientName || '';
+      const dateEl = document.getElementById('client-sig-date');
+      if (dateEl) dateEl.textContent = now.toLocaleDateString('en-AU');
+
+      document.getElementById('tc-accept-modal').remove();
+
+      // Save back to GitHub if we have a quote ID
+      if (quoteId) {
+        showSavingOverlay();
+        const result = await MCK_QUOTE_STORAGE.updateQuote(quoteId, {
+          tcAcceptedAt: now.toISOString(),
+          tcSignature: sigData,
+          tcSignedName: name,
+          _updateType: 'T&C acceptance'
+        });
+        hideSavingOverlay();
+        if (result.success) {
+          alert('Terms & Conditions accepted and saved. Thank you.');
+        } else {
+          alert('Signature saved locally. Note: Could not save to server (' + (result.error || 'unknown error') + ').');
+        }
+      } else {
+        alert('Terms & Conditions accepted. Thank you.');
+      }
+    };
+
+    return; // End T&C only view
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // CLIENT VIEW — No internal data (margins, costs, settings)
+  // ═══════════════════════════════════════════════════════════
+  // INTERNAL VIEW — Full data with margin info + edit button
+  // ═══════════════════════════════════════════════════════════
 
   // Build status banner
   let statusBanner = '';
@@ -251,8 +504,56 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
     statusBanner = '<div class="status-banner status-pending">QUOTE STATUS: PENDING ACCEPTANCE</div>';
   }
 
-  // Render the quote
+  // Variation rows HTML
+  let variationHTML = '';
+  if (d.variationItems && d.variationItems.length > 0) {
+    variationHTML = '<div style="height:14pt;"></div>' +
+      '<div class="sec-hd"><div class="sec-num">03B</div><h2>VARIATIONS</h2></div>' +
+      '<table><thead><tr><th style="width:40%">DESCRIPTION</th><th class="right" style="width:12%">HOURS</th><th class="right" style="width:16%">RATE/HR</th><th class="right" style="width:16%">MATERIALS</th><th class="right" style="width:16%">TOTAL (EX GST)</th></tr></thead><tbody>' +
+      d.variationItems.map(function(v){return '<tr><td>'+v.desc+'</td><td class="right">'+(v.hrs||0)+'</td><td class="right">'+$(v.rate||0)+'</td><td class="right">'+$(v.mat||0)+'</td><td class="right">'+$(v.total||0)+'</td></tr>';}).join('') +
+      '</tbody><tfoot><tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL (EX GST)</td><td class="right">'+$(d.varSubtotal||0)+'</td></tr></tfoot></table>';
+  }
+
+  // Progress payments HTML
+  let progressHTML = '';
+  if (d.progressPayments && d.progressPayments.length > 0) {
+    progressHTML = d.progressPayments.map(function(p,i){
+      return '<tr><td class="pay-stage">'+(3+i)+'</td><td><strong>'+p.desc+'</strong><br><span class="pay-note">Progress payment on milestone</span></td><td class="right">'+$(p.amt||0)+'</td><td class="right">'+(p.pct||0)+'%</td><td class="pay-note">On milestone</td></tr>';
+    }).join('');
+  }
+
+  // Attachments HTML
+  let attachmentsHTML = '';
+  if (d.attachments && d.attachments.length > 0) {
+    attachmentsHTML = '<div class="page-section"><div class="sec-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS & MARKUPS</h2></div>' +
+      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180pt,1fr));gap:10pt;">' +
+      d.attachments.map(function(att){
+        return att.type === 'application/pdf' ?
+          '<div style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:12pt;text-align:center;"><div style="font-size:24pt;color:#c9a84c;margin-bottom:6pt;">PDF</div><div style="font-size:8pt;color:#999;">'+att.name+'</div></div>' :
+          '<div style="border:1px solid #333;border-radius:4px;overflow:hidden;"><img src="'+att.data+'" style="width:100%;height:auto;display:block;"><div style="padding:4pt 8pt;font-size:8pt;color:#999;background:#1a1a1a;">'+att.name+'</div></div>';
+      }).join('') +
+      '</div></div>';
+  }
+
+  // Special conditions HTML
+  let scHTML = '';
+  if (d.specialConditions && d.specialConditions.length > 0) {
+    scHTML = '<div class="page-section"><div class="sec-hd"><div class="sec-num" style="background:#c9a84c;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>' +
+      d.specialConditions.map(function(c,i){return '<div style="padding:6pt 0;border-bottom:1px solid #333;"><span style="color:#c9a84c;font-weight:700;margin-right:8pt;">SC.'+(i+1)+'</span><span style="color:#fff;">'+c+'</span></div>';}).join('') +
+    '</div>';
+  }
+
+  // View badge
+  let viewBadge = '';
+  if (isClient) {
+    viewBadge = '<div class="view-badge client">CLIENT VIEW</div>';
+  } else if (isInternal) {
+    viewBadge = '<div class="view-badge internal">INTERNAL VIEW</div>';
+  }
+
+  // Build the main quote HTML
   container.innerHTML = `
+${viewBadge}
 ${statusBanner}
 
 <!-- PAGE 1: HEADER + CLIENT DETAILS -->
@@ -301,25 +602,27 @@ ${statusBanner}
 
 <!-- PAGE 2: PRICING -->
 <div class="page-section">
-  <div class="sec-hd"><div class="sec-num">03</div><h2>SCOPE OF WORKS &amp; PRICING</h2></div>
+  <div class="sec-hd"><div class="sec-num">03</div><h2>SCOPE OF WORKS & PRICING</h2></div>
   <table>
     <thead><tr><th style="width:42%">DESCRIPTION</th><th class="right" style="width:10%">QTY</th><th style="width:12%">UNIT</th><th class="right" style="width:18%">RATE (EX GST)</th><th class="right" style="width:18%">TOTAL (EX GST)</th></tr></thead>
-    <tbody>${(d.lineItems||[]).map(l => '<tr><td>'+l.desc+'</td><td class="right">'+l.qty+'</td><td>'+l.unit+'</td><td class="right">'+$(l.rate)+'</td><td class="right">'+$(l.total)+'</td></tr>').join('')}</tbody>
+    <tbody>${(d.lineItems||[]).map(function(l){return '<tr><td>'+l.desc+'</td><td class="right">'+l.qty+'</td><td>'+l.unit+'</td><td class="right">'+$(l.rate)+'</td><td class="right">'+$(l.total)+'</td></tr>';}).join('')}</tbody>
     <tfoot>
-      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.subtotal)}</td></tr>
+      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.baseSubtotal || d.subtotal)}</td></tr>
+      ${d.varSubtotal > 0 ? '<tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL</td><td class="right">'+$(d.varSubtotal)+'</td></tr>' : ''}
       <tr><td colspan="4" style="text-align:right;">GST (10%)</td><td class="right">${$(d.gst)}</td></tr>
       <tr class="grand-total"><td colspan="4" style="text-align:right;">TOTAL (INC GST)</td><td class="right">${$(d.grandTotal)}</td></tr>
     </tfoot>
   </table>
   <div class="callout"><strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$${d.measureFee || 220} ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance.</div>
+  ${variationHTML}
 </div>
 
 <!-- PAGE 3: INCLUSIONS & EXCLUSIONS -->
 <div class="page-section">
-  <div class="sec-hd"><div class="sec-num">04</div><h2>INCLUSIONS &amp; EXCLUSIONS</h2></div>
+  <div class="sec-hd"><div class="sec-num">04</div><h2>INCLUSIONS & EXCLUSIONS</h2></div>
   <div class="inc-exc-grid">
-    <div class="ie-col inc"><h3>INCLUSIONS</h3>${(d.inclusions||[]).map(i => '<div class="ie-item"><span class="tick">\u2713</span>'+i+'</div>').join('')}</div>
-    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${(d.exclusions||[]).map(e => '<div class="ie-item"><span class="cross">\u2717</span>'+e+'</div>').join('')}</div>
+    <div class="ie-col inc"><h3>INCLUSIONS</h3>${(d.inclusions||[]).map(function(i){return '<div class="ie-item"><span class="tick">\u2713</span>'+i+'</div>';}).join('')}</div>
+    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${(d.exclusions||[]).map(function(e){return '<div class="ie-item"><span class="cross">\u2717</span>'+e+'</div>';}).join('')}</div>
   </div>
 </div>
 
@@ -331,7 +634,8 @@ ${statusBanner}
     <tbody>
       <tr><td class="pay-stage">1</td><td><strong>Booking Deposit</strong><br><span class="pay-note">Secures your place in the schedule</span></td><td class="right">${$(d.depositAmt)}</td><td class="right">${d.depositPct}%</td><td class="pay-note">On acceptance</td></tr>
       <tr><td class="pay-stage">2</td><td><strong>Material Payment</strong><br><span class="pay-note">Works do not start until paid</span></td><td class="right">${$(d.materialAmt)}</td><td class="right">${d.matPct || 50}%</td><td class="pay-note">Prior to start date</td></tr>
-      <tr><td class="pay-stage">3</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
+      ${progressHTML}
+      <tr><td class="pay-stage">${3+(d.progressPayments||[]).length}</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
     </tbody>
     <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
   </table>
@@ -347,48 +651,36 @@ ${statusBanner}
     <div class="field"><div class="field-lbl">ESTIMATED COMPLETION</div><div class="field-val">${d.completion || 'TBC'}</div></div>
   </div>
   <div class="callout" style="margin-top:12pt;margin-bottom:18pt;"><strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Timeline assumes unobstructed site access and standard environmental conditions.</div>
-  <div class="sec-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
+  <div class="sec-hd"><div class="sec-num">07</div><h2>TERMS & CONDITIONS SUMMARY</h2></div>
   <div class="tc-grid">
     <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue.</div>
     <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing. Rate: $${d.variationRate||150}/hr (${d.variationMinHrs||2}-hour minimum).</div>
     <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
-    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works and Solidro products are passed through to the client in full.</div>
+    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works, Solidro, and Rusico products are passed through to the client in full.</div>
     <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
     <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $${d.overdueAdminFee||220} admin fee. Interest accrues at ${d.overdueInterest||3}% per week from Day 4.</div>
     <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration.</div>
     <div class="tc-item"><div class="tc-head">Termination</div>Either party may terminate with written notice. All completed work is payable immediately upon termination.</div>
-    <div class="tc-item"><div class="tc-head">Colour &amp; Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions.</div>
+    <div class="tc-item"><div class="tc-head">Colour & Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions.</div>
     <div class="tc-item"><div class="tc-head">Substrate Responsibility</div>The client is responsible for ensuring the substrate is structurally sound prior to commencement.</div>
   </div>
+  <div class="callout" style="margin-top:12pt;"><strong>FULL TERMS & CONDITIONS:</strong> The above is a summary only. Full Payment Terms & Conditions are set out in the companion document.</div>
 </div>
 
-${(d.attachments && d.attachments.length > 0) ? `
-<!-- SITE PHOTOS & PLANS -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS &amp; MARKUPS</h2></div>
-  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180pt,1fr));gap:10pt;">
-    ${d.attachments.map(function(att){return att.type==='application/pdf' ? '<div style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:12pt;text-align:center;"><div style="font-size:24pt;color:#c9a84c;margin-bottom:6pt;">PDF</div><div style="font-size:8pt;color:#999;">'+att.name+'</div></div>' : '<div style="border:1px solid #333;border-radius:4px;overflow:hidden;"><img src="'+att.data+'" style="width:100%;height:auto;display:block;"><div style="padding:4pt 8pt;font-size:8pt;color:#999;background:#1a1a1a;">'+att.name+'</div></div>';}).join('')}
-  </div>
-</div>` : ''}
-
-${(d.specialConditions && d.specialConditions.length > 0) ? `
-<!-- SPECIAL CONDITIONS -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num" style="background:#c9a84c;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>
-  ${d.specialConditions.map(function(c,i){return '<div style="padding:6pt 0;border-bottom:1px solid #333;"><span style="color:#c9a84c;font-weight:700;margin-right:8pt;">SC.'+(i+1)+'</span><span style="color:#fff;">'+c+'</span></div>';}).join('')}
-</div>` : ''}
+${attachmentsHTML}
+${scHTML}
 
 <!-- PAGE 6: SIGNATURES -->
 <div class="page-section">
-  <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE &amp; SIGNATURE</h2></div>
+  <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE & SIGNATURE</h2></div>
   <div class="callout" style="margin-bottom:18pt;"><strong>HOW TO ACCEPT:</strong> Click "Accept & Sign" below, sign digitally, and pay the booking deposit to confirm your start date.</div>
   <div class="sig-grid">
     <div class="sig-block">
       <div class="sig-label">CLIENT SIGNATURE</div>
-      <div class="sig-line" id="client-sig-line">${d.sigDataURL ? '<img src="'+d.sigDataURL+'" alt="Client Signature">' : ''}</div>
-      <div class="sig-sub">Full Name: <strong style="color:#fff;">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
+      <div class="sig-line" id="client-sig-line">${d.sigDataURL ? '<img src="'+d.sigDataURL+'" alt="Client Signature">' : (d.clientAcceptedSignature ? '<img src="'+d.clientAcceptedSignature+'" alt="Client Signature">' : '')}</div>
+      <div class="sig-sub">Full Name: <strong style="color:#fff;" id="client-full-name">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
       <div class="sig-sub" style="margin-top:4pt;">Print Name: <strong style="color:#fff;">${d.clientPrintName || '___________________________'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : '___________________________'}</span></strong></div>
+      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : (d.clientAcceptedAt ? new Date(d.clientAcceptedAt).toLocaleDateString('en-AU') : '___________________________')}</span></strong></div>
     </div>
     <div class="sig-block">
       <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
@@ -398,39 +690,163 @@ ${(d.specialConditions && d.specialConditions.length > 0) ? `
       <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.mckSigDate ? formatDateForPDF(d.mckSigDate) : '___________________________'}</strong></div>
     </div>
   </div>
-  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>
+  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms & Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>
   <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</div>
 </div>
 
 <div class="action-bar no-print">
   <button class="action-btn ghost" onclick="window.print()">PRINT / SAVE PDF</button>
-  <button class="action-btn ghost" onclick="editQuote('${d.quoteNumber}')">EDIT QUOTE</button>
-  ${!isExpired && status !== 'ACCEPTED' ? '<button class="action-btn" onclick="showAcceptModal()">ACCEPT &amp; SIGN</button>' : ''}
+  ${isInternal ? '<button class="action-btn ghost" onclick="editQuote(\''+d.quoteNumber+'\')">EDIT QUOTE</button>' : ''}
+  ${!isExpired && status !== 'ACCEPTED' ? '<button class="action-btn" onclick="showAcceptModal()">ACCEPT & SIGN</button>' : ''}
 </div>
 `;
 
-  // Accept & Sign modal
+  // ═══ ACCEPT & SIGN MODAL ═══
   window.showAcceptModal = function() {
     const overlay = document.createElement('div');
     overlay.className = 'sig-modal-overlay';
     overlay.id = 'accept-modal';
-    overlay.innerHTML = `
-      <div class="sig-modal">
-        <h3>ACCEPT & SIGN QUOTE</h3>
-        <p style="color:#aaa;font-size:10px;margin:0 0 14px 0;">Draw your signature below to accept this quote. By signing, you agree to all terms and conditions.</p>
-        <canvas id="accept-sig-canvas" width="440" height="160"></canvas>
-        <div class="btn-row">
-          <button class="action-btn" onclick="submitAcceptance()" style="padding:10px 24px;font-size:11px;">SUBMIT ACCEPTANCE</button>
-          <button class="action-btn ghost" onclick="clearAcceptSig()" style="padding:10px 24px;font-size:11px;">CLEAR</button>
-          <button class="action-btn ghost" onclick="document.getElementById('accept-modal').remove();" style="padding:10px 24px;font-size:11px;border-color:#666;color:#666;">CANCEL</button>
-        </div>
-      </div>
-    `;
+    overlay.innerHTML = '<div class="sig-modal">' +
+      '<h3>ACCEPT & SIGN QUOTE</h3>' +
+      '<p style="color:#aaa;font-size:10px;margin:0 0 14px 0;">Draw your signature below to accept this quote. By signing, you agree to all terms and conditions.</p>' +
+      '<canvas id="accept-sig-canvas" width="440" height="160"></canvas>' +
+      '<label>FULL NAME</label>' +
+      '<input type="text" id="accept-name" placeholder="Type your full name" value="' + (d.clientName || '') + '">' +
+      '<label>PRINT NAME</label>' +
+      '<input type="text" id="accept-print-name" placeholder="Print name">' +
+      '<div class="btn-row">' +
+        '<button class="action-btn" onclick="submitAcceptance()" style="padding:10px 24px;font-size:11px;">SUBMIT ACCEPTANCE</button>' +
+        '<button class="action-btn ghost" onclick="clearAcceptSig()" style="padding:10px 24px;font-size:11px;">CLEAR</button>' +
+        '<button class="action-btn ghost" onclick="document.getElementById(\'accept-modal\').remove();" style="padding:10px 24px;font-size:11px;border-color:#666;color:#666;">CANCEL</button>' +
+      '</div></div>';
     document.body.appendChild(overlay);
     overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
+    initModalCanvas('accept-sig-canvas');
+  };
 
-    // Init canvas drawing
+  window.clearAcceptSig = function() {
+    const c = document.getElementById('accept-sig-canvas');
+    if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
+  };
+
+  window.submitAcceptance = async function() {
     const canvas = document.getElementById('accept-sig-canvas');
+    if (!canvas) return;
+    const blank = document.createElement('canvas');
+    blank.width = canvas.width; blank.height = canvas.height;
+    if (canvas.toDataURL() === blank.toDataURL()) { alert('Please sign before submitting.'); return; }
+
+    const name = (document.getElementById('accept-name') || {}).value || '';
+    const printName = (document.getElementById('accept-print-name') || {}).value || '';
+    const sigData = canvas.toDataURL();
+    const now = new Date();
+
+    // Update the client signature line in the UI
+    const sigLine = document.getElementById('client-sig-line');
+    if (sigLine) sigLine.innerHTML = '<img src="' + sigData + '" alt="Client Signature">';
+    const nameEl = document.getElementById('client-full-name');
+    if (nameEl) nameEl.textContent = name || d.clientName || '';
+    const sigDate = document.getElementById('client-sig-date');
+    if (sigDate) sigDate.textContent = now.toLocaleDateString('en-AU');
+
+    // Remove modal
+    document.getElementById('accept-modal').remove();
+
+    // Update status banner
+    const banners = container.querySelectorAll('.status-banner');
+    banners.forEach(function(b) {
+      b.className = 'status-banner status-accepted';
+      b.textContent = 'QUOTE ACCEPTED';
+    });
+
+    // Remove accept button
+    const actionBar = container.querySelector('.action-bar');
+    if (actionBar) {
+      const acceptBtns = actionBar.querySelectorAll('button:not(.ghost)');
+      acceptBtns.forEach(function(b) { b.remove(); });
+    }
+
+    // Save locally
+    localStorage.setItem(acceptedKey, JSON.stringify({
+      date: now.toISOString(),
+      signature: sigData,
+      name: name,
+      printName: printName
+    }));
+
+    // Save back to GitHub (signature save-back)
+    if (quoteId) {
+      showSavingOverlay();
+      const result = await MCK_QUOTE_STORAGE.updateQuote(quoteId, {
+        clientAcceptedAt: now.toISOString(),
+        clientAcceptedSignature: sigData,
+        clientAcceptedName: name,
+        clientAcceptedPrintName: printName,
+        status: 'ACCEPTED',
+        _updateType: 'client acceptance + signature'
+      });
+      hideSavingOverlay();
+      if (result.success) {
+        alert('Quote accepted and signature saved! Thank you. Your booking deposit secures your start date.');
+      } else {
+        alert('Quote accepted locally! Note: Could not save signature to server (' + (result.error || 'unknown error') + '). Please contact MCK.');
+      }
+    } else {
+      alert('Quote accepted! Thank you. Your booking deposit secures your start date.');
+    }
+  };
+
+  // Check if already accepted and show signature
+  if (status === 'ACCEPTED') {
+    // Try from quote data first, then localStorage
+    let acceptSig = d.clientAcceptedSignature;
+    let acceptDate = d.clientAcceptedAt;
+    let acceptName = d.clientAcceptedName;
+
+    if (!acceptSig) {
+      try {
+        const acceptData = JSON.parse(localStorage.getItem(acceptedKey));
+        if (acceptData) {
+          acceptSig = acceptData.signature;
+          acceptDate = acceptData.date;
+          acceptName = acceptData.name;
+        }
+      } catch(e) {}
+    }
+
+    if (acceptSig) {
+      const sigLine = document.getElementById('client-sig-line');
+      if (sigLine) sigLine.innerHTML = '<img src="' + acceptSig + '" alt="Client Signature">';
+    }
+    if (acceptDate) {
+      const sigDate = document.getElementById('client-sig-date');
+      if (sigDate) sigDate.textContent = new Date(acceptDate).toLocaleDateString('en-AU');
+    }
+    if (acceptName) {
+      const nameEl = document.getElementById('client-full-name');
+      if (nameEl) nameEl.textContent = acceptName;
+    }
+  }
+
+  // Edit Quote — redirect to index.html with edit param (internal only)
+  window.editQuote = function(quoteNumber) {
+    const baseUrl = window.location.href.replace(/quote-viewer\.html.*$/, '');
+    window.location.href = baseUrl + 'index.html?edit=' + encodeURIComponent(quoteNumber);
+  };
+
+  // Update page title
+  if (isClient) {
+    document.title = 'MCK Quote \u2014 ' + d.quoteNumber + ' \u2014 ' + (d.clientName || 'Client');
+  } else {
+    document.title = 'MCK Quote \u2014 ' + d.quoteNumber + ' \u2014 ' + (d.clientName || 'Client') + ' [INTERNAL]';
+  }
+
+  // ═══ SHARED FUNCTIONS ═══
+
+  // Init modal canvas drawing
+  function initModalCanvas(canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let drawing = false;
     ctx.strokeStyle = '#111';
@@ -444,84 +860,73 @@ ${(d.specialConditions && d.specialConditions.length > 0) ? `
       const scaleY = canvas.height / rect.height;
       return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
     }
-    canvas.addEventListener('mousedown', function(e) { drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
-    canvas.addEventListener('mousemove', function(e) { if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+    canvas.addEventListener('mousedown', function(e) { drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+    canvas.addEventListener('mousemove', function(e) { if (!drawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
     canvas.addEventListener('mouseup', function() { drawing = false; });
     canvas.addEventListener('mouseleave', function() { drawing = false; });
-    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); drawing = true; const p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
-    canvas.addEventListener('touchmove', function(e) { e.preventDefault(); if (!drawing) return; const p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+    canvas.addEventListener('touchstart', function(e) { e.preventDefault(); drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+    canvas.addEventListener('touchmove', function(e) { e.preventDefault(); if (!drawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
     canvas.addEventListener('touchend', function() { drawing = false; }, { passive: false });
-  };
-
-  window.clearAcceptSig = function() {
-    const canvas = document.getElementById('accept-sig-canvas');
-    if (canvas) canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  window.submitAcceptance = function() {
-    const canvas = document.getElementById('accept-sig-canvas');
-    if (!canvas) return;
-    const blank = document.createElement('canvas');
-    blank.width = canvas.width; blank.height = canvas.height;
-    if (canvas.toDataURL() === blank.toDataURL()) {
-      alert('Please sign before submitting.');
-      return;
-    }
-
-    // Save acceptance
-    localStorage.setItem(acceptedKey, JSON.stringify({
-      date: new Date().toISOString(),
-      signature: canvas.toDataURL()
-    }));
-
-    // Update the client signature line
-    const sigLine = document.getElementById('client-sig-line');
-    if (sigLine) sigLine.innerHTML = '<img src="' + canvas.toDataURL() + '" alt="Client Signature">';
-    const sigDate = document.getElementById('client-sig-date');
-    if (sigDate) sigDate.textContent = new Date().toLocaleDateString('en-AU');
-
-    // Remove modal and update status
-    document.getElementById('accept-modal').remove();
-
-    // Replace status banner
-    const banners = container.querySelectorAll('.status-banner');
-    banners.forEach(b => {
-      b.className = 'status-banner status-accepted';
-      b.textContent = 'QUOTE ACCEPTED';
-    });
-
-    // Remove accept button
-    const actionBar = container.querySelector('.action-bar');
-    if (actionBar) {
-      const acceptBtns = actionBar.querySelectorAll('button:not(.ghost)');
-      acceptBtns.forEach(b => b.remove());
-    }
-
-    alert('Quote accepted! Thank you. Your booking deposit secures your start date.');
-  };
-
-  // Check if already accepted and show signature
-  if (status === 'ACCEPTED') {
-    try {
-      const acceptData = JSON.parse(localStorage.getItem(acceptedKey));
-      if (acceptData && acceptData.signature) {
-        const sigLine = document.getElementById('client-sig-line');
-        if (sigLine) sigLine.innerHTML = '<img src="' + acceptData.signature + '" alt="Client Signature">';
-        const sigDate = document.getElementById('client-sig-date');
-        if (sigDate) sigDate.textContent = new Date(acceptData.date).toLocaleDateString('en-AU');
-      }
-    } catch(e) {}
   }
 
-  // Edit Quote — redirect to index.html with edit param
-  window.editQuote = function(quoteNumber) {
-    const baseUrl = window.location.href.replace(/quote-viewer\.html.*$/, '');
-    window.location.href = baseUrl + 'index.html?edit=' + encodeURIComponent(quoteNumber);
-  };
+  // Saving overlay
+  function showSavingOverlay() {
+    const overlay = document.createElement('div');
+    overlay.className = 'saving-overlay';
+    overlay.id = 'saving-overlay';
+    overlay.innerHTML = '<div class="saving-box"><h3>SAVING...</h3><p>Saving your signature to the quote record.</p></div>';
+    document.body.appendChild(overlay);
+  }
 
-  // Update page title
-  document.title = 'MCK Quote \u2014 ' + d.quoteNumber + ' \u2014 ' + (d.clientName || 'Client');
+  function hideSavingOverlay() {
+    const el = document.getElementById('saving-overlay');
+    if (el) el.remove();
+  }
+
+  // Make these available globally for T&C view too
+  window.showSavingOverlay = showSavingOverlay;
+  window.hideSavingOverlay = hideSavingOverlay;
+  window.initModalCanvas = initModalCanvas;
 })();
+
+// Global helpers for T&C view (defined outside IIFE so they're available)
+function showSavingOverlay() {
+  if (window.showSavingOverlay && window.showSavingOverlay !== showSavingOverlay) return window.showSavingOverlay();
+  const overlay = document.createElement('div');
+  overlay.className = 'saving-overlay';
+  overlay.id = 'saving-overlay';
+  overlay.innerHTML = '<div class="saving-box"><h3>SAVING...</h3><p>Saving your signature.</p></div>';
+  document.body.appendChild(overlay);
+}
+function hideSavingOverlay() {
+  if (window.hideSavingOverlay && window.hideSavingOverlay !== hideSavingOverlay) return window.hideSavingOverlay();
+  const el = document.getElementById('saving-overlay');
+  if (el) el.remove();
+}
+function initModalCanvas(canvasId) {
+  if (window.initModalCanvas && window.initModalCanvas !== initModalCanvas) return window.initModalCanvas(canvasId);
+  const canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let drawing = false;
+  ctx.strokeStyle = '#111';
+  ctx.lineWidth = 2;
+  ctx.lineCap = 'round';
+  function getPos(e) {
+    const rect = canvas.getBoundingClientRect();
+    const touch = e.touches ? e.touches[0] : e;
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    return { x: (touch.clientX - rect.left) * scaleX, y: (touch.clientY - rect.top) * scaleY };
+  }
+  canvas.addEventListener('mousedown', function(e) { drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); });
+  canvas.addEventListener('mousemove', function(e) { if (!drawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); });
+  canvas.addEventListener('mouseup', function() { drawing = false; });
+  canvas.addEventListener('mouseleave', function() { drawing = false; });
+  canvas.addEventListener('touchstart', function(e) { e.preventDefault(); drawing = true; var p = getPos(e); ctx.beginPath(); ctx.moveTo(p.x, p.y); }, { passive: false });
+  canvas.addEventListener('touchmove', function(e) { e.preventDefault(); if (!drawing) return; var p = getPos(e); ctx.lineTo(p.x, p.y); ctx.stroke(); }, { passive: false });
+  canvas.addEventListener('touchend', function() { drawing = false; }, { passive: false });
+}
 </script>
 </body>
 </html>
