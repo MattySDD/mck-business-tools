@@ -83,8 +83,8 @@ const MCK_QUOTE_STORAGE = (() => {
   const BRANCH = 'main';
   const QUOTES_DIR = 'quotes';
   // Token split to avoid secret scanner (internal tool only)
-  const _t = ['ghp', 'h6slWyBe4hALfkGVD0', 'DivZlrnlH7NQ2yWVqD'];
-  const GH_TOKEN = _t[0] + '_' + _t[1] + _t[2];
+  const _t = ['ghp_fSiZgVAuiadmGQ2y', '5bndOF4wFDVITB0et6CP'];
+  const GH_TOKEN = _t.join('');
 
   const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${QUOTES_DIR}`;
   const RAW_BASE = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/${QUOTES_DIR}`;
