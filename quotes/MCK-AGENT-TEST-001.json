@@ -1,0 +1,32 @@
+{
+  "quoteNumber": "MCK-AGENT-TEST-001",
+  "clientName": "Agent Test Client",
+  "clientPhone": "0400 000 001",
+  "clientEmail": "agent@test.com.au",
+  "projectAddress": "1 AI Street, Robina QLD 4226",
+  "colourFinish": "Charcoal Matte",
+  "substrate": "Concrete slab",
+  "scope": "Full microcement floor system \u2014 living areas, hallway, master bathroom",
+  "lineItems": [
+    {
+      "desc": "Micro Cement \u2014 Living Areas",
+      "qty": 80,
+      "unit": "sqm",
+      "rate": 295
+    },
+    {
+      "desc": "Micro Cement \u2014 Master Bathroom (wet area)",
+      "qty": 12,
+      "unit": "sqm",
+      "rate": 380
+    }
+  ],
+  "dateIssued": "24/03/2026",
+  "validity": "7 Days",
+  "status": "PENDING",
+  "createdBy": "Momentrix AI Agent",
+  "createdAt": "2026-03-24T10:23:26.096970Z",
+  "subtotal": 28160,
+  "gst": 2816.0,
+  "total": 30976.0
+}
