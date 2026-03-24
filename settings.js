@@ -77,6 +77,7 @@ const MCK_DEFAULTS = {
   rusico_top_spread: 1.3,     // LOCKED: 1.3 sqm/kg (Rasico Touch)
 
   // SECTION D — Quote Defaults
+  min_days: 4,
   default_validity_hours: 48,
   default_prepared_by: 'King Mannion',
   deposit_threshold: 20000,
@@ -273,6 +274,7 @@ const SETTINGS_ID_MAP = {
   variation_rate: 'set-variation-rate',
   variation_min_hours: 'set-variation-min',
   variation_material_allowance: 'set-variation-mat',
+  min_days: 'set-min-days',
 };
 
 // ── LOAD / SAVE FORM ─────────────────────────────────────

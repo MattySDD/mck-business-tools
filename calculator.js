@@ -75,7 +75,7 @@ function getProducts() {
 }
 
 const CONSUMABLES = 100.00;
-const MIN_JOB_DAYS = 4; // Minimum 4-day process on every job
+function getMinJobDays() { return (typeof getSetting === 'function' && getSetting('min_days')) ? parseInt(getSetting('min_days')) || 4 : 4; }
 
 // ── CREW CONFIGS ──────────────────────────────────────────
 function getCrewConfigs() {
@@ -543,7 +543,8 @@ function recalc() {
   const sealerDays = totalSqm > 0 ? Math.ceil(totalSqm / 100) : 0;
   const rawDays = prepDays + floorDays + wallDays + sealerDays;
   const adjustedDays = Math.ceil(rawDays * prepMultiplier);
-  const totalDays = Math.max(adjustedDays, MIN_JOB_DAYS); // MINIMUM 4-DAY PROCESS
+  const MIN_JOB_DAYS = getMinJobDays();
+  const totalDays = Math.max(adjustedDays, MIN_JOB_DAYS); // MINIMUM PROCESS DAYS
   const labourHrs = totalDays * 8;
   const labourCost = labourHrs * crewConfig.rate;
 
@@ -554,11 +555,35 @@ function recalc() {
   const variationRevenue = calcVars.totalRevenue;
 
   // ── MATERIAL TABLE (render FIRST to calculate adjusted material cost) ──
-  renderMaterialTable('mat-table-wrap', {
+  const matData = {
     primerRR, wbBlocker, pu100, sealR, idealPU, mseal, mesh, wp120, mtPol, idealBinder, colourPack,
     primerRRSqm, wbBlockerSqm, pu100Sqm, sealRSqm, idealPUSqm, microSealSqm, meshSqm, wp120Sqm, polymerSqm, totalSqm, rusicoSqm,
     surfaceCalcs, totalCoatCost, pooledCost, totalMatCost
-  });
+  };
+  renderMaterialTable('mat-table-wrap', matData);
+
+  // Render system-specific material tables for Micro Cement and Rusico cards
+  const activeSystems = [...new Set(lines.map(l => l.sys))];
+  const solidroCard = document.getElementById('mat-solidro-card');
+  const mcCard = document.getElementById('mat-microcement-card');
+  const rusicoCard = document.getElementById('mat-rusico-card');
+  if (solidroCard) solidroCard.style.display = activeSystems.includes('solidro') ? '' : 'none';
+  if (mcCard) {
+    if (activeSystems.includes('microcement')) {
+      mcCard.style.display = '';
+      renderMaterialTable('mt-table-wrap', matData);
+    } else {
+      mcCard.style.display = 'none';
+    }
+  }
+  if (rusicoCard) {
+    if (activeSystems.includes('rusico')) {
+      rusicoCard.style.display = '';
+      renderMaterialTable('rusico-table-wrap', matData);
+    } else {
+      rusicoCard.style.display = 'none';
+    }
+  }
 
   // ── TOTALS (including variations + order qty overrides) ──
   const effectiveMatCost = (window._adjustedMatCost !== undefined && Object.keys(materialOrderOverrides).length > 0) ? window._adjustedMatCost : totalMatCost;
@@ -628,6 +653,9 @@ function recalc() {
       customDisplay.style.color = 'var(--grey-light)';
     }
   }
+
+  // ── MARGIN ALERT SYSTEM ──
+  renderMarginAlerts(totalJobCost, totalSqm, recSell, customSell);
 }
 
 // ── HELPER: SET TEXT ──────────────────────────────────────
@@ -1173,6 +1201,145 @@ function clearResults() {
    'cmp-mc-mat','cmp-mc-lab','cmp-mc-total','cmp-mc-40','cmp-mc-50',
    'cmp-ru-mat','cmp-ru-lab','cmp-ru-total','cmp-ru-40','cmp-ru-50'].forEach(id => {
     const el = document.getElementById(id); if (el) el.textContent = '\u2014';
+  });
+  // Reset margin alerts
+  const marginAlertWrap = document.getElementById('margin-alert-wrap');
+  if (marginAlertWrap) marginAlertWrap.innerHTML = '';
+  window._marginBlocked = false;
+}
+
+// ── MARGIN ALERT SYSTEM ────────────────────────────────────
+// Tracks margin per surface and blocks quote generation if below 20%
+window._marginBlocked = false;
+window._marginOverrideReason = '';
+
+function renderMarginAlerts(totalJobCost, totalSqm, recSell, customSell) {
+  let wrap = document.getElementById('margin-alert-wrap');
+  if (!wrap) {
+    // Create the alert container dynamically after the custom sell section
+    const customWrap = document.getElementById('custom-margin-display');
+    if (customWrap && customWrap.parentElement) {
+      wrap = document.createElement('div');
+      wrap.id = 'margin-alert-wrap';
+      wrap.style.cssText = 'margin-top:16px;';
+      customWrap.parentElement.after(wrap);
+    } else return;
+  }
+
+  const alerts = [];
+  let hasBelow35 = false;
+  let hasBelow20 = false;
+
+  // Check per-surface margins from recommended sell price breakdown
+  if (recSell && recSell.breakdown) {
+    recSell.breakdown.forEach(b => {
+      // Calculate surface-level margin: (sell - cost) / sell
+      // We approximate cost per surface proportionally
+      const surfaceCostRatio = b.sqm / totalSqm;
+      const surfaceCost = totalJobCost * surfaceCostRatio;
+      const surfaceMargin = b.linePrice > 0 ? ((b.linePrice - surfaceCost) / b.linePrice * 100) : 0;
+
+      if (surfaceMargin < 20) {
+        hasBelow20 = true;
+        hasBelow35 = true;
+        alerts.push({ type: b.type, sqm: b.sqm, margin: surfaceMargin, level: 'critical' });
+      } else if (surfaceMargin < 35) {
+        hasBelow35 = true;
+        alerts.push({ type: b.type, sqm: b.sqm, margin: surfaceMargin, level: 'warning' });
+      }
+    });
+  }
+
+  // Also check overall margin from custom sell price
+  if (customSell > 0) {
+    const overallMargin = ((customSell - totalJobCost) / customSell * 100);
+    if (overallMargin < 20) {
+      hasBelow20 = true;
+      hasBelow35 = true;
+    } else if (overallMargin < 35) {
+      hasBelow35 = true;
+    }
+  }
+
+  let html = '';
+
+  if (alerts.length > 0) {
+    html += '<div style="margin-top:14px;">';
+    alerts.forEach(a => {
+      const bgColor = a.level === 'critical' ? 'rgba(231,76,60,0.15)' : 'rgba(243,156,18,0.15)';
+      const borderColor = a.level === 'critical' ? '#e74c3c' : '#f39c12';
+      const icon = a.level === 'critical' ? '\u26D4' : '\u26A0\uFE0F';
+      const msg = a.level === 'critical'
+        ? `MARGIN BELOW 20% — QUOTE BLOCKED. Review pricing before quoting.`
+        : `MARGIN BELOW MINIMUM — review pricing before quoting.`;
+      html += `<div style="background:${bgColor};border:1px solid ${borderColor};border-radius:6px;padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:10px;">`
+        + `<span style="font-size:18px;">${icon}</span>`
+        + `<div><strong style="color:${borderColor};font-size:12px;letter-spacing:1px;">${a.type} (${a.sqm.toFixed(1)} sqm) — ${a.margin.toFixed(1)}% MARGIN</strong>`
+        + `<div style="color:#ccc;font-size:11px;margin-top:2px;">${msg}</div></div></div>`;
+    });
+    html += '</div>';
+  }
+
+  // Block quote generation if below 20% (unless overridden)
+  if (hasBelow20 && !window._marginOverrideReason) {
+    window._marginBlocked = true;
+    html += `<div style="background:rgba(231,76,60,0.2);border:2px solid #e74c3c;border-radius:6px;padding:16px;margin-top:12px;">`
+      + `<div style="color:#e74c3c;font-weight:800;font-size:13px;letter-spacing:1px;margin-bottom:8px;">\u26D4 QUOTE GENERATION BLOCKED</div>`
+      + `<div style="color:#ccc;font-size:12px;margin-bottom:12px;">One or more surfaces have a margin below 20%. You must provide an override reason to generate a quote at this price.</div>`
+      + `<div style="display:flex;gap:8px;align-items:center;">`
+      + `<input type="text" id="margin-override-reason" placeholder="Override reason (e.g. strategic pricing, loss leader)" `
+      + `style="flex:1;background:#1a1a1a;border:1px solid #e74c3c;color:#fff;padding:10px 12px;font-size:12px;border-radius:4px;font-family:inherit;">`
+      + `<button onclick="applyMarginOverride()" style="background:#e74c3c;color:#fff;border:none;padding:10px 20px;font-size:11px;font-weight:800;letter-spacing:1px;cursor:pointer;border-radius:4px;white-space:nowrap;">OVERRIDE & UNLOCK</button>`
+      + `</div></div>`;
+  } else if (hasBelow20 && window._marginOverrideReason) {
+    window._marginBlocked = false;
+    html += `<div style="background:rgba(243,156,18,0.15);border:1px solid #f39c12;border-radius:6px;padding:12px 16px;margin-top:12px;">`
+      + `<strong style="color:#f39c12;">MARGIN OVERRIDE ACTIVE:</strong> <span style="color:#ccc;">${window._marginOverrideReason}</span>`
+      + ` <button onclick="clearMarginOverride()" style="background:transparent;border:1px solid #666;color:#aaa;padding:4px 10px;font-size:10px;cursor:pointer;border-radius:3px;margin-left:8px;">CLEAR</button></div>`;
+  } else {
+    window._marginBlocked = false;
+  }
+
+  // Highlight surface rows in the surface breakdown table
+  if (hasBelow35) {
+    highlightLowMarginRows(alerts);
+  }
+
+  wrap.innerHTML = html;
+}
+
+function applyMarginOverride() {
+  const input = document.getElementById('margin-override-reason');
+  const reason = input ? input.value.trim() : '';
+  if (!reason) {
+    input.style.borderColor = '#ff0000';
+    input.placeholder = 'You must enter a reason to override';
+    return;
+  }
+  window._marginOverrideReason = reason;
+  window._marginBlocked = false;
+  recalc();
+}
+
+function clearMarginOverride() {
+  window._marginOverrideReason = '';
+  recalc();
+}
+
+function highlightLowMarginRows(alerts) {
+  // Highlight rows in the recommended sell price table that have low margins
+  const recWrap = document.getElementById('rec-sell-wrap');
+  if (!recWrap) return;
+  const rows = recWrap.querySelectorAll('tbody tr');
+  rows.forEach(row => {
+    const typeCell = row.querySelector('td:first-child');
+    if (!typeCell) return;
+    const type = typeCell.textContent.trim();
+    const alert = alerts.find(a => a.type === type);
+    if (alert) {
+      const color = alert.level === 'critical' ? 'rgba(231,76,60,0.2)' : 'rgba(243,156,18,0.15)';
+      row.style.background = color;
+    }
   });
 }
 

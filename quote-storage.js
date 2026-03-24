@@ -316,6 +316,30 @@ const MCK_QUOTE_STORAGE = (() => {
   }
 
   /**
+   * List all quote files in the quotes/ directory
+   * @returns {Promise<{success: boolean, files?: string[], error?: string}>}
+   */
+  async function listQuotes() {
+    try {
+      const resp = await fetch(API_BASE, {
+        headers: { 'Authorization': `token ${GH_TOKEN}` }
+      });
+      if (!resp.ok) {
+        if (resp.status === 404) return { success: true, files: [] };
+        return { success: false, files: [], error: 'Failed to list quotes directory' };
+      }
+      const items = await resp.json();
+      if (!Array.isArray(items)) return { success: true, files: [] };
+      const files = items
+        .filter(f => f.name && f.name.endsWith('.json'))
+        .map(f => f.name);
+      return { success: true, files };
+    } catch (e) {
+      return { success: false, files: [], error: e.message };
+    }
+  }
+
+  /**
    * Generate a new unique quote ID
    * @returns {string}
    */
@@ -395,6 +419,7 @@ const MCK_QUOTE_STORAGE = (() => {
     saveQuote,
     updateQuote,
     loadQuote,
+    listQuotes,
     getQuoteViewerUrl,
     getQuoteViewerUrls,
     getQuoteEditUrl,

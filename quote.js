@@ -1158,6 +1158,14 @@ ${!showAcceptBtn ? `<script>window.onload=function(){setTimeout(function(){windo
 // ═══════════════════════════════════════════════════════════
 
 function generatePDFQuote() {
+  // Margin block check
+  if (window._marginBlocked) {
+    alert('QUOTE BLOCKED: One or more surfaces have a margin below 20%. Provide an override reason in the margin alert section before generating a quote.');
+    const alertWrap = document.getElementById('margin-alert-wrap');
+    if (alertWrap) alertWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   // Ensure MCK signature is pre-drawn before extracting data
   // Re-draw in case canvas was resized since last draw
   if (typeof preDrawMCKSignature === 'function') {
@@ -1186,7 +1194,21 @@ function generatePDFQuote() {
 // ═══════════════════════════════════════════════════════════
 
 async function generateShareableLink() {
+  // Margin block check — prevent quote generation if margin below 20% without override
+  if (window._marginBlocked) {
+    alert('QUOTE BLOCKED: One or more surfaces have a margin below 20%. Provide an override reason in the margin alert section before generating a quote.');
+    const alertWrap = document.getElementById('margin-alert-wrap');
+    if (alertWrap) alertWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   const d = extractQuoteData();
+
+  // Add margin override reason if present
+  if (window._marginOverrideReason) {
+    d.marginOverrideReason = window._marginOverrideReason;
+  }
+
   saveQuoteRevision(d);
 
   // Show saving indicator on all share buttons
@@ -1195,6 +1217,25 @@ async function generateShareableLink() {
   btns.forEach(btn => { origTexts.push(btn.textContent); btn.textContent = 'SAVING...'; btn.disabled = true; });
 
   try {
+    // Check if this quote already exists — if so, save as versioned file
+    const exists = await MCK_QUOTE_STORAGE.quoteExists(d.quoteNumber);
+    if (exists) {
+      // Find next version number
+      const listResult = await MCK_QUOTE_STORAGE.listQuotes();
+      if (listResult.success) {
+        const baseId = d.quoteNumber;
+        const versionFiles = listResult.files.filter(f => f.startsWith(baseId + '-v') && f.endsWith('.json'));
+        const nextVersion = versionFiles.length + 2; // v2, v3, etc.
+        const versionId = baseId + '-v' + nextVersion;
+        d.version = nextVersion;
+        d.parentQuoteId = baseId;
+        // Save the versioned copy
+        await MCK_QUOTE_STORAGE.saveQuote(versionId, d);
+      }
+    }
+
+    // Always save/update the main quote file
+    d.lastSavedAt = new Date().toISOString();
     const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
     if (result.success) {
       showShareModal(result.urls, d.clientName, d.quoteNumber);

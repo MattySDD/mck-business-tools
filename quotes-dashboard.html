@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>MCK Pipeline Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+:root {
+  --bg: #0a0a0a; --card-bg: #111; --border: #333; --gold: #c9a84c;
+  --green: #27AE60; --red: #ff4444; --amber: #f39c12; --blue: #3498DB;
+  --grey-light: #aaa; --grey-mid: #666;
+}
+html, body { margin: 0; padding: 0; background: var(--bg); color: #fff; font-family: 'Inter', sans-serif; font-size: 13px; line-height: 1.5; }
+.container { max-width: 1200px; margin: 0 auto; padding: 20px; }
+.header { border-bottom: 2px solid var(--gold); padding-bottom: 16px; margin-bottom: 24px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; }
+.header h1 { font-size: 18px; color: var(--gold); letter-spacing: 3px; text-transform: uppercase; margin: 0; font-weight: 800; }
+.header .sub { font-size: 10px; color: var(--grey-light); letter-spacing: 1px; }
+.header-actions { display: flex; gap: 8px; }
+.btn { padding: 8px 16px; font-family: inherit; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border: none; border-radius: 4px; cursor: pointer; }
+.btn-gold { background: var(--gold); color: #000; }
+.btn-ghost { background: transparent; border: 1px solid var(--border); color: var(--grey-light); }
+.btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+
+/* Auth Gate */
+.auth-gate { display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 60vh; gap: 16px; }
+.auth-gate h2 { color: var(--gold); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; }
+.auth-gate input { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 12px 16px; font-family: inherit; font-size: 13px; border-radius: 4px; width: 280px; text-align: center; }
+.auth-gate input:focus { outline: none; border-color: var(--gold); }
+.auth-error { color: var(--red); font-size: 11px; display: none; }
+
+/* Stats Grid */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.stat-card { background: var(--card-bg); border: 1px solid var(--border); border-radius: 6px; padding: 16px; }
+.stat-card.gold { border-left: 4px solid var(--gold); }
+.stat-card.green { border-left: 4px solid var(--green); }
+.stat-card.amber { border-left: 4px solid var(--amber); }
+.stat-card.red { border-left: 4px solid var(--red); }
+.stat-card.blue { border-left: 4px solid var(--blue); }
+.stat-label { font-size: 8px; color: var(--gold); letter-spacing: 1.5px; text-transform: uppercase; font-weight: 600; margin-bottom: 4px; }
+.stat-value { font-size: 22px; font-weight: 800; color: #fff; }
+.stat-sub { font-size: 10px; color: var(--grey-light); margin-top: 2px; }
+
+/* Filters */
+.filters { display: flex; gap: 8px; margin-bottom: 16px; flex-wrap: wrap; align-items: center; }
+.filter-btn { padding: 6px 14px; font-family: inherit; font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; border: 1px solid var(--border); background: transparent; color: var(--grey-light); border-radius: 3px; cursor: pointer; }
+.filter-btn.active { background: var(--gold); color: #000; border-color: var(--gold); }
+.filter-btn:hover:not(.active) { border-color: var(--gold); color: var(--gold); }
+.search-input { background: #1a1a1a; border: 1px solid var(--border); color: #fff; padding: 6px 12px; font-family: inherit; font-size: 11px; border-radius: 3px; width: 220px; }
+.search-input:focus { outline: none; border-color: var(--gold); }
+
+/* Table */
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; }
+th { background: #1a1a1a; color: var(--gold); font-size: 8px; letter-spacing: 1.5px; text-transform: uppercase; font-weight: 700; padding: 10px 12px; border: 1px solid var(--border); text-align: left; cursor: pointer; user-select: none; white-space: nowrap; }
+th:hover { color: #fff; }
+th .sort-arrow { margin-left: 4px; font-size: 8px; opacity: 0.5; }
+th.sorted .sort-arrow { opacity: 1; color: var(--gold); }
+td { background: var(--card-bg); color: #fff; font-size: 11px; padding: 10px 12px; border: 1px solid var(--border); }
+td.right { text-align: right; }
+tr:hover td { background: #1a1a1a; }
+
+/* Status badges */
+.status { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 8px; font-weight: 800; letter-spacing: 1px; text-transform: uppercase; }
+.status-PENDING { background: var(--gold); color: #000; }
+.status-ACCEPTED { background: var(--green); color: #fff; }
+.status-DECLINED { background: var(--red); color: #fff; }
+.status-EXPIRED { background: #666; color: #fff; }
+
+/* Action links */
+.action-link { color: var(--gold); text-decoration: none; font-size: 9px; font-weight: 700; letter-spacing: 0.5px; margin-right: 8px; }
+.action-link:hover { text-decoration: underline; }
+.action-link.blue { color: var(--blue); }
+.action-link.red { color: var(--red); }
+
+/* Loading */
+.loading { text-align: center; padding: 60px; color: var(--grey-mid); }
+.loading .spinner { display: inline-block; width: 24px; height: 24px; border: 2px solid var(--border); border-top-color: var(--gold); border-radius: 50%; animation: spin 0.8s linear infinite; margin-bottom: 12px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Empty state */
+.empty-state { text-align: center; padding: 60px; color: var(--grey-mid); }
+.empty-state h3 { color: var(--gold); font-size: 14px; letter-spacing: 2px; margin-bottom: 8px; }
+
+@media (max-width: 768px) {
+  .stats-grid { grid-template-columns: 1fr 1fr; }
+  .filters { flex-direction: column; }
+  .search-input { width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- AUTH GATE -->
+<div id="auth-gate" class="auth-gate">
+  <h2>Pipeline Dashboard</h2>
+  <p style="color:#666;font-size:11px;">Enter the settings password to access the dashboard.</p>
+  <input type="password" id="dash-password" placeholder="Password" onkeydown="if(event.key==='Enter')unlockDashboard()">
+  <button class="btn btn-gold" onclick="unlockDashboard()">UNLOCK</button>
+  <div class="auth-error" id="dash-error">INCORRECT PASSWORD</div>
+</div>
+
+<!-- DASHBOARD (hidden until auth) -->
+<div id="dashboard" style="display:none;">
+
+<div class="header">
+  <div>
+    <h1>Pipeline Dashboard</h1>
+    <div class="sub">MICRO CEMENT KING — QUOTE PIPELINE</div>
+  </div>
+  <div class="header-actions">
+    <button class="btn btn-ghost" onclick="loadQuotes()">REFRESH</button>
+    <a href="index.html" class="btn btn-ghost" style="text-decoration:none;">BACK TO TOOLS</a>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-grid" id="stats-grid">
+  <div class="stat-card gold"><div class="stat-label">Total Pipeline Value</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub" id="stat-total-sub">Loading...</div></div>
+  <div class="stat-card green"><div class="stat-label">Accepted Value</div><div class="stat-value" id="stat-accepted">—</div><div class="stat-sub" id="stat-accepted-sub">—</div></div>
+  <div class="stat-card amber"><div class="stat-label">Pending Value</div><div class="stat-value" id="stat-pending">—</div><div class="stat-sub" id="stat-pending-sub">—</div></div>
+  <div class="stat-card blue"><div class="stat-label">Conversion Rate</div><div class="stat-value" id="stat-conversion">—</div><div class="stat-sub" id="stat-conversion-sub">—</div></div>
+  <div class="stat-card red"><div class="stat-label">Declined / Expired</div><div class="stat-value" id="stat-lost">—</div><div class="stat-sub" id="stat-lost-sub">—</div></div>
+</div>
+
+<!-- FILTERS -->
+<div class="filters">
+  <button class="filter-btn active" data-filter="ALL" onclick="filterQuotes('ALL',this)">ALL</button>
+  <button class="filter-btn" data-filter="PENDING" onclick="filterQuotes('PENDING',this)">PENDING</button>
+  <button class="filter-btn" data-filter="ACCEPTED" onclick="filterQuotes('ACCEPTED',this)">ACCEPTED</button>
+  <button class="filter-btn" data-filter="DECLINED" onclick="filterQuotes('DECLINED',this)">DECLINED</button>
+  <button class="filter-btn" data-filter="EXPIRED" onclick="filterQuotes('EXPIRED',this)">EXPIRED</button>
+  <input type="text" class="search-input" id="search-input" placeholder="Search client, address, quote #..." oninput="searchQuotes(this.value)">
+</div>
+
+<!-- TABLE -->
+<div class="table-wrap">
+  <table id="quotes-table">
+    <thead>
+      <tr>
+        <th onclick="sortBy('quoteNumber')">Quote # <span class="sort-arrow">▼</span></th>
+        <th onclick="sortBy('clientName')">Client Name <span class="sort-arrow">▼</span></th>
+        <th onclick="sortBy('projectAddress')">Project Address <span class="sort-arrow">▼</span></th>
+        <th onclick="sortBy('subtotal')" class="right">Value (Ex GST) <span class="sort-arrow">▼</span></th>
+        <th onclick="sortBy('dateIssued')">Date Issued <span class="sort-arrow">▼</span></th>
+        <th onclick="sortBy('status')">Status <span class="sort-arrow">▼</span></th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody id="quotes-body">
+      <tr><td colspan="7" class="loading"><div class="spinner"></div><br>Loading quotes...</td></tr>
+    </tbody>
+  </table>
+</div>
+
+</div><!-- /dashboard -->
+</div><!-- /container -->
+
+<script src="quote-storage.js?v=15"></script>
+<script>
+const DASH_PASSWORD = 'MCK2026';
+const BASE_URL = window.location.origin + window.location.pathname.replace(/\/[^\/]*$/, '/');
+
+let allQuotes = [];
+let filteredQuotes = [];
+let currentFilter = 'ALL';
+let currentSort = { key: 'dateIssued', dir: 'desc' };
+let searchTerm = '';
+
+function unlockDashboard() {
+  const input = document.getElementById('dash-password');
+  const error = document.getElementById('dash-error');
+  if (input.value === DASH_PASSWORD) {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    loadQuotes();
+  } else {
+    error.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+
+async function loadQuotes() {
+  const body = document.getElementById('quotes-body');
+  body.innerHTML = '<tr><td colspan="7" class="loading"><div class="spinner"></div><br>Loading quotes from GitHub...</td></tr>';
+
+  try {
+    // List all files in quotes/ directory via GitHub API
+    const listResult = await MCK_QUOTE_STORAGE.listQuotes();
+    if (!listResult.success || !listResult.files || listResult.files.length === 0) {
+      body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><h3>NO QUOTES FOUND</h3><p>Create a quote in the Quote Generator to get started.</p></div></td></tr>';
+      updateStats([]);
+      return;
+    }
+
+    // Load each quote
+    const quotes = [];
+    for (const file of listResult.files) {
+      const qId = file.replace('.json', '');
+      try {
+        const result = await MCK_QUOTE_STORAGE.loadQuote(qId);
+        if (result.success && result.data) {
+          const d = result.data;
+          // Determine effective status
+          let status = d.status || 'PENDING';
+          if (d.clientAcceptedAt) status = 'ACCEPTED';
+          if (d.status === 'DECLINED') status = 'DECLINED';
+          if (d.createdAt && d.validityHours) {
+            const expiry = new Date(new Date(d.createdAt).getTime() + d.validityHours * 3600000);
+            if (new Date() > expiry && status === 'PENDING') status = 'EXPIRED';
+          }
+          d._effectiveStatus = status;
+          d._quoteId = qId;
+          quotes.push(d);
+        }
+      } catch (e) { console.warn('Failed to load quote:', qId, e); }
+    }
+
+    allQuotes = quotes;
+    applyFiltersAndRender();
+  } catch (e) {
+    body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><h3>ERROR LOADING QUOTES</h3><p>' + e.message + '</p></div></td></tr>';
+  }
+}
+
+function applyFiltersAndRender() {
+  // Filter
+  filteredQuotes = allQuotes.filter(q => {
+    if (currentFilter !== 'ALL' && q._effectiveStatus !== currentFilter) return false;
+    if (searchTerm) {
+      const s = searchTerm.toLowerCase();
+      return (q.quoteNumber || '').toLowerCase().includes(s) ||
+             (q.clientName || '').toLowerCase().includes(s) ||
+             (q.projectAddress || '').toLowerCase().includes(s);
+    }
+    return true;
+  });
+
+  // Sort
+  filteredQuotes.sort((a, b) => {
+    let va = a[currentSort.key] || '';
+    let vb = b[currentSort.key] || '';
+    if (currentSort.key === 'subtotal' || currentSort.key === 'grandTotal') {
+      va = parseFloat(va) || 0;
+      vb = parseFloat(vb) || 0;
+    } else if (currentSort.key === 'dateIssued') {
+      // Parse DD/MM/YYYY
+      const pa = (va || '').split('/');
+      const pb = (vb || '').split('/');
+      va = pa.length === 3 ? new Date(pa[2], pa[1]-1, pa[0]).getTime() : 0;
+      vb = pb.length === 3 ? new Date(pb[2], pb[1]-1, pb[0]).getTime() : 0;
+    } else {
+      va = String(va).toLowerCase();
+      vb = String(vb).toLowerCase();
+    }
+    if (va < vb) return currentSort.dir === 'asc' ? -1 : 1;
+    if (va > vb) return currentSort.dir === 'asc' ? 1 : -1;
+    return 0;
+  });
+
+  renderTable();
+  updateStats(allQuotes);
+}
+
+function renderTable() {
+  const body = document.getElementById('quotes-body');
+  if (filteredQuotes.length === 0) {
+    body.innerHTML = '<tr><td colspan="7"><div class="empty-state"><h3>NO MATCHING QUOTES</h3><p>Try adjusting your filters or search.</p></div></td></tr>';
+    return;
+  }
+
+  const $ = v => '$' + (parseFloat(v) || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+
+  body.innerHTML = filteredQuotes.map(q => {
+    const qId = q._quoteId || q.quoteNumber;
+    const viewerBase = BASE_URL + 'quote-viewer.html';
+    return `<tr>
+      <td style="font-weight:700;color:var(--gold);">${q.quoteNumber || qId}</td>
+      <td>${q.clientName || '—'}</td>
+      <td style="font-size:10px;">${q.projectAddress || '—'}</td>
+      <td class="right" style="font-weight:700;">${$(q.subtotal)}</td>
+      <td style="font-size:10px;color:var(--grey-light);">${q.dateIssued || '—'}</td>
+      <td><span class="status status-${q._effectiveStatus}">${q._effectiveStatus}</span></td>
+      <td style="white-space:nowrap;">
+        <a href="${viewerBase}?id=${encodeURIComponent(qId)}&view=client" target="_blank" class="action-link">Client</a>
+        <a href="${viewerBase}?id=${encodeURIComponent(qId)}" target="_blank" class="action-link blue">Internal</a>
+        <a href="index.html?edit=${encodeURIComponent(qId)}" class="action-link" style="color:var(--grey-light);">Edit</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function updateStats(quotes) {
+  const $ = v => '$' + (v || 0).toLocaleString(undefined, {minimumFractionDigits:0, maximumFractionDigits:0});
+  const total = quotes.reduce((s, q) => s + (parseFloat(q.subtotal) || 0), 0);
+  const accepted = quotes.filter(q => q._effectiveStatus === 'ACCEPTED');
+  const pending = quotes.filter(q => q._effectiveStatus === 'PENDING');
+  const declined = quotes.filter(q => q._effectiveStatus === 'DECLINED');
+  const expired = quotes.filter(q => q._effectiveStatus === 'EXPIRED');
+  const acceptedVal = accepted.reduce((s, q) => s + (parseFloat(q.subtotal) || 0), 0);
+  const pendingVal = pending.reduce((s, q) => s + (parseFloat(q.subtotal) || 0), 0);
+  const lostVal = declined.reduce((s, q) => s + (parseFloat(q.subtotal) || 0), 0) + expired.reduce((s, q) => s + (parseFloat(q.subtotal) || 0), 0);
+  const convRate = quotes.length > 0 ? ((accepted.length / quotes.length) * 100).toFixed(1) : '0.0';
+
+  document.getElementById('stat-total').textContent = $(total);
+  document.getElementById('stat-total-sub').textContent = quotes.length + ' quotes total';
+  document.getElementById('stat-accepted').textContent = $(acceptedVal);
+  document.getElementById('stat-accepted-sub').textContent = accepted.length + ' quotes accepted';
+  document.getElementById('stat-pending').textContent = $(pendingVal);
+  document.getElementById('stat-pending-sub').textContent = pending.length + ' quotes pending';
+  document.getElementById('stat-conversion').textContent = convRate + '%';
+  document.getElementById('stat-conversion-sub').textContent = accepted.length + ' of ' + quotes.length + ' converted';
+  document.getElementById('stat-lost').textContent = $(lostVal);
+  document.getElementById('stat-lost-sub').textContent = declined.length + ' declined, ' + expired.length + ' expired';
+}
+
+function filterQuotes(status, btn) {
+  currentFilter = status;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  if (btn) btn.classList.add('active');
+  applyFiltersAndRender();
+}
+
+function searchQuotes(term) {
+  searchTerm = term;
+  applyFiltersAndRender();
+}
+
+function sortBy(key) {
+  if (currentSort.key === key) {
+    currentSort.dir = currentSort.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    currentSort.key = key;
+    currentSort.dir = 'desc';
+  }
+  applyFiltersAndRender();
+}
+</script>
+</body>
+</html>
