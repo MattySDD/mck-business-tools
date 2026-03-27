@@ -103,6 +103,8 @@
   "mckSigDate": "2026-03-27",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-03-27T03:41:52.969Z",
-  "lastSavedAt": "2026-03-27T03:41:54.040Z"
+  "createdAt": "2026-03-27T03:45:04.021Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-2680",
+  "lastSavedAt": "2026-03-27T03:45:08.242Z"
 }
