@@ -32,7 +32,7 @@
       "total": 0
     },
     {
-      "desc": "Microcement - Pool area 26.25",
+      "desc": "Microcement - Pool area ",
       "qty": 26.25,
       "unit": "sqm",
       "rate": 0,
@@ -131,6 +131,8 @@
   "mckSigDate": "2026-04-15",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-04-15T13:29:20.120Z",
-  "lastSavedAt": "2026-04-15T13:29:20.862Z"
+  "createdAt": "2026-04-15T13:31:19.238Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-3595",
+  "lastSavedAt": "2026-04-15T13:31:22.098Z"
 }
