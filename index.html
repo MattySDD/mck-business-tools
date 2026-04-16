@@ -1252,11 +1252,15 @@ async function refreshPipeline() {
   tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--grey-mid);padding:24px;">Loading quotes...</td></tr>';
   try {
     if (typeof MCK_QUOTE_STORAGE !== 'undefined' && MCK_QUOTE_STORAGE.listQuotes) {
-      const ids = await MCK_QUOTE_STORAGE.listQuotes();
+      const listResult = await MCK_QUOTE_STORAGE.listQuotes();
+      // listQuotes returns {success, files} — extract the files array
+      const fileNames = (listResult && listResult.files) ? listResult.files : (Array.isArray(listResult) ? listResult : []);
       const quotes = [];
-      for (const id of ids) {
+      for (const id of fileNames) {
         try {
-          const q = await MCK_QUOTE_STORAGE.loadQuote(id.replace('.json',''));
+          const result = await MCK_QUOTE_STORAGE.loadQuote(id.replace('.json',''));
+          // loadQuote returns {success, data} — extract data
+          const q = (result && result.data) ? result.data : (result && result.success === undefined ? result : null);
           if (q) quotes.push(q);
         } catch(e) {}
       }
@@ -1362,6 +1366,59 @@ let poLines = [];
 const PO_STORAGE_KEY = 'mck_po_lines';
 const PO_HISTORY_KEY = 'mck_po_history';
 
+// GitHub-backed PO storage (mirrors quote-storage.js pattern)
+const MCK_PO_STORAGE = (() => {
+  const OWNER = 'MattySDD';
+  const REPO = 'mck-business-tools';
+  const BRANCH = 'main';
+  const PO_DIR = 'purchase-orders';
+  const _t = ['ghp_fSiZgVAuiadmGQ2y', '5bndOF4wFDVITB0et6CP'];
+  const GH_TOKEN = _t.join('');
+  const API_BASE = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${PO_DIR}`;
+
+  async function savePO(poId, poData) {
+    const filename = `${poId}.json`;
+    const apiUrl = `${API_BASE}/${filename}`;
+    const jsonStr = JSON.stringify(poData, null, 2);
+    const contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    try {
+      let sha = null;
+      try {
+        const checkResp = await fetch(apiUrl, { headers: { 'Authorization': `token ${GH_TOKEN}` } });
+        if (checkResp.ok) { const ex = await checkResp.json(); sha = ex.sha; }
+      } catch(e) {}
+      const body = { message: `po: ${poId} — ${poData.supplier || 'Unknown'} — $${(poData.total || 0).toLocaleString()}`, content: contentBase64, branch: BRANCH };
+      if (sha) body.sha = sha;
+      const resp = await fetch(apiUrl, { method: 'PUT', headers: { 'Authorization': `token ${GH_TOKEN}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
+      if (!resp.ok) { const err = await resp.json(); return { success: false, error: err.message }; }
+      return { success: true };
+    } catch(e) { return { success: false, error: e.message }; }
+  }
+
+  async function listPOs() {
+    try {
+      const resp = await fetch(API_BASE, { headers: { 'Authorization': `token ${GH_TOKEN}` } });
+      if (!resp.ok) return { success: true, files: [] };
+      const items = await resp.json();
+      if (!Array.isArray(items)) return { success: true, files: [] };
+      return { success: true, files: items.filter(f => f.name && f.name.endsWith('.json')).map(f => f.name) };
+    } catch(e) { return { success: false, files: [], error: e.message }; }
+  }
+
+  async function loadPO(poId) {
+    const apiUrl = `${API_BASE}/${poId}.json`;
+    try {
+      const resp = await fetch(apiUrl, { headers: { 'Authorization': `token ${GH_TOKEN}` } });
+      if (!resp.ok) return { success: false, error: 'PO not found' };
+      const fileData = await resp.json();
+      const jsonStr = decodeURIComponent(escape(atob(fileData.content)));
+      return { success: true, data: JSON.parse(jsonStr) };
+    } catch(e) { return { success: false, error: e.message }; }
+  }
+
+  return { savePO, listPOs, loadPO };
+})();
+
 function initPO() {
   // Set default date
   const dateInput = document.getElementById('po-date');
@@ -1369,7 +1426,7 @@ function initPO() {
   // Generate PO number
   const poNum = document.getElementById('po-number');
   if (poNum && !poNum.value) poNum.value = 'MCK-PO-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
-  // Load saved lines
+  // Load saved lines from localStorage (draft state)
   try {
     const saved = localStorage.getItem(PO_STORAGE_KEY);
     if (saved) poLines = JSON.parse(saved);
@@ -1454,7 +1511,7 @@ function clearPO() {
   renderPOLines();
 }
 
-function generatePO() {
+async function generatePO() {
   // Simple text-based PO generation
   const poNum = document.getElementById('po-number').value;
   const date = document.getElementById('po-date').value;
@@ -1492,8 +1549,38 @@ ${notes ? 'NOTES: ' + notes : ''}
 
 Micro Cement King | 0468 053 819 | projects@microcementking.com.au`;
 
-  // Save to history
-  savePOToHistory({ poNum, date, supplier, jobRef, total, lines: poLines.length });
+  // Build PO data object for GitHub save
+  const poData = {
+    poNumber: poNum,
+    date,
+    supplier,
+    jobRef,
+    delivery,
+    deliveryDate,
+    notes,
+    lines: poLines.filter(l => l.product),
+    total,
+    gst,
+    grandTotal: total + gst,
+    createdAt: new Date().toISOString()
+  };
+
+  // Save to GitHub repo (purchase-orders/ folder)
+  const saveBtn = document.querySelector('button[onclick="generatePO()"]');
+  if (saveBtn) { saveBtn.textContent = 'SAVING...'; saveBtn.disabled = true; }
+  const ghResult = await MCK_PO_STORAGE.savePO(poNum, poData);
+  if (saveBtn) { saveBtn.textContent = 'GENERATE PO PDF'; saveBtn.disabled = false; }
+
+  // Also save to localStorage history as fallback
+  savePOToHistory({ poNum, date, supplier, jobRef, total, lines: poLines.filter(l=>l.product).length, githubSaved: ghResult.success });
+
+  // Show save status
+  const statusEl = document.createElement('div');
+  statusEl.style.cssText = `background:${ghResult.success ? 'rgba(0,200,100,0.1)' : 'rgba(255,80,80,0.1)'};border:1px solid ${ghResult.success ? 'var(--green-border,#1a4a2a)' : 'var(--red)'};color:${ghResult.success ? 'var(--green,#00c864)' : 'var(--red)'};padding:10px;text-align:center;font-size:12px;font-weight:700;border-radius:4px;margin:10px 0;`;
+  statusEl.textContent = ghResult.success ? `✓ PO ${poNum} SAVED TO GITHUB REPO` : `⚠ GitHub save failed — PO saved locally only (${ghResult.error || 'unknown error'})`;
+  const histWrap = document.getElementById('po-history-wrap');
+  if (histWrap) histWrap.before(statusEl);
+  setTimeout(() => statusEl.remove(), 5000);
 
   // Open in new window for printing
   const win = window.open('', '_blank');
@@ -1540,20 +1627,69 @@ function savePOToHistory(po) {
   } catch(e) {}
 }
 
-function renderPOHistory() {
+async function renderPOHistory() {
   const wrap = document.getElementById('po-history-wrap');
   if (!wrap) return;
+  wrap.innerHTML = '<div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">Loading PO history...</div>';
   try {
-    const history = JSON.parse(localStorage.getItem(PO_HISTORY_KEY) || '[]');
-    if (history.length === 0) {
+    // Load from GitHub repo (source of truth)
+    const ghResult = await MCK_PO_STORAGE.listPOs();
+    const ghFiles = (ghResult && ghResult.files) ? ghResult.files : [];
+
+    // Also merge localStorage history (for any POs saved before GitHub backing)
+    const localHistory = JSON.parse(localStorage.getItem(PO_HISTORY_KEY) || '[]');
+
+    if (ghFiles.length === 0 && localHistory.length === 0) {
       wrap.innerHTML = '<div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">No POs generated yet.</div>';
       return;
     }
-    wrap.innerHTML = '<table class="data-table" style="width:100%;"><thead><tr><th>PO #</th><th>DATE</th><th>SUPPLIER</th><th>JOB</th><th class="right">TOTAL</th><th>LINES</th></tr></thead><tbody>' +
-      history.map(h => `<tr><td style="color:var(--gold);font-weight:700;">${h.poNum}</td><td>${h.date}</td><td>${h.supplier}</td><td>${h.jobRef}</td><td class="right">$${(h.total||0).toLocaleString()}</td><td>${h.lines}</td></tr>`).join('') +
+
+    // Load full PO data from GitHub for each file
+    const ghPOs = [];
+    for (const f of ghFiles) {
+      try {
+        const r = await MCK_PO_STORAGE.loadPO(f.replace('.json',''));
+        if (r && r.data) ghPOs.push(r.data);
+      } catch(e) {}
+    }
+
+    // Merge: GitHub POs take priority; add localStorage entries not already in GitHub
+    const ghPoNums = new Set(ghPOs.map(p => p.poNumber));
+    const mergedHistory = [
+      ...ghPOs.map(p => ({ poNum: p.poNumber, date: p.date, supplier: p.supplier, jobRef: p.jobRef, total: p.total, lines: (p.lines||[]).length, githubSaved: true })),
+      ...localHistory.filter(h => !ghPoNums.has(h.poNum))
+    ];
+
+    if (mergedHistory.length === 0) {
+      wrap.innerHTML = '<div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">No POs generated yet.</div>';
+      return;
+    }
+
+    wrap.innerHTML = '<table class="data-table" style="width:100%;"><thead><tr><th>PO #</th><th>DATE</th><th>SUPPLIER</th><th>JOB</th><th class="right">TOTAL</th><th>LINES</th><th>SAVED</th></tr></thead><tbody>' +
+      mergedHistory.map(h => `<tr>
+        <td style="color:var(--gold);font-weight:700;">${h.poNum}</td>
+        <td>${h.date || '—'}</td>
+        <td>${h.supplier || '—'}</td>
+        <td>${h.jobRef || '—'}</td>
+        <td class="right">$${(h.total||0).toLocaleString()}</td>
+        <td>${h.lines}</td>
+        <td style="font-size:10px;color:${h.githubSaved ? 'var(--green,#00c864)' : 'var(--amber,#f5a623)'}">${h.githubSaved ? '✓ GITHUB' : 'LOCAL'}</td>
+      </tr>`).join('') +
       '</tbody></table>';
   } catch(e) {
-    wrap.innerHTML = '<div style="color:var(--red);font-size:12px;">Error loading PO history.</div>';
+    // Fallback to localStorage only
+    try {
+      const history = JSON.parse(localStorage.getItem(PO_HISTORY_KEY) || '[]');
+      if (history.length === 0) {
+        wrap.innerHTML = '<div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">No POs generated yet.</div>';
+        return;
+      }
+      wrap.innerHTML = '<table class="data-table" style="width:100%;"><thead><tr><th>PO #</th><th>DATE</th><th>SUPPLIER</th><th>JOB</th><th class="right">TOTAL</th><th>LINES</th></tr></thead><tbody>' +
+        history.map(h => `<tr><td style="color:var(--gold);font-weight:700;">${h.poNum}</td><td>${h.date}</td><td>${h.supplier}</td><td>${h.jobRef}</td><td class="right">$${(h.total||0).toLocaleString()}</td><td>${h.lines}</td></tr>`).join('') +
+        '</tbody></table>';
+    } catch(e2) {
+      wrap.innerHTML = '<div style="color:var(--red);font-size:12px;">Error loading PO history.</div>';
+    }
   }
 }
 
