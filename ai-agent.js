@@ -14,10 +14,11 @@ RULES:
 - Three systems: Solidro (premium), Micro Cement (standard), Rusico (external)
 - Surface types: Floor, Feature Wall, Wet Area, Bench Top, External
 - Pricing tiers (ex GST):
-  Floors: 0-25sqm $365/sqm, 25-70sqm $305/sqm, 70-120+sqm $250/sqm
-  Feature Walls: 15-30sqm $300/sqm, 30-60sqm $260/sqm, 60+sqm $220/sqm, min $3,000
-  Wet Areas/Bathrooms/Benchtops: 15-30sqm $460/sqm, 30-60sqm $360/sqm, 60-100sqm $320/sqm, 100+sqm $280/sqm, min $7,000
-- Payment: 50% deposit on acceptance, 25% at practical completion of base coat, 25% on final completion
+  Floors: min $7,500, 0-25sqm $365/sqm, 25-70sqm $305/sqm, 70-120sqm $250/sqm, 120+sqm $220/sqm
+  Feature Walls: min $3,000, 0-15sqm $350/sqm, 15-30sqm $300/sqm, 30-60sqm $260/sqm, 60+sqm $220/sqm
+  Wet Areas/Bathrooms/Benchtops: min $7,500, 0-15sqm $500/sqm, 15-30sqm $460/sqm, 30-60sqm $360/sqm, 60-100sqm $320/sqm, 100+sqm $280/sqm
+- Variation rate: $150/hr (2-hour minimum) plus materials at cost + 20%
+- Payment: Booking deposit (5% over $20k, 10% under $20k), 50% material payment, balance on completion
 - Defects liability: 12 months
 - Variations require written approval before work commences
 - Minimum 4-day process on every job
@@ -46,10 +47,11 @@ KNOWLEDGE BASE:
 - Rusico: Rusico Primer, Rusico Base, Rusico Finish, Rusico Sealer
 - Surface types: floors, feature walls, wet areas, bathrooms, benchtops, external
 - Pricing tiers (ex GST, do NOT quote exact prices to clients):
-  Floors: 0-25sqm $365, 25-70sqm $305, 70-120+sqm $250
-  Feature Walls: 15-30sqm $300, 30-60sqm $260, 60+sqm $220, min $3,000
-  Wet Areas: 15-30sqm $460, 30-60sqm $360, 60-100sqm $320, 100+sqm $280, min $7,000
-- Payment: 50% deposit on acceptance, 25% at practical completion of base coat, 25% on final completion
+  Floors: min $7,500, 0-25sqm $365, 25-70sqm $305, 70-120sqm $250, 120+sqm $220
+  Feature Walls: min $3,000, 0-15sqm $350, 15-30sqm $300, 30-60sqm $260, 60+sqm $220
+  Wet Areas: min $7,500, 0-15sqm $500, 15-30sqm $460, 30-60sqm $360, 60-100sqm $320, 100+sqm $280
+- Variation rate: $150/hr (2-hour minimum) plus materials at cost + 20%
+- Payment: Booking deposit (5% over $20k, 10% under $20k), 50% material payment, balance on completion
 - Defects liability: 12 months
 - Minimum charges apply per surface type
 - Variations require written approval before work commences

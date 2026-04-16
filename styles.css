@@ -1393,6 +1393,46 @@ button { font-family:'Inter',sans-serif; }
   }
 }
 
+/* ═══ DATA TABLE (PO, PIPELINE, VARIATIONS) ═══ */
+.data-table {
+  width:100%; border-collapse:collapse; background:var(--card-bg);
+}
+.data-table thead tr {
+  background:var(--panel);
+}
+.data-table th {
+  padding:10px 12px; font-size:10px; font-weight:800; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--gold); border-bottom:2px solid var(--gold);
+  text-align:left;
+}
+.data-table td {
+  padding:10px 12px; font-size:12px; color:var(--text-primary);
+  border-bottom:1px solid var(--border);
+}
+.data-table tr:hover td { background:var(--panel); }
+.data-table .total-row td {
+  background:var(--panel); border-top:2px solid var(--gold); font-weight:700;
+}
+
+/* ═══ MATERIAL ORDER SHOPPING LIST ═══ */
+.material-order-table {
+  width:100%; border-collapse:collapse;
+}
+.material-order-table th {
+  padding:8px 12px; font-size:10px; font-weight:800; letter-spacing:1.5px;
+  text-transform:uppercase; color:var(--gold); border-bottom:2px solid var(--gold);
+  text-align:left; background:var(--panel);
+}
+.material-order-table td {
+  padding:8px 12px; font-size:12px; color:#fff; border-bottom:1px solid var(--border);
+}
+.material-order-table .mo-qty {
+  font-weight:700; color:var(--gold); text-align:center;
+}
+.material-order-table .mo-product {
+  font-weight:500;
+}
+
 /* ═══ RESPONSIVE ═══ */
 @media (max-width:768px) {
   .topnav { padding:10px 12px; }

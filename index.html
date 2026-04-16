@@ -17,238 +17,21 @@
 <nav class="topnav">
   <div class="nav-brand">MICRO CEMENT KING</div>
   <div class="nav-tabs">
-    <button class="nav-tab active" data-tab="calculator" onclick="switchTab('calculator')">MARGIN CALCULATOR</button>
-    <button class="nav-tab" data-tab="quote" onclick="switchTab('quote')">QUOTE GENERATOR</button>
+    <button class="nav-tab active" data-tab="quote" onclick="switchTab('quote')">QUOTE GENERATOR</button>
+    <button class="nav-tab" data-tab="calculator" onclick="switchTab('calculator')">MARGIN CALCULATOR</button>
     <button class="nav-tab" data-tab="terms" onclick="switchTab('terms')">TERMS &amp; CONDITIONS</button>
+    <button class="nav-tab" data-tab="po" onclick="switchTab('po')">PO PROCESSOR</button>
+    <button class="nav-tab" data-tab="pipeline" onclick="switchTab('pipeline')">PIPELINE</button>
     <button class="nav-tab" data-tab="ai" onclick="switchTab('ai')">AI AGENT</button>
     <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">SETTINGS</button>
   </div>
 </nav>
 
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- TAB 1: MARGIN CALCULATOR                                    -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div id="tab-calculator" class="tab-content active">
-  <div class="page">
-
-    <!-- AUTO-POPULATE BANNER -->
-    <div id="calc-auto-banner" class="auto-populate-banner" style="display:none;">
-      AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING
-    </div>
-
-    <!-- SURFACE LINES -->
-    <div class="card">
-      <div class="card-header">
-        <h2>SURFACE LINE ITEMS</h2>
-        <span class="badge">UP TO 10 SURFACES</span>
-      </div>
-      <div class="card-body">
-        <div id="surface-lines" class="surface-lines"></div>
-        <button id="add-surface-btn" class="add-surface-btn" onclick="addSurfaceLine()">+ ADD SURFACE</button>
-      </div>
-    </div>
-
-    <!-- CREW & PREP -->
-    <div class="card">
-      <div class="card-header"><h2>CREW &amp; PREP CONFIGURATION</h2></div>
-      <div class="card-body">
-        <div class="section-label">CREW SIZE</div>
-        <div id="crew-grid" class="crew-grid">
-          <div class="crew-option" onclick="selectCrew(this,'solo')" data-key="solo">
-            <div class="crew-label">SOLO — PATTY</div>
-            <div class="crew-rate">$65/hr | 15 sqm/day</div>
-          </div>
-          <div class="crew-option active" onclick="selectCrew(this,'dual')" data-key="dual">
-            <div class="crew-label">DUAL — PATTY + HAYDEN/MICKY</div>
-            <div class="crew-rate">$120/hr | 30 sqm/day</div>
-          </div>
-          <div class="crew-option" onclick="selectCrew(this,'full')" data-key="full">
-            <div class="crew-label">FULL — 3 MAN + LABOURER</div>
-            <div class="crew-rate">$155/hr | 40 sqm/day</div>
-          </div>
-        </div>
-        <div style="height:16px;"></div>
-        <div class="section-label">PREP COMPLEXITY</div>
-        <div id="prep-grid" class="crew-grid">
-          <div class="crew-option active" onclick="selectPrep(this,'standard',1.0)" data-mult="1.0">
-            <div class="crew-label">STANDARD</div>
-            <div class="crew-rate">No adjustment</div>
-          </div>
-          <div class="crew-option" onclick="selectPrep(this,'complex',1.2)" data-mult="1.2">
-            <div class="crew-label">COMPLEX PREP</div>
-            <div class="crew-rate">+20% labour</div>
-          </div>
-        </div>
-        <div class="callout callout-info" style="margin-top:14px;font-size:11px;">
-          <strong>MINIMUM 4-DAY PROCESS:</strong> Every job requires a minimum 4-day process regardless of area size (prep + base coat + top coat + seal). Labour is calculated on whichever is greater: the sqm-based duration or 4 days.
-        </div>
-      </div>
-    </div>
-
-    <!-- VARIATIONS & EXTRAS -->
-    <div class="card">
-      <div class="card-header">
-        <h2>VARIATIONS &amp; EXTRAS</h2>
-        <span class="badge">COST + REVENUE</span>
-      </div>
-      <div class="card-body">
-        <div style="overflow-x:auto;">
-          <table class="data-table" style="width:100%;">
-            <thead>
-              <tr>
-                <th style="min-width:180px;">DESCRIPTION</th>
-                <th style="width:70px;">HOURS</th>
-                <th style="width:80px;">RATE ($/HR)</th>
-                <th style="width:80px;">MATERIAL ($)</th>
-                <th style="width:90px;" class="right">COST</th>
-                <th style="width:90px;" class="right">REVENUE</th>
-                <th style="width:50px;"></th>
-              </tr>
-            </thead>
-            <tbody id="calc-variation-body"></tbody>
-            <tfoot>
-              <tr class="total-row">
-                <td colspan="4" style="text-align:right;font-weight:700;">TOTALS:</td>
-                <td class="right" id="calc-var-total-cost" style="font-weight:700;color:var(--gold);">$0.00</td>
-                <td class="right" id="calc-var-total-rev" style="font-weight:700;color:var(--green);">$0.00</td>
-                <td></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-        <div id="calc-var-margin" style="margin-top:8px;font-size:13px;color:#aaa;"></div>
-        <div id="calc-var-impact" style="display:none;margin-top:8px;border-top:1px solid #333;padding-top:8px;"></div>
-        <button onclick="addCalcVariation()" class="add-surface-btn" style="margin-top:12px;">+ ADD VARIATION</button>
-        <div class="callout callout-info" style="margin-top:12px;font-size:11px;">
-          <strong>DEFAULT ASSUMPTION:</strong> Every $300 variation cost = $100 material + $200 labour (2hrs at crew rate). Revenue is charged at 1.33x cost ($400 per $300 cost). Adjust hours, rate, and material per line as needed.
-        </div>
-      </div>
-    </div>
-
-    <!-- EMPTY STATE -->
-    <div id="empty-state" class="empty-state" style="display:none;">
-      <div style="font-size:28px;color:var(--border-light);margin-bottom:8px;">&#9633;</div>
-      <div>Add surface lines above to see calculations</div>
-    </div>
-
-    <!-- RESULTS -->
-    <div id="results-content">
-
-      <!-- SUMMARY -->
-      <div class="card">
-        <div class="card-header"><h2 id="summary-system-title">JOB COST SUMMARY</h2><span class="badge">INTERNAL ONLY</span></div>
-        <div class="card-body">
-          <div class="results-grid">
-            <div class="stat-card"><div class="stat-label">TOTAL MATERIAL COST</div><div class="stat-value" id="r-mat-cost">—</div><div class="stat-sub" id="r-mat-sub">Selected system (pooled materials)</div></div>
-            <div class="stat-card"><div class="stat-label">TOTAL LABOUR COST</div><div class="stat-value" id="r-lab-cost">—</div><div class="stat-sub" id="r-lab-sub">—</div></div>
-            <div class="stat-card" style="border-color:var(--gold);"><div class="stat-label">TOTAL JOB COST</div><div class="stat-value gold" id="r-job-cost">—</div><div class="stat-sub" id="r-sqm-cost">—</div></div>
-            <div class="stat-card"><div class="stat-label">TOTAL SQM</div><div class="stat-value" id="r-total-sqm">—</div><div class="stat-sub">All surfaces combined</div></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- RECOMMENDED SELL PRICE -->
-      <div class="card">
-        <div class="card-header"><h2>MCK RECOMMENDED SELL PRICE</h2><span class="badge">TIERED PRICING — EX GST</span></div>
-        <div class="card-body" id="rec-sell-wrap"></div>
-      </div>
-
-      <!-- CUSTOM SELL PRICE -->
-      <div class="card">
-        <div class="card-header"><h2>CUSTOM SELL PRICE CHECK</h2></div>
-        <div class="card-body">
-          <div class="sell-price-wrap">
-            <label>ENTER SELL PRICE (EX GST):</label>
-            <input type="number" id="custom-sell" placeholder="0.00" oninput="recalc()">
-            <div class="sp-result" id="custom-margin-display">Enter a sell price to see your actual margin</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MARGIN BANDS -->
-      <div class="card">
-        <div class="card-header"><h2>MARGIN BANDS</h2></div>
-        <div class="card-body" id="margin-bands-wrap"></div>
-      </div>
-
-      <!-- MATERIAL BREAKDOWN — SOLIDRO -->
-      <div class="card" id="mat-solidro-card">
-        <div class="card-header"><h2>MATERIAL BREAKDOWN — SOLIDRO</h2><span class="badge">POOLED</span></div>
-        <div class="card-body" id="mat-table-wrap"></div>
-      </div>
-
-      <!-- MATERIAL BREAKDOWN — MICRO CEMENT -->
-      <div class="card" id="mat-microcement-card">
-        <div class="card-header"><h2>MATERIAL BREAKDOWN — MICRO CEMENT</h2><span class="badge">COMPARISON</span></div>
-        <div class="card-body" id="mt-table-wrap"></div>
-      </div>
-
-      <!-- MATERIAL BREAKDOWN — RUSICO -->
-      <div class="card" id="mat-rusico-card">
-        <div class="card-header"><h2>MATERIAL BREAKDOWN — RUSICO</h2><span class="badge">EXTERNAL / HEAVY DUTY</span></div>
-        <div class="card-body" id="rusico-table-wrap"></div>
-      </div>
-
-      <!-- SURFACE BREAKDOWN -->
-      <div class="card">
-        <div class="card-header"><h2>PER-SURFACE BREAKDOWN</h2></div>
-        <div class="card-body" id="surface-breakdown-wrap"></div>
-      </div>
-
-      <!-- LABOUR BREAKDOWN -->
-      <div class="card">
-        <div class="card-header"><h2>LABOUR BREAKDOWN</h2></div>
-        <div class="card-body" id="labour-wrap"></div>
-      </div>
-
-      <!-- 3-WAY SYSTEM COMPARISON -->
-      <div class="card">
-        <div class="card-header"><h2>SYSTEM COMPARISON</h2><span class="badge">SOLIDRO vs MICRO CEMENT vs RUSICO</span></div>
-        <div class="card-body">
-          <div class="compare-grid compare-grid-3">
-            <div class="compare-card solidro">
-              <div class="compare-title">SOLIDRO</div>
-              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-sol-mat">—</span></div>
-              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-sol-lab">—</span></div>
-              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-sol-total">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-sol-40">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-sol-50">—</span></div>
-            </div>
-            <div class="compare-card microcement">
-              <div class="compare-title">MICRO CEMENT</div>
-              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-mc-mat">—</span></div>
-              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-mc-lab">—</span></div>
-              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-mc-total">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-mc-40">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-mc-50">—</span></div>
-            </div>
-            <div class="compare-card rusico">
-              <div class="compare-title">RUSICO</div>
-              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-ru-mat">—</span></div>
-              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-ru-lab">—</span></div>
-              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-ru-total">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-ru-40">—</span></div>
-              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-ru-50">—</span></div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- MARKET SANITY CHECK -->
-      <div class="card">
-        <div class="card-header"><h2>MARKET SANITY CHECK — GOLD COAST</h2></div>
-        <div class="card-body" id="market-check-wrap"></div>
-      </div>
-
-    </div><!-- /results-content -->
-  </div><!-- /page -->
-</div><!-- /tab-calculator -->
-
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!-- TAB 2: QUOTE GENERATOR                                      -->
+<!-- TAB 1: QUOTE GENERATOR (now default)                        -->
 <!-- ═══════════════════════════════════════════════════════════ -->
-<div id="tab-quote" class="tab-content">
+<div id="tab-quote" class="tab-content active">
   <div class="doc">
 
     <!-- AUTO-POPULATE BANNER -->
@@ -476,7 +259,7 @@
         </div>
       </div>
 
-      <!-- 07 T&C SUMMARY -->
+      <!-- 07 TERMS SUMMARY -->
       <div class="section">
         <div class="section-hd"><div class="sec-num">07</div><h2>TERMS &amp; CONDITIONS SUMMARY</h2></div>
         <div class="tc-grid">
@@ -549,7 +332,7 @@
           </div>
         </div>
 
-        <!-- MCK AUTHORISED SIGNATURE -->
+        <!-- MCK AUTHORISED SIGNATURE — CLEAN PRE-DRAWN -->
         <div class="digital-sig-block" id="q-mck-sig-block" style="margin-top:24px;">
           <div class="digital-sig-title">MCK AUTHORISED SIGNATORY</div>
           <div class="digital-sig-subtitle">King Mannion — Director</div>
@@ -620,499 +403,1174 @@
 
 
 <!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 2: MARGIN CALCULATOR                                    -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-calculator" class="tab-content">
+  <div class="page">
+
+    <!-- AUTO-POPULATE BANNER -->
+    <div id="calc-auto-banner" class="auto-populate-banner" style="display:none;">
+      AUTO-POPULATED FROM AI INTAKE — REVIEW BEFORE SENDING
+    </div>
+
+    <!-- SURFACE LINES -->
+    <div class="card">
+      <div class="card-header">
+        <h2>SURFACE LINE ITEMS</h2>
+        <span class="badge">UP TO 10 SURFACES</span>
+      </div>
+      <div class="card-body">
+        <div id="surface-lines" class="surface-lines"></div>
+        <button id="add-surface-btn" class="add-surface-btn" onclick="addSurfaceLine()">+ ADD SURFACE</button>
+      </div>
+    </div>
+
+    <!-- CREW & PREP -->
+    <div class="card">
+      <div class="card-header"><h2>CREW &amp; PREP CONFIGURATION</h2></div>
+      <div class="card-body">
+        <div class="section-label">CREW SIZE</div>
+        <div id="crew-grid" class="crew-grid">
+          <div class="crew-option" onclick="selectCrew(this,'solo')" data-key="solo">
+            <div class="crew-label">SOLO — PATTY</div>
+            <div class="crew-rate">$65/hr | 15 sqm/day</div>
+          </div>
+          <div class="crew-option active" onclick="selectCrew(this,'dual')" data-key="dual">
+            <div class="crew-label">DUAL — PATTY + HAYDEN/MICKY</div>
+            <div class="crew-rate">$150/hr | 30 sqm/day</div>
+          </div>
+          <div class="crew-option" onclick="selectCrew(this,'full')" data-key="full">
+            <div class="crew-label">FULL — 3 MAN + LABOURER</div>
+            <div class="crew-rate">$155/hr | 40 sqm/day</div>
+          </div>
+        </div>
+        <div style="height:16px;"></div>
+        <div class="section-label">PREP COMPLEXITY</div>
+        <div id="prep-grid" class="crew-grid">
+          <div class="crew-option active" onclick="selectPrep(this,'standard',1.0)" data-mult="1.0">
+            <div class="crew-label">STANDARD</div>
+            <div class="crew-rate">No adjustment</div>
+          </div>
+          <div class="crew-option" onclick="selectPrep(this,'complex',1.2)" data-mult="1.2">
+            <div class="crew-label">COMPLEX PREP</div>
+            <div class="crew-rate">+20% labour</div>
+          </div>
+        </div>
+        <div class="callout callout-info" style="margin-top:14px;font-size:11px;">
+          <strong>MINIMUM 4-DAY PROCESS:</strong> Every job requires a minimum 4-day process regardless of area size (prep + base coat + top coat + seal). Labour is calculated on whichever is greater: the sqm-based duration or 4 days.
+        </div>
+      </div>
+    </div>
+
+    <!-- VARIATIONS & EXTRAS -->
+    <div class="card">
+      <div class="card-header">
+        <h2>VARIATIONS &amp; EXTRAS</h2>
+        <span class="badge">COST + REVENUE</span>
+      </div>
+      <div class="card-body">
+        <div style="overflow-x:auto;">
+          <table class="data-table" style="width:100%;">
+            <thead>
+              <tr>
+                <th style="min-width:180px;">DESCRIPTION</th>
+                <th style="width:70px;">HOURS</th>
+                <th style="width:80px;">RATE ($/HR)</th>
+                <th style="width:80px;">MATERIAL ($)</th>
+                <th style="width:90px;" class="right">COST</th>
+                <th style="width:90px;" class="right">REVENUE</th>
+                <th style="width:50px;"></th>
+              </tr>
+            </thead>
+            <tbody id="calc-variation-body"></tbody>
+            <tfoot>
+              <tr class="total-row">
+                <td colspan="4" style="text-align:right;font-weight:700;">TOTALS:</td>
+                <td class="right" id="calc-var-total-cost" style="font-weight:700;color:var(--gold);">$0</td>
+                <td class="right" id="calc-var-total-rev" style="font-weight:700;color:var(--green);">$0</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+        <div id="calc-var-margin" style="margin-top:8px;font-size:13px;color:#aaa;"></div>
+        <div id="calc-var-impact" style="display:none;margin-top:8px;border-top:1px solid #333;padding-top:8px;"></div>
+        <button onclick="addCalcVariation()" class="add-surface-btn" style="margin-top:12px;">+ ADD VARIATION</button>
+        <div class="callout callout-info" style="margin-top:12px;font-size:11px;">
+          <strong>DEFAULT ASSUMPTION:</strong> Every $300 variation cost = $100 material + $200 labour (2hrs at crew rate). Revenue is charged at 1.33x cost ($400 per $300 cost). Adjust hours, rate, and material per line as needed.
+        </div>
+      </div>
+    </div>
+
+    <!-- EMPTY STATE -->
+    <div id="empty-state" class="empty-state" style="display:none;">
+      <div style="font-size:28px;color:var(--border-light);margin-bottom:8px;">&#9633;</div>
+      <div>Add surface lines above to see calculations</div>
+    </div>
+
+    <!-- RESULTS -->
+    <div id="results-content">
+
+      <!-- SUMMARY -->
+      <div class="card">
+        <div class="card-header"><h2 id="summary-system-title">JOB COST SUMMARY</h2><span class="badge">INTERNAL ONLY</span></div>
+        <div class="card-body">
+          <div class="results-grid">
+            <div class="stat-card"><div class="stat-label">TOTAL MATERIAL COST</div><div class="stat-value" id="r-mat-cost">—</div><div class="stat-sub" id="r-mat-sub">Selected system (pooled materials)</div></div>
+            <div class="stat-card"><div class="stat-label">TOTAL LABOUR COST</div><div class="stat-value" id="r-lab-cost">—</div><div class="stat-sub" id="r-lab-sub">—</div></div>
+            <div class="stat-card" style="border-color:var(--gold);"><div class="stat-label">TOTAL JOB COST</div><div class="stat-value gold" id="r-job-cost">—</div><div class="stat-sub" id="r-sqm-cost">—</div></div>
+            <div class="stat-card"><div class="stat-label">TOTAL SQM</div><div class="stat-value" id="r-total-sqm">—</div><div class="stat-sub">All surfaces combined</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMMENDED SELL PRICE -->
+      <div class="card">
+        <div class="card-header"><h2>MCK RECOMMENDED SELL PRICE</h2><span class="badge">TIERED PRICING — EX GST</span></div>
+        <div class="card-body" id="rec-sell-wrap"></div>
+      </div>
+
+      <!-- CUSTOM SELL PRICE -->
+      <div class="card">
+        <div class="card-header"><h2>CUSTOM SELL PRICE CHECK</h2></div>
+        <div class="card-body">
+          <div class="sell-price-wrap">
+            <label>ENTER SELL PRICE (EX GST):</label>
+            <input type="number" id="custom-sell" placeholder="0" oninput="recalc()">
+            <div class="sp-result" id="custom-margin-display">Enter a sell price to see your actual margin</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARGIN BANDS -->
+      <div class="card">
+        <div class="card-header"><h2>MARGIN BANDS</h2></div>
+        <div class="card-body" id="margin-bands-wrap"></div>
+      </div>
+
+      <!-- MATERIAL BREAKDOWN — SINGLE CONSOLIDATED TABLE -->
+      <div class="card" id="mat-table-card">
+        <div class="card-header"><h2>MATERIAL BREAKDOWN</h2><span class="badge">POOLED — ALL SYSTEMS</span></div>
+        <div class="card-body" id="mat-table-wrap"></div>
+      </div>
+
+      <!-- SURFACE BREAKDOWN -->
+      <div class="card">
+        <div class="card-header"><h2>PER-SURFACE BREAKDOWN</h2></div>
+        <div class="card-body" id="surface-breakdown-wrap"></div>
+      </div>
+
+      <!-- LABOUR BREAKDOWN -->
+      <div class="card">
+        <div class="card-header"><h2>LABOUR BREAKDOWN</h2></div>
+        <div class="card-body" id="labour-wrap"></div>
+      </div>
+
+      <!-- 3-WAY SYSTEM COMPARISON -->
+      <div class="card">
+        <div class="card-header"><h2>SYSTEM COMPARISON</h2><span class="badge">SOLIDRO vs MICRO CEMENT vs RUSICO</span></div>
+        <div class="card-body">
+          <div class="compare-grid compare-grid-3">
+            <div class="compare-card solidro">
+              <div class="compare-title">SOLIDRO</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-sol-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-sol-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-sol-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-sol-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-sol-50">—</span></div>
+            </div>
+            <div class="compare-card microcement">
+              <div class="compare-title">MICRO CEMENT</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-mc-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-mc-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-mc-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-mc-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-mc-50">—</span></div>
+            </div>
+            <div class="compare-card rusico">
+              <div class="compare-title">RUSICO</div>
+              <div class="compare-row"><span class="cr-label">Material Cost</span><span class="cr-value" id="cmp-ru-mat">—</span></div>
+              <div class="compare-row"><span class="cr-label">Labour Cost</span><span class="cr-value" id="cmp-ru-lab">—</span></div>
+              <div class="compare-row"><span class="cr-label">Total Job Cost</span><span class="cr-value" id="cmp-ru-total">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 40%</span><span class="cr-value" id="cmp-ru-40">—</span></div>
+              <div class="compare-row"><span class="cr-label">Sell @ 50%</span><span class="cr-value" id="cmp-ru-50">—</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MARKET SANITY CHECK -->
+      <div class="card">
+        <div class="card-header"><h2>MARKET SANITY CHECK — GOLD COAST</h2></div>
+        <div class="card-body" id="market-check-wrap"></div>
+      </div>
+
+      <!-- MATERIAL ORDER / SHOPPING LIST -->
+      <div class="card">
+        <div class="card-header"><h2>MATERIAL ORDER</h2><span class="badge">SHOPPING LIST</span></div>
+        <div class="card-body" id="material-order-wrap">
+          <div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:16px;">Add surface lines and calculate to generate the material order list.</div>
+        </div>
+      </div>
+
+    </div><!-- /results-content -->
+  </div><!-- /page -->
+</div><!-- /tab-calculator -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
 <!-- TAB 3: TERMS & CONDITIONS                                   -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="tab-terms" class="tab-content">
-  <div class="doc" id="tc-doc">
+  <div class="doc">
     <div class="doc-header">
       <div class="header-row">
         <div class="brand-block">
-          <h1>RENDER RENDER PTY LTD<br>trading as MICRO CEMENT KING</h1>
-          <div class="doc-label" style="margin-top:12px;">PAYMENT TERMS &amp; CONDITIONS</div>
+          <div class="doc-label">PAYMENT TERMS &amp; CONDITIONS</div>
+          <h1>MICRO CEMENT KING</h1>
+          <div class="tagline">Gold Coast's Premium Seamless Surfaces Specialist</div>
         </div>
         <div class="contact-block">
-          <div class="cl"><strong>RENDER RENDER PTY LTD</strong> 0468 041 477</div>
-          <div class="cl"><strong>MICRO CEMENT KING</strong> 0468 053 819</div>
+          <div class="cl"><strong>PHONE</strong> 0468 053 819</div>
           <div class="cl"><strong>EMAIL</strong> projects@microcementking.com.au</div>
-          <div class="cl"><strong>WEB</strong> renderking.com.au | microcementking.com.au</div>
-          <div class="cl" style="margin-top:8px;font-size:10px;color:var(--grey-mid);">All prices ex GST unless stated</div>
+          <div class="cl"><strong>WEB</strong> microcementking.com.au</div>
         </div>
       </div>
     </div>
 
-    <div class="doc-body" id="tc-body">
-      <!-- SPECIAL CONDITIONS (editable, appears before standard T&Cs) -->
-      <div class="section" id="tc-special-conditions-section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num" style="background:var(--gold);color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>
-          <p style="color:var(--grey-mid);font-size:11px;margin-bottom:12px;">Add project-specific conditions below. These appear before the standard terms.</p>
-          <div id="tc-special-conditions-list"></div>
-          <div style="margin-top:12px;" class="no-print">
-            <button class="add-surface-btn" onclick="addSpecialCondition()">+ ADD CONDITION</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Section 1 -->
+    <div class="doc-body">
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">1</div><h2>FORMATION OF CONTRACT</h2></div>
-          <div class="clause"><span class="clause-num">1.1</span><span class="clause-text">Acceptance of a quote, payment of a deposit, or written confirmation constitutes a legally binding agreement/contract with Render Render Pty Ltd trading as Micro Cement King.</span></div>
-          <div class="clause"><span class="clause-num">1.2</span><span class="clause-text">This agreement is governed by the Queensland Building and Construction Commission Act 1991 (QBCC Act) and the Building Industry Fairness (Security of Payment) Act 2017 (BIF Act) where applicable.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">01</div><h2>DEFINITIONS</h2></div>
+        <div class="tc-section"><div class="tc-head">1.1</div><div class="tc-text">"MCK" refers to Micro Cement King and its authorised representatives. "Client" refers to the party named in the associated quotation. "Works" refers to all microcement application, surface preparation, sealing, and related services described in the quotation scope.</div></div>
+        <div class="tc-section"><div class="tc-head">1.2</div><div class="tc-text">"Contract" means the accepted quotation together with these Payment Terms &amp; Conditions, forming the entire agreement between the parties.</div></div>
       </div>
 
-      <!-- Section 2 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">2</div><h2>DEPOSIT &amp; PAYMENT TERMS</h2></div>
-          <div class="clause"><span class="clause-num">2.1</span><span class="clause-text">A deposit payment of 5-10% is required to secure your project.</span></div>
-          <div class="clause"><span class="clause-num">2.2</span><span class="clause-text"><strong><u>50% material invoice</u></strong> will be issued following contract acceptance and approval.</span></div>
-          <div class="clause"><span class="clause-num">2.3</span><span class="clause-text">Works will not commence until cleared funds for the deposit and material claim are received.</span></div>
-          <div class="clause"><span class="clause-num">2.4</span><span class="clause-text">The remaining balance is payable upon practical completion and must be paid within <strong>3 business days</strong> of the final invoice date, unless otherwise stated.</span></div>
-          <div class="clause"><span class="clause-num">2.5</span><span class="clause-text">Time for payment is of the essence.</span></div>
-          <div class="clause"><span class="clause-num">2.6</span><span class="clause-text">If the full contract amount is paid prior to commencement, a 5% reduction (capped at $1000) will be applied to the contract sum.</span></div>
-          <div class="clause"><span class="clause-num">2.7</span><span class="clause-text">If the deposit and material payment is not received in full within the 14-day timeframe, the scheduled start date may be released or delayed without further notice.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">02</div><h2>QUOTE VALIDITY &amp; ACCEPTANCE</h2></div>
+        <div class="tc-section"><div class="tc-head">2.1</div><div class="tc-text">Quotes are valid for the period stated on the quotation from the date of issue. After expiry, pricing must be reconfirmed in writing by MCK.</div></div>
+        <div class="tc-section"><div class="tc-head">2.2</div><div class="tc-text">Acceptance of the quotation is confirmed by the client's signature (digital or physical) on the quotation document AND receipt of the booking deposit. Both conditions must be met.</div></div>
+        <div class="tc-section"><div class="tc-head">2.3</div><div class="tc-text">MCK reserves the right to withdraw or amend any quotation prior to formal acceptance.</div></div>
       </div>
 
-      <!-- Section 3 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">3</div><h2>CREDIT LIMIT PAYMENTS AND RECOVERY</h2></div>
-          <div class="clause"><span class="clause-num">3.1</span><span class="clause-text">A maximum credit limit of $10,000 AUD is extended at the sole discretion of Render Render Pty Ltd trading as Micro Cement King.</span></div>
-          <div class="clause"><span class="clause-num">3.2</span><span class="clause-text">Once the value of work completed and/or outstanding invoices exceeds this credit threshold, a progress claim will be issued in accordance with the BIF Act and must be paid within 1 business day before further work continues.</span></div>
-          <div class="clause"><span class="clause-num">3.3</span><span class="clause-text">Progress payments help maintain the pace and continuity of the job and ensure delivery schedules are upheld.</span></div>
-          <div class="clause"><span class="clause-num">3.4</span><span class="clause-text">All invoices are due strictly by the date stated on the invoice.</span></div>
-          <div class="clause"><span class="clause-num">3.5</span><span class="clause-text">Any invoice unpaid after the due date is considered overdue.</span></div>
-          <div class="clause"><span class="clause-num">3.6</span><span class="clause-text">An administrative fee of $220 (including GST) will be applied to overdue accounts to cover recovery administration.</span></div>
-          <div class="clause"><span class="clause-num">3.7</span><span class="clause-text">A 3-day grace period may be applied at the discretion of the Director to waive the administrative fee. If payment remains outstanding after this period, interest will accrue on overdue amounts at a rate of <strong>3% per week</strong>, calculated and invoiced weekly until paid in full.</span></div>
-          <div class="clause"><span class="clause-num">3.8</span><span class="clause-text">All payment claims issued under these terms are legally compliant with the Building Industry Fairness (Security of Payment) Act 2017 (QLD).</span></div>
-          <div class="clause"><span class="clause-num">3.9</span><span class="clause-text">The client is liable for all debt recovery costs associated with overdue accounts, including legal fees, adjudication applications, enforcement costs, and collection agency commissions.</span></div>
-          <div class="clause"><span class="clause-num">3.10</span><span class="clause-text">Accounts unpaid beyond <strong>30 days</strong> from the due date will be:</span></div>
-          <div class="sub-clauses">
-            <div class="sub-clause"><span class="sub-num">3.10.1</span><span class="clause-text">Registered as a formal debt with Creditor Watch</span></div>
-            <div class="sub-clause"><span class="sub-num">3.10.2</span><span class="clause-text">Referred to Creditor Watch recovery agents</span></div>
-            <div class="sub-clause"><span class="sub-num">3.10.3</span><span class="clause-text">Listed with recognised credit reporting agencies with Creditor Watch</span></div>
-            <div class="sub-clause"><span class="sub-num">3.10.4</span><span class="clause-text">Subject to legal proceedings without further notice</span></div>
-          </div>
-          <div class="clause"><span class="clause-num">3.11</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves all rights available under the Building Industry Fairness (Security of Payment) Act 2017 (QLD), including the right to lodge a subcontractor's charge, submit a payment withholding request, or take any other lawful recovery action until full settlement is received.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">03</div><h2>PAYMENT TERMS</h2></div>
+        <div class="tc-section"><div class="tc-head">3.1 — Booking Deposit</div><div class="tc-text">A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</div></div>
+        <div class="tc-section"><div class="tc-head">3.2 — Material Payment</div><div class="tc-text">50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</div></div>
+        <div class="tc-section"><div class="tc-head">3.3 — Final Claim</div><div class="tc-text">The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</div></div>
+        <div class="tc-section"><div class="tc-head">3.4 — Progress Claims</div><div class="tc-text">For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</div></div>
+        <div class="tc-section"><div class="tc-head">3.5 — Upfront Payment Reduction</div><div class="tc-text">A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</div></div>
+        <div class="tc-section"><div class="tc-head">3.6 — On-Site Measure Fee</div><div class="tc-text">A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</div></div>
       </div>
 
-      <!-- Section 4 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">4</div><h2>SUSPENSION OF WORKS</h2></div>
-          <div class="clause"><span class="clause-num">4.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves the right to suspend works immediately if payment terms are breached.</span></div>
-          <div class="clause"><span class="clause-num">4.2</span><span class="clause-text">Any suspension due to non-payment may result in rescheduling and additional costs.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">04</div><h2>OVERDUE PAYMENTS &amp; DEBT RECOVERY</h2></div>
+        <div class="tc-section"><div class="tc-head">4.1</div><div class="tc-text">Invoices overdue by more than 3 business days will incur an administration fee of $220 (ex GST).</div></div>
+        <div class="tc-section"><div class="tc-head">4.2</div><div class="tc-text">Interest accrues at 3% per week on outstanding amounts from Day 4 of the overdue period, compounding weekly.</div></div>
+        <div class="tc-section"><div class="tc-head">4.3</div><div class="tc-text">If payment remains outstanding for 30 days or more, the matter will be referred to an external debt recovery agent. All recovery costs, legal fees, and collection charges will be added to the outstanding amount and are payable by the client.</div></div>
+        <div class="tc-section"><div class="tc-head">4.4</div><div class="tc-text">MCK reserves the right to suspend or terminate works immediately if any payment milestone is not met within the specified timeframe.</div></div>
       </div>
 
-      <!-- Section 5 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">5</div><h2>OWNERSHIP OF MATERIALS AND WORKS</h2></div>
-          <div class="clause"><span class="clause-num">5.1</span><span class="clause-text">All materials, finishes, and works supplied by Render Render Pty Ltd trading as Micro Cement King remain the property of the contractor until payment is received in full for all claims associated with the contract.</span></div>
-          <div class="clause"><span class="clause-num">5.2</span><span class="clause-text">Legal ownership transfers only once full settlement is cleared and confirmed.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">05</div><h2>VARIATIONS</h2></div>
+        <div class="tc-section"><div class="tc-head">5.1</div><div class="tc-text">All variations to the original scope must be agreed in writing before work commences. Verbal agreements are not binding.</div></div>
+        <div class="tc-section"><div class="tc-head">5.2</div><div class="tc-text">Variations are charged at $150/hr (ex GST) with a 2-hour minimum, plus materials at cost + 20%. A $500 material allowance applies per variation unless otherwise agreed.</div></div>
+        <div class="tc-section"><div class="tc-head">5.3</div><div class="tc-text">Variation invoices are payable within 3 business days of issue and are subject to the same overdue terms as the primary contract.</div></div>
       </div>
 
-      <!-- Section 6 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">6</div><h2>WORK SUSPENSION AND SUBCONTRACTING LIMITATIONS</h2></div>
-          <div class="clause"><span class="clause-num">6.1</span><span class="clause-text">If any invoice remains unpaid beyond its due date or the agreed credit limit is exceeded, Render Render Pty Ltd trading as Micro Cement King reserves the right to stop work immediately.</span></div>
-          <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">In the event of a payment dispute or unresolved claim, no third-party contractors, builders, or suppliers are to be engaged to rectify, modify, or continue any work originally performed by Render Render Pty Ltd trading as Micro Cement King without prior written agreement from the Director.</span></div>
-          <div class="clause"><span class="clause-num">6.3</span><span class="clause-text">This clause ensures the integrity of the job and allows for proper dispute handling without interference or miscommunication.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">06</div><h2>WARRANTIES</h2></div>
+        <div class="tc-section"><div class="tc-head">6.1</div><div class="tc-text">All workmanship is covered under statutory warranties as required by Queensland law.</div></div>
+        <div class="tc-section"><div class="tc-head">6.2</div><div class="tc-text">Manufacturer product warranties are passed through to the client in full. MCK will assist with any warranty claims where reasonable.</div></div>
+        <div class="tc-section"><div class="tc-head">6.3</div><div class="tc-text">Warranties do not cover damage caused by misuse, neglect, other trades, structural movement, or failure to follow maintenance guidelines provided by MCK.</div></div>
       </div>
 
-      <!-- Section 7 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">7</div><h2>VARIATIONS AND DELAYS</h2></div>
-          <div class="clause"><span class="clause-num">7.1</span><span class="clause-text">Any changes to the original scope of work must be submitted in writing and confirmed by both parties prior to execution.</span></div>
-          <div class="clause"><span class="clause-num">7.2</span><span class="clause-text">Additional work or alterations will be costed accordingly and billed as a variation, which may be invoiced separately or included in the final claim.</span></div>
-          <div class="clause"><span class="clause-num">7.3</span><span class="clause-text">Delays caused by weather, site restrictions, or other trades may require rescheduling or additional charges, which will be communicated clearly at the time.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">07</div><h2>DISPUTE RESOLUTION</h2></div>
+        <div class="tc-section"><div class="tc-head">7.1</div><div class="tc-text">No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties. Engaging third parties without prior written consent voids all warranties.</div></div>
+        <div class="tc-section"><div class="tc-head">7.2</div><div class="tc-text">Any disputes shall first be addressed through direct negotiation. If unresolved within 14 days, the matter may be referred to mediation in accordance with Queensland law.</div></div>
       </div>
 
-      <!-- Section 8 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">8</div><h2>WORKMANSHIP WARRANTY</h2></div>
-          <div class="clause"><span class="clause-num">8.1</span><span class="clause-text">All workmanship is covered under statutory warranties as required by Queensland law.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">08</div><h2>SITE ACCESS &amp; CONDITIONS</h2></div>
+        <div class="tc-section"><div class="tc-head">8.1</div><div class="tc-text">The client must ensure unobstructed access to the work area for the full project duration. Restricted access, delays caused by other trades, or site conditions not disclosed at quoting may incur additional charges.</div></div>
+        <div class="tc-section"><div class="tc-head">8.2</div><div class="tc-text">MCK is not responsible for damage to surfaces caused by other trades working in or near the application area after MCK has completed its works.</div></div>
       </div>
 
-      <!-- Section 9 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">9</div><h2>SUPPLIER PRODUCT WARRANTY</h2></div>
-          <div class="clause"><span class="clause-num">9.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King uses only premium, industry-leading products and materials supplied by trusted manufacturers with proven quality.</span></div>
-          <div class="clause"><span class="clause-num">9.2</span><span class="clause-text">All finishes, sealers, coatings, and specialised products used in your project are backed by the warranties of their respective suppliers.</span></div>
-          <div class="clause"><span class="clause-num">9.3</span><span class="clause-text">We confidently pass these protections on to you, ensuring that your investment is safeguarded by both our workmanship and the quality of the materials we use.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">09</div><h2>COLOUR &amp; FINISH DISCLAIMER</h2></div>
+        <div class="tc-section"><div class="tc-head">9.1</div><div class="tc-text">Microcement colour and finish may vary from samples due to substrate conditions, ambient lighting, humidity, and application technique. Samples are indicative only and do not guarantee an exact colour match.</div></div>
+        <div class="tc-section"><div class="tc-head">9.2</div><div class="tc-text">Colour changes requested after application has commenced will be treated as a variation and charged accordingly.</div></div>
       </div>
 
-      <!-- Section 10 -->
       <div class="section">
-        <div class="tc-section"><div class="tc-section-head"><div class="tc-section-num">10</div><h2>TERMINATION</h2></div>
-          <div class="clause"><span class="clause-num">10.1</span><span class="clause-text">Render Render Pty Ltd trading as Micro Cement King reserves the right to terminate this agreement if payment terms are repeatedly breached, site conditions become unworkable, or if outside contractors are engaged before a written dispute is resolved.</span></div>
-          <div class="clause"><span class="clause-num">10.2</span><span class="clause-text">Upon termination, any work completed up to that point will be invoiced and is payable immediately.</span></div>
-        </div>
+        <div class="section-hd"><div class="sec-num">10</div><h2>TERMINATION</h2></div>
+        <div class="tc-section"><div class="tc-head">10.1</div><div class="tc-text">MCK reserves the right to terminate the contract if payment terms are repeatedly breached or if site conditions present an unreasonable risk to workers or materials.</div></div>
+        <div class="tc-section"><div class="tc-head">10.2</div><div class="tc-text">Upon termination, all work completed to date is invoiced at the agreed rates and is immediately payable. Materials ordered or delivered are non-refundable.</div></div>
       </div>
 
-      <div class="end-mark">— END OF TERMS —</div>
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">11</div><h2>GOVERNING LAW</h2></div>
+        <div class="tc-section"><div class="tc-head">11.1</div><div class="tc-text">This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</div></div>
+      </div>
 
-      <!-- SIGNATURE -->
-      <div class="tc-sig-section">
-        <div class="tc-sig-title">ACKNOWLEDGEMENT &amp; ACCEPTANCE</div>
-        <div class="callout callout-gold" style="margin-bottom:24px;">
-          <strong>By signing below, the client acknowledges they have read, understood, and agree to all Payment Terms &amp; Conditions set out in this document. These terms form part of the contract between the client and Render Render Pty Ltd trading as Micro Cement King.</strong>
-        </div>
-        <div style="margin-bottom:20px;">
-          <div class="field-lbl" style="margin-bottom:4px;">PROJECT / QUOTE REFERENCE</div>
-          <div class="field-val" contenteditable="true">&nbsp;</div>
-        </div>
-
-        <!-- CLIENT DIGITAL SIGNATURE (T&Cs) -->
-        <div class="digital-sig-block" id="tc-digital-sig-block">
-          <div class="digital-sig-title">CLIENT DIGITAL SIGNATURE</div>
-          <div class="digital-sig-subtitle">Draw your signature below using your mouse (desktop) or finger (mobile/tablet)</div>
-          <div class="sig-accepted-banner" id="tc-sig-accepted-banner">
-            <img id="tc-sig-image" src="" alt="Client Signature" style="max-width:300px;margin-top:8px;display:none;">
-          </div>
-          <div class="canvas-wrap" id="tc-canvas-wrap">
-            <canvas id="tc-sig-canvas"></canvas>
-            <div class="canvas-hint" id="tc-canvas-hint">SIGN HERE</div>
-          </div>
-          <div class="sig-btn-row" id="tc-sig-btn-row">
-            <button class="sig-btn sig-btn-clear" onclick="clearTcSig()">CLEAR SIGNATURE</button>
-            <button class="sig-btn sig-btn-accept" id="tc-accept-btn" onclick="acceptTcSig()" disabled>ACCEPT &amp; SIGN</button>
-          </div>
-          <div class="sig-fields-row">
-            <div class="sig-field">
-              <label class="sig-field-label">FULL NAME (TYPED)</label>
-              <input type="text" id="tc-sig-typed-name" class="sig-field-input" placeholder="Type your full name here">
-            </div>
-            <div class="sig-field">
-              <label class="sig-field-label">DATE</label>
-              <input type="date" id="tc-sig-date" class="sig-field-input">
-            </div>
-          </div>
-        </div>
-
-        <!-- MCK AUTHORISED SIGNATURE (T&Cs) -->
-        <div class="digital-sig-block" id="tc-mck-sig-block" style="margin-top:24px;">
-          <div class="digital-sig-title">RENDER RENDER PTY LTD TRADING AS MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
-          <div class="digital-sig-subtitle">King Mannion — Director</div>
-          <div class="sig-fields-row">
-            <div class="sig-field">
-              <label class="sig-field-label">NAME</label>
-              <input type="text" id="tc-mck-typed-name" class="sig-field-input" value="King Mannion" readonly style="color:var(--gold);">
-            </div>
-            <div class="sig-field">
-              <label class="sig-field-label">TITLE</label>
-              <input type="text" id="tc-mck-typed-title" class="sig-field-input" value="Director" readonly style="color:var(--gold);">
-            </div>
-            <div class="sig-field">
-              <label class="sig-field-label">DATE</label>
-              <input type="date" id="tc-mck-sig-date" class="sig-field-input">
-            </div>
-          </div>
-        </div>
+      <div style="margin-top:24px;padding:14px 18px;background:var(--panel);border:1px solid var(--border);font-size:11px;color:var(--grey-mid);text-align:center;line-height:1.9;border-radius:4px;">
+        <strong style="color:var(--gold);">Micro Cement King &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</strong><br>
+        These terms form part of the formal quotation and are binding upon acceptance.
       </div>
     </div><!-- /doc-body -->
-
-    <div class="doc-footer">
-      <div><span class="gold">RENDER RENDER PTY LTD trading as MICRO CEMENT KING</span> — Payment Terms &amp; Conditions</div>
-      <div>RK: 0468 041 477 | MCK: 0468 053 819</div>
-    </div>
   </div><!-- /doc -->
-
-  <div class="quote-toolbar no-print">
-    <button class="tb-btn" onclick="window.print()">PRINT / SAVE PDF</button>
-  </div>
 </div><!-- /tab-terms -->
 
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!-- TAB 4: AI AGENT                                             -->
+<!-- TAB 4: PO PROCESSOR                                         -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-po" class="tab-content">
+  <div class="page">
+
+    <div class="card">
+      <div class="card-header"><h2>PURCHASE ORDER PROCESSOR</h2><span class="badge">MATERIAL ORDERS</span></div>
+      <div class="card-body">
+        <div class="callout callout-gold" style="margin-bottom:16px;">
+          <strong>HOW IT WORKS:</strong> The material order from the Margin Calculator auto-populates below. Review quantities, select a supplier, and generate a PO ready to send.
+        </div>
+
+        <!-- PO HEADER -->
+        <div class="g2" style="margin-bottom:16px;">
+          <div class="field">
+            <div class="field-lbl">PO NUMBER</div>
+            <input type="text" id="po-number" class="form-input" placeholder="MCK-PO-2026-001" style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+          <div class="field">
+            <div class="field-lbl">DATE</div>
+            <input type="date" id="po-date" class="form-input" style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+        </div>
+        <div class="g2" style="margin-bottom:16px;">
+          <div class="field">
+            <div class="field-lbl">SUPPLIER</div>
+            <input type="text" id="po-supplier" class="form-input" placeholder="e.g. Ideal Works, Dulux, etc." style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+          <div class="field">
+            <div class="field-lbl">JOB REFERENCE</div>
+            <input type="text" id="po-job-ref" class="form-input" placeholder="e.g. MCK-2026-001 — Smith Residence" style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+        </div>
+        <div class="g2" style="margin-bottom:16px;">
+          <div class="field">
+            <div class="field-lbl">DELIVERY ADDRESS</div>
+            <input type="text" id="po-delivery" class="form-input" placeholder="Site address or warehouse" style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+          <div class="field">
+            <div class="field-lbl">DELIVERY DATE REQUIRED</div>
+            <input type="date" id="po-delivery-date" class="form-input" style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          </div>
+        </div>
+
+        <!-- PO LINE ITEMS TABLE -->
+        <table class="data-table" style="width:100%;margin-top:16px;">
+          <thead>
+            <tr>
+              <th style="width:5%;">#</th>
+              <th style="width:40%;">PRODUCT</th>
+              <th style="width:15%;">QTY</th>
+              <th style="width:15%;">UNIT COST</th>
+              <th style="width:15%;" class="right">LINE TOTAL</th>
+              <th style="width:10%;"></th>
+            </tr>
+          </thead>
+          <tbody id="po-line-body"></tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td colspan="4" style="text-align:right;font-weight:700;">TOTAL (EX GST):</td>
+              <td class="right" id="po-total" style="font-weight:700;color:var(--gold);">$0</td>
+              <td></td>
+            </tr>
+            <tr>
+              <td colspan="4" style="text-align:right;font-weight:700;">GST (10%):</td>
+              <td class="right" id="po-gst" style="font-weight:700;">$0</td>
+              <td></td>
+            </tr>
+            <tr class="total-row">
+              <td colspan="4" style="text-align:right;font-weight:700;">TOTAL (INC GST):</td>
+              <td class="right" id="po-grand-total" style="font-weight:700;color:var(--gold);">$0</td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap;">
+          <button onclick="addPOLine()" class="add-surface-btn">+ ADD LINE</button>
+          <button onclick="importFromCalculator()" class="tb-btn ghost" style="font-size:11px;padding:8px 16px;">IMPORT FROM CALCULATOR</button>
+        </div>
+
+        <!-- NOTES -->
+        <div style="margin-top:16px;">
+          <div class="field-lbl">NOTES / SPECIAL INSTRUCTIONS</div>
+          <textarea id="po-notes" rows="3" placeholder="Any special delivery instructions, colour codes, etc." style="width:100%;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+        <div style="margin-top:20px;display:flex;gap:12px;flex-wrap:wrap;justify-content:center;">
+          <button onclick="generatePO()" class="tb-btn" style="font-size:14px;padding:14px 28px;">GENERATE PO PDF</button>
+          <button onclick="copyPOText()" class="tb-btn ghost" style="font-size:14px;padding:14px 28px;">COPY AS TEXT</button>
+          <button onclick="emailPO()" class="tb-btn ghost" style="font-size:14px;padding:14px 28px;">EMAIL PO</button>
+          <button onclick="clearPO()" class="tb-btn ghost" style="font-size:14px;padding:14px 28px;border-color:var(--red);color:var(--red);">CLEAR PO</button>
+        </div>
+
+        <!-- PO HISTORY -->
+        <div style="margin-top:24px;border-top:1px solid var(--border);padding-top:16px;">
+          <div class="section-label" style="margin-bottom:8px;">RECENT PURCHASE ORDERS</div>
+          <div id="po-history-wrap" style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">No POs generated yet.</div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /page -->
+</div><!-- /tab-po -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 5: PIPELINE DASHBOARD                                   -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="tab-pipeline" class="tab-content">
+  <div class="page">
+
+    <!-- PASSWORD GATE -->
+    <div id="pipeline-gate" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;">
+      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;">PIPELINE ACCESS</div>
+      <div style="font-size:12px;color:var(--grey-mid);margin-bottom:8px;">Enter the dashboard password to continue</div>
+      <input type="password" id="pipeline-password" placeholder="Password" style="padding:12px 20px;background:var(--dark);border:2px solid var(--border);border-radius:4px;color:#fff;font-family:inherit;font-size:14px;text-align:center;width:260px;letter-spacing:2px;" onkeydown="if(event.key==='Enter')unlockPipeline()">
+      <button onclick="unlockPipeline()" style="padding:12px 28px;background:var(--gold);color:#000;border:none;font-family:inherit;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">UNLOCK</button>
+      <div id="pipeline-error" style="display:none;color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;">INCORRECT PASSWORD</div>
+    </div>
+
+    <!-- DASHBOARD CONTENT (hidden until unlocked) -->
+    <div id="pipeline-content" style="display:none;">
+
+      <!-- PIPELINE STATS -->
+      <div class="card">
+        <div class="card-header"><h2>PIPELINE OVERVIEW</h2><span class="badge" id="pipe-count">0 QUOTES</span></div>
+        <div class="card-body">
+          <div class="results-grid" style="grid-template-columns:repeat(auto-fit,minmax(180px,1fr));">
+            <div class="stat-card"><div class="stat-label">TOTAL PIPELINE VALUE</div><div class="stat-value gold" id="pipe-total">$0</div></div>
+            <div class="stat-card" style="border-color:var(--green);"><div class="stat-label">ACCEPTED</div><div class="stat-value" id="pipe-accepted" style="color:var(--green);">$0</div></div>
+            <div class="stat-card" style="border-color:var(--amber);"><div class="stat-label">PENDING</div><div class="stat-value" id="pipe-pending" style="color:var(--amber);">$0</div></div>
+            <div class="stat-card" style="border-color:var(--red);"><div class="stat-label">DECLINED / EXPIRED</div><div class="stat-value" id="pipe-lost" style="color:var(--red);">$0</div></div>
+            <div class="stat-card"><div class="stat-label">CONVERSION RATE</div><div class="stat-value" id="pipe-conversion">0%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH / FILTER / SORT -->
+      <div class="card">
+        <div class="card-body" style="display:flex;gap:12px;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="pipe-search" placeholder="Search quotes..." oninput="filterPipeline()" style="flex:1;min-width:200px;padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+          <select id="pipe-status-filter" onchange="filterPipeline()" style="padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+            <option value="all">ALL STATUS</option>
+            <option value="PENDING">PENDING</option>
+            <option value="ACCEPTED">ACCEPTED</option>
+            <option value="DECLINED">DECLINED</option>
+            <option value="EXPIRED">EXPIRED</option>
+          </select>
+          <select id="pipe-sort" onchange="filterPipeline()" style="padding:10px 14px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;">
+            <option value="date-desc">NEWEST FIRST</option>
+            <option value="date-asc">OLDEST FIRST</option>
+            <option value="value-desc">HIGHEST VALUE</option>
+            <option value="value-asc">LOWEST VALUE</option>
+          </select>
+          <button onclick="refreshPipeline()" class="tb-btn ghost" style="font-size:11px;padding:10px 16px;">REFRESH</button>
+        </div>
+      </div>
+
+      <!-- QUOTES TABLE -->
+      <div class="card">
+        <div class="card-header"><h2>ALL QUOTES</h2></div>
+        <div class="card-body" style="overflow-x:auto;">
+          <table class="data-table" style="width:100%;" id="pipe-table">
+            <thead>
+              <tr>
+                <th>QUOTE #</th>
+                <th>CLIENT</th>
+                <th>DATE</th>
+                <th class="right">VALUE (EX GST)</th>
+                <th>STATUS</th>
+                <th>ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody id="pipe-table-body">
+              <tr><td colspan="6" style="text-align:center;color:var(--grey-mid);padding:24px;">Loading quotes...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div><!-- /pipeline-content -->
+  </div><!-- /page -->
+</div><!-- /tab-pipeline -->
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- TAB 6: AI AGENT                                             -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="tab-ai" class="tab-content">
   <div class="page">
 
-    <!-- ═══ VOICE-GUIDED JOB INTAKE ═══ -->
+    <!-- GUIDED INTAKE -->
     <div class="card">
-      <div class="card-header">
-        <h2>VOICE-GUIDED JOB INTAKE</h2>
-        <span class="badge">SPEECH + TEXT</span>
-      </div>
+      <div class="card-header"><h2>AI GUIDED INTAKE</h2><span class="badge">VOICE OR TEXT</span></div>
       <div class="card-body">
-
         <div class="callout callout-gold" style="margin-bottom:16px;">
-          <strong>HOW IT WORKS:</strong> Click the button below to start a guided job intake. The AI will ask you a series of questions to collect all job details. Speak your answers using the microphone or type them. Once complete, all fields in the Calculator and Quote tabs are auto-populated.
+          <strong>HOW IT WORKS:</strong> Click "Start Intake" to begin a guided conversation. The AI will ask about the project step by step, then auto-populate the quote and calculator. You can also type or paste a full brief below.
         </div>
-
-        <!-- Start Button -->
-        <div style="text-align:center;margin-bottom:16px;">
-          <button id="intake-start-btn" class="intake-start-btn" onclick="startIntake()">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:8px;"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-            START JOB INTAKE
-          </button>
+        <div class="ai-intake-section">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button id="intake-start-btn" onclick="startIntake()" class="tb-btn" style="font-size:13px;padding:12px 24px;">START INTAKE</button>
+            <button id="intake-mic-btn" onclick="toggleMic()" class="tb-btn ghost" style="font-size:13px;padding:12px 24px;">&#127908; VOICE INPUT</button>
+            <button id="speak-toggle-btn" onclick="toggleSpeak()" class="tb-btn ghost" style="font-size:13px;padding:12px 24px;">&#128266; SPEAK RESPONSES: OFF</button>
+          </div>
         </div>
-
-        <!-- Intake Section (hidden until started) -->
-        <div id="intake-section" style="display:none;">
-
-          <!-- Controls Row -->
-          <div class="intake-controls">
-            <button id="speak-toggle-btn" class="intake-toggle-btn" onclick="toggleSpeakQuestions()">SPEAK QUESTIONS: OFF</button>
-            <button class="intake-cancel-btn" onclick="cancelIntake()">CANCEL INTAKE</button>
-          </div>
-
-          <!-- Progress Bar -->
-          <div id="intake-progress" class="intake-progress" style="display:none;">
-            <div id="intake-progress-label" class="intake-progress-label">QUESTION 1 OF 10</div>
-            <div class="intake-progress-track">
-              <div id="intake-progress-bar" class="intake-progress-fill"></div>
-            </div>
-          </div>
-
-          <!-- Chat Area -->
-          <div class="ai-chat-area intake-chat" id="intake-chat-area"></div>
-
-          <!-- Input Area -->
-          <div id="intake-input-area" class="intake-input-area" style="display:none;">
-            <div class="intake-input-row">
-              <textarea id="ai-input" placeholder="Type your answer or tap the mic to speak..." rows="2"></textarea>
-              <button id="intake-mic-btn" class="intake-mic-btn" onclick="toggleMic()" title="Tap to speak">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
-              </button>
-              <button class="intake-send-btn" onclick="handleIntakeAnswer()" title="Send">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Populate Button (shown after intake complete) -->
-          <div id="intake-populate-area" class="intake-populate-area" style="display:none;">
-            <button class="intake-populate-btn" onclick="populateAllFields()">
-              &#9889; POPULATE ALL FIELDS
-            </button>
-          </div>
-
-        </div><!-- /intake-section -->
-
       </div>
     </div>
 
-    <!-- ═══ EXISTING FREE-CHAT AI ═══ -->
+    <!-- CHAT -->
     <div class="card">
-      <div class="card-header"><h2>AI QUOTE ASSISTANT</h2><span class="badge">FREE CHAT</span></div>
+      <div class="card-header"><h2>AI CHAT</h2></div>
       <div class="card-body">
-        <div class="callout callout-info" style="margin-bottom:16px;">
-          <strong>QUICK MODE:</strong> Type job details in plain English below. The AI will extract client name, address, surfaces (type + sqm), and system preference, then auto-populate the Quote Generator tab. You can also paste an existing quote and click "Check My Quote" to verify margins.
-        </div>
-
-        <div class="ai-chat-area" id="ai-chat-area-free">
-          <div class="ai-message ai-system">Ready. Describe the job details or paste a quote to check.</div>
-        </div>
-
+        <div id="ai-chat-area" class="ai-chat-area"></div>
         <div class="ai-input-area">
-          <textarea id="ai-input-free" placeholder="e.g. New job for John Smith at 42 Marine Parade Burleigh Heads. Bathroom floor 12sqm, ensuite walls 8sqm, kitchen bench 4sqm. Solidro system." rows="3"></textarea>
-          <div class="ai-btn-row">
-            <button class="tb-btn" onclick="aiProcessJobFree()">EXTRACT &amp; POPULATE QUOTE</button>
-            <button class="tb-btn ghost" onclick="aiCheckQuoteFree()">CHECK MY QUOTE</button>
+          <div class="ai-free-section">
+            <textarea id="ai-free-input" rows="3" placeholder="Type a message, paste a brief, or ask a question..." style="width:100%;padding:12px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
+            <div class="ai-btn-row" style="margin-top:8px;display:flex;gap:10px;">
+              <button onclick="sendFreeMessage()" class="tb-btn" style="font-size:12px;padding:10px 20px;">SEND</button>
+              <button onclick="clearChat()" class="tb-btn ghost" style="font-size:12px;padding:10px 20px;">CLEAR CHAT</button>
+            </div>
           </div>
+        </div>
+        <!-- FILE UPLOAD -->
+        <div class="ai-upload-zone" style="margin-top:12px;">
+          <div class="upload-hint">Attach site photos or plans for the AI to reference</div>
+          <label class="add-surface-btn" style="cursor:pointer;display:inline-block;">
+            <input type="file" id="ai-file-upload" accept="image/jpeg,image/png,application/pdf" multiple style="display:none;" onchange="handleAIFileUpload(event)">
+            + ATTACH FILES
+          </label>
+          <div id="ai-file-list" class="agent-file-list"></div>
         </div>
       </div>
     </div>
 
-  </div>
+  </div><!-- /page -->
 </div><!-- /tab-ai -->
 
 
 <!-- ═══════════════════════════════════════════════════════════ -->
-<!-- TAB 5: SETTINGS                                              -->
+<!-- TAB 7: SETTINGS                                             -->
 <!-- ═══════════════════════════════════════════════════════════ -->
 <div id="tab-settings" class="tab-content">
   <div class="page">
 
     <!-- PASSWORD GATE -->
-    <div id="settings-gate" class="settings-gate">
-      <div class="card" style="max-width:400px;margin:80px auto;">
-        <div class="card-header"><h2>ADMIN ACCESS</h2></div>
-        <div class="card-body" style="text-align:center;">
-          <div style="color:var(--grey-mid);font-size:12px;margin-bottom:16px;letter-spacing:1px;">ENTER PASSWORD TO ACCESS SETTINGS</div>
-          <input type="password" id="settings-password" placeholder="Password" style="width:100%;padding:12px 16px;background:var(--panel);border:1px solid var(--border);color:#fff;font-family:inherit;font-size:14px;border-radius:4px;text-align:center;letter-spacing:2px;" onkeydown="if(event.key==='Enter')checkSettingsPassword()">
-          <div id="settings-error" style="color:#ff4444;font-size:11px;margin-top:8px;display:none;">INCORRECT PASSWORD</div>
-          <button onclick="checkSettingsPassword()" class="tb-btn" style="margin-top:16px;width:100%;">UNLOCK SETTINGS</button>
-        </div>
-      </div>
+    <div id="settings-gate" style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:60vh;gap:16px;">
+      <div style="font-size:11px;font-weight:800;letter-spacing:3px;color:var(--gold);text-transform:uppercase;">SETTINGS ACCESS</div>
+      <div style="font-size:12px;color:var(--grey-mid);margin-bottom:8px;">Enter the admin password to continue</div>
+      <input type="password" id="settings-password" placeholder="Password" style="padding:12px 20px;background:var(--dark);border:2px solid var(--border);border-radius:4px;color:#fff;font-family:inherit;font-size:14px;text-align:center;width:260px;letter-spacing:2px;">
+      <button onclick="unlockSettings()" style="padding:12px 28px;background:var(--gold);color:#000;border:none;font-family:inherit;font-size:12px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">UNLOCK</button>
+      <div id="settings-error" style="display:none;color:var(--red);font-size:12px;font-weight:700;letter-spacing:1px;">INCORRECT PASSWORD</div>
     </div>
 
-    <!-- SETTINGS CONTENT (hidden until authenticated) -->
+    <!-- SETTINGS CONTENT -->
     <div id="settings-content" style="display:none;">
 
-      <!-- SECTION A: SELL PRICING — TIERED -->
+      <!-- STATUS BAR -->
+      <div id="settings-status" style="display:none;background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:10px 16px;font-size:12px;font-weight:600;border-radius:4px;margin-bottom:16px;text-align:center;"></div>
+
+      <!-- SECTION A: SELL PRICING -->
       <div class="card">
-        <div class="card-header"><h2>SECTION A — MCK SELL PRICING (EX GST)</h2><span class="badge">TIERED BANDS</span></div>
+        <div class="card-header"><h2>SECTION A — SELL PRICING (PER SQM, EX GST)</h2></div>
         <div class="card-body">
-          <div class="settings-grid">
-            <div class="settings-group">
-              <div class="settings-group-title">FLOORS</div>
-              <div class="settings-row"><label>0–25 sqm ($/sqm)</label><input type="number" id="set-floor-band1" data-key="floor_band1_rate" step="1"></div>
-              <div class="settings-row"><label>25–70 sqm ($/sqm)</label><input type="number" id="set-floor-band2" data-key="floor_band2_rate" step="1"></div>
-              <div class="settings-row"><label>70–120+ sqm ($/sqm)</label><input type="number" id="set-floor-band3" data-key="floor_band3_rate" step="1"></div>
+          <div class="settings-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+
+            <!-- FLOORS -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">FLOORS</div>
+              <div class="settings-row"><label>Minimum Charge ($)</label><input type="number" id="set-floor-min" value="7500"></div>
+              <div class="settings-row"><label>0–25 sqm ($/sqm)</label><input type="number" id="set-floor-0-25" value="365"></div>
+              <div class="settings-row"><label>25–70 sqm ($/sqm)</label><input type="number" id="set-floor-25-70" value="305"></div>
+              <div class="settings-row"><label>70–120 sqm ($/sqm)</label><input type="number" id="set-floor-70-120" value="250"></div>
+              <div class="settings-row"><label>120+ sqm ($/sqm)</label><input type="number" id="set-floor-120-plus" value="220"></div>
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">FEATURE WALLS</div>
-              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wall-min" data-key="wall_min" step="100"></div>
-              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wall-band1" data-key="wall_band1_rate" step="1"></div>
-              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wall-band2" data-key="wall_band2_rate" step="1"></div>
-              <div class="settings-row"><label>60+ sqm ($/sqm)</label><input type="number" id="set-wall-band3" data-key="wall_band3_rate" step="1"></div>
+
+            <!-- FEATURE WALLS -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">FEATURE WALLS</div>
+              <div class="settings-row"><label>Minimum Charge ($)</label><input type="number" id="set-wall-min" value="3000"></div>
+              <div class="settings-row"><label>0–15 sqm ($/sqm)</label><input type="number" id="set-wall-0-15" value="350"></div>
+              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wall-15-30" value="300"></div>
+              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wall-30-60" value="260"></div>
+              <div class="settings-row"><label>60+ sqm ($/sqm)</label><input type="number" id="set-wall-60-plus" value="220"></div>
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">WET AREAS / BATHROOMS / BENCHTOPS</div>
-              <div class="settings-row"><label>Minimum charge ($)</label><input type="number" id="set-wet-min" data-key="wet_min" step="100"></div>
-              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wet-band1" data-key="wet_band1_rate" step="1"></div>
-              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wet-band2" data-key="wet_band2_rate" step="1"></div>
-              <div class="settings-row"><label>60–100 sqm ($/sqm)</label><input type="number" id="set-wet-band3" data-key="wet_band3_rate" step="1"></div>
-              <div class="settings-row"><label>100+ sqm ($/sqm)</label><input type="number" id="set-wet-band4" data-key="wet_band4_rate" step="1"></div>
+
+            <!-- WET AREAS -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">WET AREAS / BATHROOMS / BENCHTOPS</div>
+              <div class="settings-row"><label>Minimum Charge ($)</label><input type="number" id="set-wet-min" value="7500"></div>
+              <div class="settings-row"><label>0–15 sqm ($/sqm)</label><input type="number" id="set-wet-0-15" value="500"></div>
+              <div class="settings-row"><label>15–30 sqm ($/sqm)</label><input type="number" id="set-wet-15-30" value="460"></div>
+              <div class="settings-row"><label>30–60 sqm ($/sqm)</label><input type="number" id="set-wet-30-60" value="360"></div>
+              <div class="settings-row"><label>60–100 sqm ($/sqm)</label><input type="number" id="set-wet-60-100" value="320"></div>
+              <div class="settings-row"><label>100+ sqm ($/sqm)</label><input type="number" id="set-wet-100-plus" value="280"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SECTION B: LABOUR RATES -->
+      <!-- SECTION B: LABOUR & CREW -->
       <div class="card">
-        <div class="card-header"><h2>SECTION B — LABOUR RATES</h2><span class="badge">INDIVIDUAL + CREW</span></div>
+        <div class="card-header"><h2>SECTION B — LABOUR, CREW &amp; PRODUCTIVITY</h2></div>
         <div class="card-body">
-          <div class="settings-grid">
-            <div class="settings-group">
-              <div class="settings-group-title">INDIVIDUAL RATES</div>
-              <div class="settings-row"><label>Patty ($/hr)</label><input type="number" id="set-patty-rate" data-key="patty_rate" step="5"></div>
-              <div class="settings-row"><label>Hayden / Micky ($/hr)</label><input type="number" id="set-hayden-rate" data-key="hayden_rate" step="5"></div>
-              <div class="settings-row"><label>Labourer ($/hr)</label><input type="number" id="set-labourer-rate" data-key="labourer_rate" step="5"></div>
-            </div>
-            <div class="settings-group">
-              <div class="settings-group-title">CREW COMBINED RATES</div>
-              <div class="settings-row"><label>Solo — Patty ($/hr)</label><input type="number" id="set-solo-rate" data-key="solo_rate" step="5"></div>
-              <div class="settings-row"><label>Dual — Patty + Hayden/Micky ($/hr)</label><input type="number" id="set-dual-rate" data-key="dual_rate" step="5"></div>
-              <div class="settings-row"><label>Full — 3 man + labourer ($/hr)</label><input type="number" id="set-full-rate" data-key="full_rate" step="5"></div>
-            </div>
-            <div class="settings-group">
-              <div class="settings-group-title">PRODUCTIVITY (SQM/DAY)</div>
-              <div class="settings-row"><label>Solo (sqm/day)</label><input type="number" id="set-solo-sqm" data-key="solo_sqm_day" step="1"></div>
-              <div class="settings-row"><label>Dual team (sqm/day)</label><input type="number" id="set-dual-sqm" data-key="dual_sqm_day" step="1"></div>
-              <div class="settings-row"><label>Full crew (sqm/day)</label><input type="number" id="set-full-sqm" data-key="full_sqm_day" step="1"></div>
-              <div class="settings-row"><label>Minimum days per job</label><input type="number" id="set-min-days" data-key="min_days" step="1"></div>
-            </div>
+
+          <!-- CREW MEMBERS (DYNAMIC) -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">CREW MEMBERS</div>
+            <div id="crew-members-dynamic"></div>
+            <button onclick="addCrewMember()" class="add-surface-btn" style="margin-top:8px;">+ ADD MEMBER</button>
+          </div>
+
+          <!-- CREW TEAMS (DYNAMIC) -->
+          <div style="margin-bottom:20px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">CREW TEAMS</div>
+            <div id="crew-teams-dynamic"></div>
+            <button onclick="addCrewTeam()" class="add-surface-btn" style="margin-top:8px;">+ ADD TEAM</button>
+          </div>
+
+          <!-- LEGACY RATES (hidden but preserved for backward compat) -->
+          <div style="display:none;">
+            <div class="settings-row"><label>Patty Rate</label><input type="number" id="set-patty-rate" value="65"></div>
+            <div class="settings-row"><label>Hayden Rate</label><input type="number" id="set-hayden-rate" value="55"></div>
+            <div class="settings-row"><label>Labourer Rate</label><input type="number" id="set-labourer-rate" value="35"></div>
+            <div class="settings-row"><label>Solo Rate</label><input type="number" id="set-solo-rate" value="65"></div>
+            <div class="settings-row"><label>Dual Rate</label><input type="number" id="set-dual-rate" value="120"></div>
+            <div class="settings-row"><label>Full Rate</label><input type="number" id="set-full-rate" value="155"></div>
+            <div class="settings-row"><label>Solo sqm/day</label><input type="number" id="set-solo-sqm" value="15"></div>
+            <div class="settings-row"><label>Dual sqm/day</label><input type="number" id="set-dual-sqm" value="30"></div>
+            <div class="settings-row"><label>Full sqm/day</label><input type="number" id="set-full-sqm" value="40"></div>
           </div>
         </div>
       </div>
 
       <!-- SECTION C: MATERIAL COSTS -->
       <div class="card">
-        <div class="card-header"><h2>SECTION C — MATERIAL COSTS (EX GST)</h2><span class="badge">ALL SYSTEMS</span></div>
+        <div class="card-header"><h2>SECTION C — MATERIAL COSTS</h2></div>
         <div class="card-body">
-          <div class="settings-grid">
-            <div class="settings-group">
-              <div class="settings-group-title">SOLIDRO SYSTEM</div>
-              <div class="settings-row"><label>Solidro Zero 20kg ($)</label><input type="number" id="set-solidro-zero" data-key="solidro_zero_price" step="0.01"></div>
-              <div class="settings-row"><label>Solidro Top 10kg ($)</label><input type="number" id="set-solidro-top" data-key="solidro_top_price" step="0.01"></div>
+          <div class="settings-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+
+            <!-- SOLIDRO -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">SOLIDRO</div>
+              <div class="settings-row"><label>Solidro Zero 20kg ($)</label><input type="number" id="set-solidro-zero" step="0.01"></div>
+              <div class="settings-row"><label>Solidro Top 10kg ($)</label><input type="number" id="set-solidro-top" step="0.01"></div>
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">MICRO CEMENT SYSTEM</div>
-              <div class="settings-row"><label>MT-Zero 25kg ($)</label><input type="number" id="set-mt-zero" data-key="mt_zero_price" step="0.01"></div>
-              <div class="settings-row"><label>MT-W Finish 25kg ($)</label><input type="number" id="set-mt-w" data-key="mt_w_price" step="0.01"></div>
-              <div class="settings-row"><label>MT-POL Polymer 5L ($)</label><input type="number" id="set-mt-pol" data-key="mt_pol_price" step="0.01"></div>
+
+            <!-- MICRO CEMENT -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">MICRO CEMENT (MICROTOPPING)</div>
+              <div class="settings-row"><label>MT Zero 25kg ($)</label><input type="number" id="set-mt-zero" step="0.01"></div>
+              <div class="settings-row"><label>MT W 17.5kg ($)</label><input type="number" id="set-mt-w" step="0.01"></div>
+              <div class="settings-row"><label>MT Pol 17L ($)</label><input type="number" id="set-mt-pol" step="0.01"></div>
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">RUSICO SYSTEM</div>
-              <div class="settings-row"><label>Hard-Neu Colour Hardener 25kg ($)</label><input type="number" id="set-rusico-base" data-key="rusico_base_20kg" step="0.01"></div>
-              <div class="settings-row"><label>Rasico Touch Finishing Powder 25kg ($)</label><input type="number" id="set-rusico-top" data-key="rusico_top_10kg" step="0.01"></div>
-              <div class="settings-row"><label>Ideal Binder 25L ($)</label><input type="number" id="set-ideal-binder" data-key="ideal_binder_25l" step="0.01"></div>
-              <div class="settings-row"><label>SEAL-R NEW 20L ($) <span style="color:var(--gold);font-size:11px;">RUSICO ONLY</span></label><input type="number" id="set-seal-r" data-key="seal_r_20l" step="0.01"></div>
-              <div class="settings-row"><label>Colour Pack ($)</label><input type="number" id="set-colour-pack" data-key="colour_pack_cost" step="0.01"></div>
+
+            <!-- RUSICO -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">RUSICO (HARD-NEU + RASICO TOUCH)</div>
+              <div class="settings-row"><label>Rusico Base 20kg ($)</label><input type="number" id="set-rusico-base" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Top 10kg ($)</label><input type="number" id="set-rusico-top" step="0.01"></div>
+              <div class="settings-row"><label>Ideal Binder 25L ($)</label><input type="number" id="set-ideal-binder" step="0.01"></div>
+              <div class="settings-row"><label>Seal-R 20L ($)</label><input type="number" id="set-seal-r" step="0.01"></div>
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">COMMON MATERIALS</div>
-              <div class="settings-row"><label>PRIMER-RR 5L ($)</label><input type="number" id="set-primer" data-key="primer_price" step="0.01"></div>
-              <div class="settings-row"><label>WB Mesh Blocker 5L ($)</label><input type="number" id="set-blocker" data-key="blocker_price" step="0.01"></div>
-              <div class="settings-row"><label>PU100 Sealer 5L ($)</label><input type="number" id="set-pu100" data-key="pu100_price" step="0.01"></div>
-              <div class="settings-row"><label>Micro Seal 5L ($)</label><input type="number" id="set-microseal" data-key="microseal_price" step="0.01"></div>
-              <div class="settings-row"><label>Fibreglass Mesh per m2 ($)</label><input type="number" id="set-mesh" data-key="mesh_price" step="0.01"></div>
+
+            <!-- COLOUR PACK -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">COLOUR PACK (ALL SYSTEMS)</div>
+              <div class="settings-row"><label>Colour Pack ($)</label><input type="number" id="set-colour-pack" step="0.01"></div>
+            </div>
+
+            <!-- SHARED / POOLED -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">SHARED / POOLED MATERIALS</div>
+              <div class="settings-row"><label>PRIMER-RR 5L ($)</label><input type="number" id="set-primer-rr" step="0.01"></div>
+              <div class="settings-row"><label>WB Mesh Blocker 5L ($)</label><input type="number" id="set-wb-blocker" step="0.01"></div>
+              <div class="settings-row"><label>IdealPU 5kg ($)</label><input type="number" id="set-idealpu" step="0.01"></div>
+              <div class="settings-row"><label>PU100 20L ($)</label><input type="number" id="set-pu100" step="0.01"></div>
+              <div class="settings-row"><label>Micro Seal 5.5L ($)</label><input type="number" id="set-microseal" step="0.01"></div>
+              <div class="settings-row"><label>Mesh 50sqm Roll ($)</label><input type="number" id="set-mesh" step="0.01"></div>
+              <div class="settings-row"><label>WP120 20kg ($)</label><input type="number" id="set-wp120" step="0.01"></div>
+              <div class="settings-row"><label>Consumables Flat ($)</label><input type="number" id="set-consumables" step="0.01"></div>
+            </div>
+
+            <!-- SPREAD RATES -->
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">SPREAD RATES (SQM PER KG)</div>
+              <div class="settings-row"><label>Solidro Zero</label><input type="number" id="set-solidro-zero-spread" step="0.01"></div>
+              <div class="settings-row"><label>Solidro Top</label><input type="number" id="set-solidro-top-spread" step="0.01"></div>
+              <div class="settings-row"><label>MT Zero</label><input type="number" id="set-mt-zero-spread" step="0.01"></div>
+              <div class="settings-row"><label>MT W</label><input type="number" id="set-mt-w-spread" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Base</label><input type="number" id="set-rusico-base-spread" step="0.01"></div>
+              <div class="settings-row"><label>Rusico Top</label><input type="number" id="set-rusico-top-spread" step="0.01"></div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <!-- SECTION C2: SPREAD RATES -->
-      <div class="card">
-        <div class="card-header"><h2>SECTION C2 — SPREAD RATES</h2><span class="badge">SQM PER KG</span></div>
-        <div class="card-body">
-          <div class="callout callout-info" style="margin-bottom:16px;"><strong>SPREAD RATES</strong> control how many sqm each kg of product covers. Changing these directly affects material quantity calculations. Lower spread rate = more product needed per sqm.</div>
-          <div class="settings-grid">
-            <div class="settings-group">
-              <div class="settings-group-title">SOLIDRO SYSTEM</div>
-              <div class="settings-row"><label>Solidro Zero (sqm/kg)</label><input type="number" id="set-solidro-zero-spread" data-key="solidro_zero_spread" step="0.1" min="0.1"></div>
-              <div class="settings-row"><label>Solidro Top (sqm/kg)</label><input type="number" id="set-solidro-top-spread" data-key="solidro_top_spread" step="0.1" min="0.1"></div>
+          <!-- CUSTOM PRODUCT SYSTEMS (DYNAMIC) -->
+          <div style="margin-top:20px;">
+            <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:10px;">CUSTOM PRODUCT SYSTEMS</div>
+            <div class="callout callout-info" style="margin-bottom:10px;font-size:11px;">
+              Add new product systems (e.g. Dulux Arcra Stone) with their products and pricing. These will appear as system options in the calculator.
             </div>
-            <div class="settings-group">
-              <div class="settings-group-title">MICRO CEMENT SYSTEM</div>
-              <div class="settings-row"><label>MT-Zero (sqm/kg)</label><input type="number" id="set-mt-zero-spread" data-key="mt_zero_spread" step="0.1" min="0.1"></div>
-              <div class="settings-row"><label>MT-W Finish (sqm/kg)</label><input type="number" id="set-mt-w-spread" data-key="mt_w_spread" step="0.1" min="0.1"></div>
-            </div>
-            <div class="settings-group">
-              <div class="settings-group-title">RUSICO SYSTEM</div>
-              <div class="settings-row"><label>Hard-Neu Colour Hardener — Base (sqm/kg)</label><input type="number" id="set-rusico-base-spread" data-key="rusico_base_spread" step="0.01" min="0.1"></div>
-              <div class="settings-row"><label>Rasico Touch Finishing Powder — Top (sqm/kg)</label><input type="number" id="set-rusico-top-spread" data-key="rusico_top_spread" step="0.01" min="0.1"></div>
-            </div>
+            <div id="custom-systems-dynamic"></div>
+            <button onclick="addCustomSystem()" class="add-surface-btn" style="margin-top:8px;">+ ADD SYSTEM</button>
           </div>
         </div>
       </div>
 
       <!-- SECTION D: QUOTE DEFAULTS -->
       <div class="card">
-        <div class="card-header"><h2>SECTION D — QUOTE DEFAULTS</h2><span class="badge">ADJUSTABLE</span></div>
+        <div class="card-header"><h2>SECTION D — QUOTE DEFAULTS</h2></div>
         <div class="card-body">
-          <div class="settings-grid">
-            <div class="settings-group">
-              <div class="settings-group-title">PAYMENT &amp; CREDIT</div>
-              <div class="settings-row"><label>Credit limit ($)</label><input type="number" id="set-credit-limit" data-key="credit_limit" step="1000"></div>
-              <div class="settings-row"><label>Upfront reduction (%)</label><input type="number" id="set-upfront-disc" data-key="upfront_reduction_pct" step="1"></div>
-              <div class="settings-row"><label>Upfront reduction cap ($)</label><input type="number" id="set-upfront-cap" data-key="upfront_reduction_cap" step="100"></div>
-              <div class="settings-row"><label>On-site measure fee ($)</label><input type="number" id="set-measure-fee" data-key="measure_fee" step="10"></div>
-            </div>
-            <div class="settings-group">
-              <div class="settings-group-title">OVERDUE &amp; VARIATIONS</div>
-              <div class="settings-row"><label>Overdue admin fee ($)</label><input type="number" id="set-overdue-fee" data-key="overdue_admin_fee" step="10"></div>
-              <div class="settings-row"><label>Overdue interest (%/week)</label><input type="number" id="set-overdue-int" data-key="overdue_interest_pct" step="0.5"></div>
-              <div class="settings-row"><label>Variation labour rate ($/hr)</label><input type="number" id="set-variation-rate" data-key="variation_rate" step="10"></div>
-              <div class="settings-row"><label>Variation min hours</label><input type="number" id="set-variation-min" data-key="variation_min_hrs" step="0.5"></div>
-              <div class="settings-row"><label>Variation material allowance ($)</label><input type="number" id="set-variation-mat" data-key="variation_material_allowance" step="50"></div>
+          <div class="settings-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;">
+            <div style="background:var(--dark);border:1px solid var(--border);border-radius:4px;padding:16px;">
+              <div style="font-size:11px;font-weight:800;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">DEFAULTS</div>
+              <div class="settings-row"><label>Min Days</label><input type="number" id="set-min-days"></div>
+              <div class="settings-row"><label>Credit Limit ($)</label><input type="number" id="set-credit-limit"></div>
+              <div class="settings-row"><label>Upfront Discount (%)</label><input type="number" id="set-upfront-disc"></div>
+              <div class="settings-row"><label>Upfront Discount Cap ($)</label><input type="number" id="set-upfront-cap"></div>
+              <div class="settings-row"><label>Measure Fee ($)</label><input type="number" id="set-measure-fee"></div>
+              <div class="settings-row"><label>Overdue Admin Fee ($)</label><input type="number" id="set-overdue-fee"></div>
+              <div class="settings-row"><label>Overdue Interest %/week</label><input type="number" id="set-overdue-int" step="0.1"></div>
+              <div class="settings-row"><label>Variation Rate ($/hr)</label><input type="number" id="set-variation-rate"></div>
+              <div class="settings-row"><label>Variation Min Hours</label><input type="number" id="set-variation-min"></div>
+              <div class="settings-row"><label>Variation Material Allow ($)</label><input type="number" id="set-variation-mat"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- SAVE / RESET / LOCK / RESTORE -->
-      <div style="text-align:center;padding:24px 0;display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
-        <button onclick="saveSettingsFromForm()" class="tb-btn" style="font-size:14px;padding:16px 40px;" id="settings-save-btn">SAVE ALL SETTINGS</button>
-        <button onclick="resetSettingsToDefaults()" class="tb-btn ghost" style="font-size:14px;padding:16px 40px;">RESET TO DEFAULTS</button>
-        <button onclick="lockPrices()" class="tb-btn" style="font-size:14px;padding:16px 40px;background:#27AE60;">LOCK PRICES</button>
-        <button onclick="restoreFromBackup()" class="tb-btn ghost" style="font-size:14px;padding:16px 40px;border-color:#E67E22;color:#E67E22;">RESTORE FROM BACKUP</button>
-      </div>
-
-      <div class="callout callout-info" style="max-width:700px;margin:0 auto 24px;">
-        <strong>NOTE:</strong> All settings are saved to your browser's local storage. They persist across sessions on this device. Clearing browser data will reset to defaults. Changes take effect immediately on the Calculator and Quote tabs.
+      <!-- ACTION BUTTONS -->
+      <div style="display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:20px 0 40px;">
+        <button id="settings-save-btn" onclick="saveSettingsFromForm()" style="padding:14px 32px;background:var(--gold);color:#000;border:none;font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">SAVE ALL SETTINGS</button>
+        <button onclick="lockPrices()" style="padding:14px 32px;background:none;border:2px solid var(--gold);color:var(--gold);font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">LOCK PRICES</button>
+        <button onclick="restoreFromBackup()" style="padding:14px 32px;background:none;border:2px solid var(--amber);color:var(--amber);font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">RESTORE BACKUP</button>
+        <button onclick="resetSettingsToDefaults()" style="padding:14px 32px;background:none;border:2px solid var(--red);color:var(--red);font-family:inherit;font-size:13px;font-weight:800;letter-spacing:2px;text-transform:uppercase;cursor:pointer;border-radius:3px;">RESET TO DEFAULTS</button>
       </div>
 
     </div><!-- /settings-content -->
-  </div>
+  </div><!-- /page -->
 </div><!-- /tab-settings -->
 
 
-<script src="settings.js?v=16"></script>
-<script src="calculator.js?v=16"></script>
-<script src="quote-storage.js?v=16"></script>
-<script src="agent-api.js?v=16"></script>
-<script src="quote.js?v=16"></script>
-<script src="ai-agent.js?v=16"></script>
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SHARE LINK MODAL                                            -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<div id="share-modal-overlay" class="share-modal-overlay" style="display:none;" onclick="if(event.target===this)closeShareModal()">
+  <div class="share-modal">
+    <h3>SHARE QUOTE LINKS</h3>
+    <div id="share-modal-content"></div>
+    <div style="margin-top:16px;text-align:center;">
+      <button onclick="closeShareModal()" class="tb-btn ghost" style="font-size:12px;padding:10px 24px;">CLOSE</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════ -->
+<!-- SCRIPTS                                                     -->
+<!-- ═══════════════════════════════════════════════════════════ -->
+<script src="settings.js"></script>
+<script src="calculator.js"></script>
+<script src="quote.js"></script>
+<script src="quote-storage.js"></script>
+<script src="ai-agent.js"></script>
+<script>
+// ── TAB SWITCHING ────────────────────────────────────────
+function switchTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  const tab = document.getElementById('tab-' + tabId);
+  if (tab) tab.classList.add('active');
+  const btn = document.querySelector(`.nav-tab[data-tab="${tabId}"]`);
+  if (btn) btn.classList.add('active');
+
+  // Trigger tab-specific init
+  if (tabId === 'settings') checkSettingsAccess();
+  if (tabId === 'pipeline') checkPipelineAccess();
+  if (tabId === 'calculator') { if (typeof recalc === 'function') recalc(); }
+}
+
+// URL param tab switching
+(function() {
+  const params = new URLSearchParams(window.location.search);
+  const tab = params.get('tab');
+  if (tab) switchTab(tab);
+  const edit = params.get('edit');
+  if (edit && typeof loadQuoteForEdit === 'function') {
+    switchTab('quote');
+    loadQuoteForEdit(edit);
+  }
+})();
+
+// ── PIPELINE PASSWORD GATE ──────────────────────────────
+const PIPELINE_PASSWORD = 'MCK2026';
+function checkPipelineAccess() {
+  if (sessionStorage.getItem('mck_pipeline_auth') === 'true') {
+    showPipelineContent();
+    return;
+  }
+  document.getElementById('pipeline-gate').style.display = 'flex';
+  document.getElementById('pipeline-content').style.display = 'none';
+}
+function unlockPipeline() {
+  const input = document.getElementById('pipeline-password');
+  const error = document.getElementById('pipeline-error');
+  if (input.value === PIPELINE_PASSWORD) {
+    sessionStorage.setItem('mck_pipeline_auth', 'true');
+    showPipelineContent();
+  } else {
+    error.style.display = 'block';
+    input.value = '';
+    input.focus();
+  }
+}
+function showPipelineContent() {
+  document.getElementById('pipeline-gate').style.display = 'none';
+  document.getElementById('pipeline-content').style.display = 'block';
+  refreshPipeline();
+}
+
+// ── PIPELINE DATA ───────────────────────────────────────
+let pipelineQuotes = [];
+
+async function refreshPipeline() {
+  const tbody = document.getElementById('pipe-table-body');
+  tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--grey-mid);padding:24px;">Loading quotes...</td></tr>';
+  try {
+    if (typeof MCK_QUOTE_STORAGE !== 'undefined' && MCK_QUOTE_STORAGE.listQuotes) {
+      const ids = await MCK_QUOTE_STORAGE.listQuotes();
+      const quotes = [];
+      for (const id of ids) {
+        try {
+          const q = await MCK_QUOTE_STORAGE.loadQuote(id.replace('.json',''));
+          if (q) quotes.push(q);
+        } catch(e) {}
+      }
+      pipelineQuotes = quotes;
+      renderPipeline(quotes);
+    } else {
+      tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--grey-mid);padding:24px;">Quote storage not available.</td></tr>';
+    }
+  } catch(e) {
+    tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--red);padding:24px;">Error loading quotes: ${e.message}</td></tr>`;
+  }
+}
+
+function renderPipeline(quotes) {
+  // Stats
+  let totalVal = 0, acceptedVal = 0, pendingVal = 0, lostVal = 0, acceptedCount = 0;
+  quotes.forEach(q => {
+    const val = parseFloat(q.grandTotal || q.subtotal || 0);
+    const status = deriveQuoteStatus(q);
+    totalVal += val;
+    if (status === 'ACCEPTED') { acceptedVal += val; acceptedCount++; }
+    else if (status === 'PENDING') { pendingVal += val; }
+    else { lostVal += val; }
+  });
+  document.getElementById('pipe-count').textContent = quotes.length + ' QUOTES';
+  document.getElementById('pipe-total').textContent = '$' + Math.ceil(totalVal).toLocaleString();
+  document.getElementById('pipe-accepted').textContent = '$' + Math.ceil(acceptedVal).toLocaleString();
+  document.getElementById('pipe-pending').textContent = '$' + Math.ceil(pendingVal).toLocaleString();
+  document.getElementById('pipe-lost').textContent = '$' + Math.ceil(lostVal).toLocaleString();
+  document.getElementById('pipe-conversion').textContent = quotes.length > 0 ? Math.round((acceptedCount / quotes.length) * 100) + '%' : '0%';
+
+  filterPipeline();
+}
+
+function deriveQuoteStatus(q) {
+  if (q.status === 'ACCEPTED' || q.clientAcceptedAt) return 'ACCEPTED';
+  if (q.status === 'DECLINED') return 'DECLINED';
+  if (q.status === 'EXPIRED') return 'EXPIRED';
+  // Check expiry
+  if (q.createdAt && q.validityHours) {
+    const created = new Date(q.createdAt);
+    const expiry = new Date(created.getTime() + (q.validityHours * 60 * 60 * 1000));
+    if (new Date() > expiry) return 'EXPIRED';
+  }
+  return 'PENDING';
+}
+
+function filterPipeline() {
+  const search = (document.getElementById('pipe-search').value || '').toLowerCase();
+  const statusFilter = document.getElementById('pipe-status-filter').value;
+  const sort = document.getElementById('pipe-sort').value;
+
+  let filtered = pipelineQuotes.filter(q => {
+    const status = deriveQuoteStatus(q);
+    if (statusFilter !== 'all' && status !== statusFilter) return false;
+    if (search) {
+      const haystack = [q.quoteNumber, q.client?.companyName, q.client?.name, q.projectAddress, q.dateIssued].filter(Boolean).join(' ').toLowerCase();
+      if (!haystack.includes(search)) return false;
+    }
+    return true;
+  });
+
+  // Sort
+  filtered.sort((a, b) => {
+    if (sort === 'date-desc') return new Date(b.createdAt || 0) - new Date(a.createdAt || 0);
+    if (sort === 'date-asc') return new Date(a.createdAt || 0) - new Date(b.createdAt || 0);
+    if (sort === 'value-desc') return (parseFloat(b.grandTotal || 0)) - (parseFloat(a.grandTotal || 0));
+    if (sort === 'value-asc') return (parseFloat(a.grandTotal || 0)) - (parseFloat(b.grandTotal || 0));
+    return 0;
+  });
+
+  const tbody = document.getElementById('pipe-table-body');
+  if (filtered.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--grey-mid);padding:24px;">No quotes match your filters.</td></tr>';
+    return;
+  }
+
+  const statusColors = { ACCEPTED: 'var(--green)', PENDING: 'var(--amber)', DECLINED: 'var(--red)', EXPIRED: 'var(--grey-mid)' };
+  tbody.innerHTML = filtered.map(q => {
+    const status = deriveQuoteStatus(q);
+    const val = parseFloat(q.grandTotal || q.subtotal || 0);
+    const client = q.client?.companyName || q.client?.name || '—';
+    const date = q.dateIssued || (q.createdAt ? new Date(q.createdAt).toLocaleDateString('en-AU') : '—');
+    const qid = q.quoteNumber || q.id || '—';
+    const viewerBase = 'https://mattysdd.github.io/mck-business-tools/quote-viewer.html';
+    return `<tr>
+      <td style="font-weight:700;color:var(--gold);">${qid}</td>
+      <td>${client}</td>
+      <td>${date}</td>
+      <td class="right" style="font-weight:700;">$${Math.ceil(val).toLocaleString()}</td>
+      <td><span style="color:${statusColors[status] || '#fff'};font-weight:700;font-size:11px;letter-spacing:1px;">${status}</span></td>
+      <td style="white-space:nowrap;">
+        <a href="${viewerBase}?id=${qid}&view=internal" target="_blank" style="color:var(--gold);font-size:10px;margin-right:6px;">VIEW</a>
+        <a href="${viewerBase}?id=${qid}&view=client" target="_blank" style="color:var(--green);font-size:10px;margin-right:6px;">CLIENT</a>
+        <a href="index.html?edit=${qid}" style="color:var(--amber);font-size:10px;">EDIT</a>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── PO PROCESSOR ────────────────────────────────────────
+let poLines = [];
+const PO_STORAGE_KEY = 'mck_po_lines';
+const PO_HISTORY_KEY = 'mck_po_history';
+
+function initPO() {
+  // Set default date
+  const dateInput = document.getElementById('po-date');
+  if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().split('T')[0];
+  // Generate PO number
+  const poNum = document.getElementById('po-number');
+  if (poNum && !poNum.value) poNum.value = 'MCK-PO-' + new Date().getFullYear() + '-' + String(Math.floor(Math.random()*9000)+1000);
+  // Load saved lines
+  try {
+    const saved = localStorage.getItem(PO_STORAGE_KEY);
+    if (saved) poLines = JSON.parse(saved);
+  } catch(e) {}
+  if (poLines.length === 0) addPOLine();
+  renderPOLines();
+  renderPOHistory();
+}
+
+function renderPOLines() {
+  const tbody = document.getElementById('po-line-body');
+  if (!tbody) return;
+  tbody.innerHTML = poLines.map((line, i) => `<tr>
+    <td style="text-align:center;">${i+1}</td>
+    <td><input type="text" value="${line.product || ''}" onchange="updatePOLine(${i},'product',this.value)" style="width:100%;padding:6px 10px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-size:12px;"></td>
+    <td><input type="number" value="${line.qty || 0}" onchange="updatePOLine(${i},'qty',parseFloat(this.value))" style="width:100%;padding:6px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-size:12px;text-align:center;"></td>
+    <td><input type="number" value="${line.unitCost || 0}" onchange="updatePOLine(${i},'unitCost',parseFloat(this.value))" style="width:100%;padding:6px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-size:12px;text-align:center;" step="0.01"></td>
+    <td class="right" style="font-weight:600;">$${Math.ceil((line.qty||0)*(line.unitCost||0)).toLocaleString()}</td>
+    <td style="text-align:center;"><button onclick="removePOLine(${i})" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:16px;font-weight:900;">&times;</button></td>
+  </tr>`).join('');
+  updatePOTotals();
+  savePOLines();
+}
+
+function addPOLine() {
+  poLines.push({ product: '', qty: 1, unitCost: 0 });
+  renderPOLines();
+}
+
+function updatePOLine(idx, field, value) {
+  if (poLines[idx]) {
+    poLines[idx][field] = value;
+    renderPOLines();
+  }
+}
+
+function removePOLine(idx) {
+  poLines.splice(idx, 1);
+  renderPOLines();
+}
+
+function updatePOTotals() {
+  let total = 0;
+  poLines.forEach(l => { total += (l.qty || 0) * (l.unitCost || 0); });
+  total = Math.ceil(total);
+  const gst = Math.ceil(total * 0.1);
+  document.getElementById('po-total').textContent = '$' + total.toLocaleString();
+  document.getElementById('po-gst').textContent = '$' + gst.toLocaleString();
+  document.getElementById('po-grand-total').textContent = '$' + (total + gst).toLocaleString();
+}
+
+function savePOLines() {
+  localStorage.setItem(PO_STORAGE_KEY, JSON.stringify(poLines));
+}
+
+function importFromCalculator() {
+  // Pull from the material order data stored by calculator
+  if (typeof window._materialOrderData !== 'undefined' && window._materialOrderData.length > 0) {
+    poLines = window._materialOrderData.map(item => ({
+      product: item.product,
+      qty: item.qty,
+      unitCost: item.unitCost || 0
+    }));
+    renderPOLines();
+    const banner = document.createElement('div');
+    banner.style.cssText = 'background:var(--green-bg);border:1px solid var(--green-border);color:var(--green);padding:10px;text-align:center;font-size:12px;font-weight:700;border-radius:4px;margin-top:10px;';
+    banner.textContent = 'IMPORTED ' + poLines.length + ' ITEMS FROM CALCULATOR';
+    document.getElementById('po-line-body').parentElement.after(banner);
+    setTimeout(() => banner.remove(), 3000);
+  } else {
+    alert('No material order data available. Run the Margin Calculator first.');
+  }
+}
+
+function clearPO() {
+  if (!confirm('Clear all PO data?')) return;
+  poLines = [{ product: '', qty: 1, unitCost: 0 }];
+  document.getElementById('po-supplier').value = '';
+  document.getElementById('po-job-ref').value = '';
+  document.getElementById('po-delivery').value = '';
+  document.getElementById('po-notes').value = '';
+  renderPOLines();
+}
+
+function generatePO() {
+  // Simple text-based PO generation
+  const poNum = document.getElementById('po-number').value;
+  const date = document.getElementById('po-date').value;
+  const supplier = document.getElementById('po-supplier').value;
+  const jobRef = document.getElementById('po-job-ref').value;
+  const delivery = document.getElementById('po-delivery').value;
+  const deliveryDate = document.getElementById('po-delivery-date').value;
+  const notes = document.getElementById('po-notes').value;
+
+  let total = 0;
+  const lineText = poLines.filter(l => l.product).map((l, i) => {
+    const lineTotal = Math.ceil((l.qty||0) * (l.unitCost||0));
+    total += lineTotal;
+    return `${i+1}. ${l.product} — Qty: ${l.qty} — Unit: $${Math.ceil(l.unitCost)} — Total: $${lineTotal.toLocaleString()}`;
+  }).join('\n');
+
+  const gst = Math.ceil(total * 0.1);
+  const text = `MICRO CEMENT KING — PURCHASE ORDER
+═══════════════════════════════════
+PO Number: ${poNum}
+Date: ${date}
+Supplier: ${supplier}
+Job Reference: ${jobRef}
+Delivery Address: ${delivery}
+Delivery Date: ${deliveryDate}
+
+LINE ITEMS:
+${lineText}
+
+TOTAL (EX GST): $${total.toLocaleString()}
+GST (10%): $${gst.toLocaleString()}
+TOTAL (INC GST): $${(total + gst).toLocaleString()}
+
+${notes ? 'NOTES: ' + notes : ''}
+
+Micro Cement King | 0468 053 819 | projects@microcementking.com.au`;
+
+  // Save to history
+  savePOToHistory({ poNum, date, supplier, jobRef, total, lines: poLines.length });
+
+  // Open in new window for printing
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>PO ${poNum}</title><style>body{font-family:monospace;white-space:pre-wrap;background:#0a0a0a;color:#fff;padding:40px;font-size:14px;}</style></head><body>${text}</body></html>`);
+  win.document.close();
+  win.print();
+}
+
+function copyPOText() {
+  const poNum = document.getElementById('po-number').value;
+  const supplier = document.getElementById('po-supplier').value;
+  const jobRef = document.getElementById('po-job-ref').value;
+  let total = 0;
+  const lines = poLines.filter(l => l.product).map(l => {
+    const lt = Math.ceil((l.qty||0)*(l.unitCost||0));
+    total += lt;
+    return `${l.product} x${l.qty} = $${lt}`;
+  }).join('\n');
+  const text = `PO: ${poNum}\nSupplier: ${supplier}\nJob: ${jobRef}\n\n${lines}\n\nTotal ex GST: $${total}\nTotal inc GST: $${Math.ceil(total*1.1)}`;
+  navigator.clipboard.writeText(text).then(() => alert('PO copied to clipboard'));
+}
+
+function emailPO() {
+  const supplier = document.getElementById('po-supplier').value;
+  const poNum = document.getElementById('po-number').value;
+  const jobRef = document.getElementById('po-job-ref').value;
+  let total = 0;
+  const lines = poLines.filter(l => l.product).map(l => {
+    const lt = Math.ceil((l.qty||0)*(l.unitCost||0));
+    total += lt;
+    return `${l.product} x${l.qty} = $${lt}`;
+  }).join('%0A');
+  const body = `Hi,%0A%0APlease find our purchase order below:%0A%0APO: ${poNum}%0AJob: ${jobRef}%0A%0A${lines}%0A%0ATotal ex GST: $${total}%0ATotal inc GST: $${Math.ceil(total*1.1)}%0A%0APlease confirm availability and delivery.%0A%0AKind regards,%0AKing Mannion%0AMicro Cement King`;
+  window.open(`mailto:?subject=Purchase Order ${poNum} — ${supplier}&body=${body}`);
+}
+
+function savePOToHistory(po) {
+  try {
+    let history = JSON.parse(localStorage.getItem(PO_HISTORY_KEY) || '[]');
+    history.unshift(po);
+    if (history.length > 20) history = history.slice(0, 20);
+    localStorage.setItem(PO_HISTORY_KEY, JSON.stringify(history));
+    renderPOHistory();
+  } catch(e) {}
+}
+
+function renderPOHistory() {
+  const wrap = document.getElementById('po-history-wrap');
+  if (!wrap) return;
+  try {
+    const history = JSON.parse(localStorage.getItem(PO_HISTORY_KEY) || '[]');
+    if (history.length === 0) {
+      wrap.innerHTML = '<div style="color:var(--grey-mid);font-size:12px;text-align:center;padding:12px;">No POs generated yet.</div>';
+      return;
+    }
+    wrap.innerHTML = '<table class="data-table" style="width:100%;"><thead><tr><th>PO #</th><th>DATE</th><th>SUPPLIER</th><th>JOB</th><th class="right">TOTAL</th><th>LINES</th></tr></thead><tbody>' +
+      history.map(h => `<tr><td style="color:var(--gold);font-weight:700;">${h.poNum}</td><td>${h.date}</td><td>${h.supplier}</td><td>${h.jobRef}</td><td class="right">$${(h.total||0).toLocaleString()}</td><td>${h.lines}</td></tr>`).join('') +
+      '</tbody></table>';
+  } catch(e) {
+    wrap.innerHTML = '<div style="color:var(--red);font-size:12px;">Error loading PO history.</div>';
+  }
+}
+
+// ── INIT ────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  initPO();
+  // Set quote date
+  const dateEl = document.getElementById('q-date-display');
+  if (dateEl) {
+    const now = new Date();
+    dateEl.textContent = now.toLocaleDateString('en-AU', { day:'2-digit', month:'short', year:'numeric' }).toUpperCase();
+  }
+  // Set MCK sig date
+  const mckDateEl = document.getElementById('q-mck-sig-date');
+  if (mckDateEl && !mckDateEl.value) mckDateEl.value = new Date().toISOString().split('T')[0];
+});
+</script>
 
 </body>
 </html>
