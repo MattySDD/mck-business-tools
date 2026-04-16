@@ -19,7 +19,7 @@
   "lineItems": [
     {
       "desc": "Microcement - Hot tub micro & epoxy paint finish ",
-      "qty": 4.186,
+      "qty": 8.28,
       "unit": "sqm",
       "rate": 0,
       "total": 0
@@ -131,8 +131,8 @@
   "mckSigDate": "2026-04-15",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-04-16T07:51:18.208Z",
-  "version": 4,
+  "createdAt": "2026-04-16T07:57:56.759Z",
+  "version": 5,
   "parentQuoteId": "MCK-2026-3595",
-  "lastSavedAt": "2026-04-16T07:51:20.957Z"
+  "lastSavedAt": "2026-04-16T07:57:59.359Z"
 }
