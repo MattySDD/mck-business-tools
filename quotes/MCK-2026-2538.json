@@ -53,14 +53,14 @@
       "total": 2145
     },
     {
-      "desc": "Kitchen floor 4.56 m²  + Dining floor 11.96 m² ",
+      "desc": "Kitchen floor 4.6 m²  + Dining floor 12 m² ",
       "qty": 16.6,
       "unit": "sqm",
       "rate": 330,
       "total": 5478.000000000001
     },
     {
-      "desc": "External areas: 4.25 m² + 10.32 m² ",
+      "desc": "External areas: 4.3 m² + 10.3 m² ",
       "qty": 14.6,
       "unit": "sqm",
       "rate": 330,
@@ -124,8 +124,8 @@
   "mckSigDate": "2026-04-20",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-04-20T01:51:34.741Z",
-  "version": 5,
+  "createdAt": "2026-04-20T04:16:36.341Z",
+  "version": 6,
   "parentQuoteId": "MCK-2026-2538",
-  "lastSavedAt": "2026-04-20T01:51:37.917Z"
+  "lastSavedAt": "2026-04-20T04:16:39.389Z"
 }
