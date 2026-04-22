@@ -1737,3 +1737,192 @@ document.addEventListener('DOMContentLoaded', async function() {
     }, 300);
   }
 });
+
+
+// ═══════════════════════════════════════════════════════════
+// GENERATE T&C PDF
+// ═══════════════════════════════════════════════════════════
+
+function generateTCPDF() {
+  const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>MCK Payment Terms &amp; Conditions</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  color-adjust: exact !important;
+  box-sizing: border-box;
+  margin: 0; padding: 0;
+}
+@page { size: A4 portrait; margin: 15mm; }
+html, body {
+  background: #0a0a0a !important;
+  color: #ffffff !important;
+  font-family: 'Inter', -apple-system, sans-serif;
+  font-size: 10pt; line-height: 1.6;
+}
+.container { max-width: 800px; margin: 0 auto; padding: 20pt; }
+.doc-header { border-bottom: 2px solid #c9a84c; padding-bottom: 16pt; margin-bottom: 16pt; }
+.header-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12pt; flex-wrap: wrap; }
+.brand-block .label { font-size: 8pt; color: #c9a84c; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4pt; }
+.brand-block h1 { font-size: 20pt; color: #ffffff; letter-spacing: 2px; font-weight: 800; margin: 0 0 4pt 0; }
+.brand-block .tagline { font-size: 8.5pt; color: #aaaaaa; }
+.contact-block { text-align: right; font-size: 8.5pt; color: #aaaaaa; line-height: 2; }
+.contact-block strong { color: #c9a84c; font-size: 7pt; letter-spacing: 1px; margin-right: 6pt; }
+.tc-section { margin-bottom: 14pt; background: #111111 !important; border: 1px solid #2a2a2a; border-radius: 4px; overflow: hidden; }
+.tc-section-head { display: flex; align-items: center; gap: 10pt; padding: 8pt 12pt; background: #1a1a1a !important; border-bottom: 1px solid #2a2a2a; }
+.tc-section-num { background: #c9a84c !important; color: #000000 !important; font-weight: 800; font-size: 9pt; padding: 3pt 8pt; border-radius: 3px; min-width: 24pt; text-align: center; }
+.tc-section-head h2 { margin: 0; font-size: 10pt; color: #c9a84c; letter-spacing: 2px; text-transform: uppercase; font-weight: 700; }
+.clause { display: flex; gap: 8pt; padding: 5pt 12pt; font-size: 9pt; line-height: 1.6; border-bottom: 1px solid #1e1e1e; }
+.clause:last-child { border-bottom: none; }
+.clause-num { color: #c9a84c; font-weight: 700; min-width: 30pt; font-size: 8pt; flex-shrink: 0; }
+.clause-text { color: #dddddd; flex: 1; }
+.sub-clauses { padding: 0 12pt 6pt 50pt; }
+.sub-clause { display: flex; gap: 8pt; padding: 2pt 0; font-size: 8.5pt; }
+.sub-num { color: #c9a84c; font-weight: 600; min-width: 40pt; font-size: 7.5pt; flex-shrink: 0; }
+.doc-footer { margin-top: 20pt; padding: 10pt 14pt; background: #1a1a1a !important; border: 1px solid #2a2a2a; border-radius: 3px; text-align: center; font-size: 8pt; color: #aaaaaa; line-height: 1.8; }
+.doc-footer .gold { color: #c9a84c; font-weight: 700; }
+.end-marker { text-align: center; padding: 16pt 0; color: #555; font-size: 9pt; letter-spacing: 2px; }
+.no-print { display: block; text-align: center; margin: 20pt 0; }
+.print-btn { background: #c9a84c; color: #000; border: none; padding: 14px 36px; font-family: 'Inter', sans-serif; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; cursor: pointer; border-radius: 4px; }
+@media print {
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  html, body { background: #0a0a0a !important; color: #ffffff !important; }
+  .no-print { display: none !important; }
+  .tc-section { background: #111111 !important; border-color: #2a2a2a !important; }
+  .tc-section-head { background: #1a1a1a !important; }
+  .tc-section-num { background: #c9a84c !important; color: #000000 !important; }
+  .doc-footer { background: #1a1a1a !important; }
+}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div class="doc-header">
+  <div class="header-row">
+    <div class="brand-block">
+      <div class="label">PAYMENT TERMS &amp; CONDITIONS</div>
+      <h1>MICRO CEMENT KING</h1>
+      <div class="tagline">Gold Coast's Premium Seamless Surfaces Specialist</div>
+    </div>
+    <div class="contact-block">
+      <div><strong>PHONE</strong> 0468 053 819</div>
+      <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
+      <div><strong>WEB</strong> microcementking.com.au</div>
+      <div style="margin-top:6pt;font-size:7.5pt;color:#555;">All prices ex GST unless stated</div>
+    </div>
+  </div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">01</div><h2>DEFINITIONS</h2></div>
+  <div class="clause"><span class="clause-num">1.1</span><span class="clause-text">"MCK" refers to Micro Cement King and its authorised representatives. "Client" refers to the party named in the associated quotation. "Works" refers to all microcement application, surface preparation, sealing, and related services described in the quotation scope.</span></div>
+  <div class="clause"><span class="clause-num">1.2</span><span class="clause-text">"Contract" means the accepted quotation together with these Payment Terms &amp; Conditions, forming the entire agreement between the parties.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">02</div><h2>QUOTE VALIDITY &amp; ACCEPTANCE</h2></div>
+  <div class="clause"><span class="clause-num">2.1</span><span class="clause-text">Quotes are valid for the period stated on the quotation from the date of issue. After expiry, pricing must be reconfirmed in writing by MCK.</span></div>
+  <div class="clause"><span class="clause-num">2.2</span><span class="clause-text">Acceptance of the quotation is confirmed by the client's signature (digital or physical) on the quotation document AND receipt of the booking deposit. Both conditions must be met.</span></div>
+  <div class="clause"><span class="clause-num">2.3</span><span class="clause-text">MCK reserves the right to withdraw or amend any quotation prior to formal acceptance.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">03</div><h2>PAYMENT TERMS</h2></div>
+  <div class="clause"><span class="clause-num">3.1 — Booking Deposit</span><span class="clause-text">A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</span></div>
+  <div class="clause"><span class="clause-num">3.2 — Material Payment</span><span class="clause-text">50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</span></div>
+  <div class="clause"><span class="clause-num">3.3 — Final Claim</span><span class="clause-text">The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</span></div>
+  <div class="clause"><span class="clause-num">3.4 — Progress Claims</span><span class="clause-text">For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</span></div>
+  <div class="clause"><span class="clause-num">3.5 — Upfront Reduction</span><span class="clause-text">A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</span></div>
+  <div class="clause"><span class="clause-num">3.6 — Measure Fee</span><span class="clause-text">A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">04</div><h2>OVERDUE PAYMENTS &amp; DEBT RECOVERY</h2></div>
+  <div class="clause"><span class="clause-num">4.1</span><span class="clause-text">Invoices overdue by more than 3 business days will incur an administration fee of $220 (ex GST).</span></div>
+  <div class="clause"><span class="clause-num">4.2</span><span class="clause-text">Interest accrues at 3% per week on outstanding amounts from Day 4 of the overdue period, compounding weekly.</span></div>
+  <div class="clause"><span class="clause-num">4.3</span><span class="clause-text">If payment remains outstanding for 30 days or more, the matter will be referred to an external debt recovery agent. All recovery costs, legal fees, and collection charges will be added to the outstanding amount and are payable by the client.</span></div>
+  <div class="clause"><span class="clause-num">4.4</span><span class="clause-text">MCK reserves the right to suspend or terminate works immediately if any payment milestone is not met within the specified timeframe.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">05</div><h2>VARIATIONS</h2></div>
+  <div class="clause"><span class="clause-num">5.1</span><span class="clause-text">All variations to the original scope must be agreed in writing before work commences. Verbal agreements are not binding.</span></div>
+  <div class="clause"><span class="clause-num">5.2</span><span class="clause-text">Variations are charged at $150/hr (ex GST) with a 2-hour minimum, plus materials at cost + 20%. A $500 material allowance applies per variation unless otherwise agreed.</span></div>
+  <div class="clause"><span class="clause-num">5.3</span><span class="clause-text">Variation invoices are payable within 3 business days of issue and are subject to the same overdue terms as the primary contract.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">06</div><h2>WARRANTIES</h2></div>
+  <div class="clause"><span class="clause-num">6.1</span><span class="clause-text">All workmanship is covered under statutory warranties as required by Queensland law.</span></div>
+  <div class="clause"><span class="clause-num">6.2</span><span class="clause-text">Manufacturer product warranties are passed through to the client in full. MCK will assist with any warranty claims where reasonable.</span></div>
+  <div class="clause"><span class="clause-num">6.3</span><span class="clause-text">Warranties do not cover damage caused by misuse, neglect, other trades, structural movement, or failure to follow maintenance guidelines provided by MCK.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">07</div><h2>DISPUTE RESOLUTION</h2></div>
+  <div class="clause"><span class="clause-num">7.1</span><span class="clause-text">No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties. Engaging third parties without prior written consent voids all warranties.</span></div>
+  <div class="clause"><span class="clause-num">7.2</span><span class="clause-text">Any disputes shall first be addressed through direct negotiation. If unresolved within 14 days, the matter may be referred to mediation in accordance with Queensland law.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">08</div><h2>SITE ACCESS &amp; CONDITIONS</h2></div>
+  <div class="clause"><span class="clause-num">8.1</span><span class="clause-text">The client must ensure unobstructed access to the work area for the full project duration. Restricted access, delays caused by other trades, or site conditions not disclosed at quoting may incur additional charges.</span></div>
+  <div class="clause"><span class="clause-num">8.2</span><span class="clause-text">MCK is not responsible for damage to surfaces caused by other trades working in or near the application area after MCK has completed its works.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">09</div><h2>COLOUR &amp; FINISH DISCLAIMER</h2></div>
+  <div class="clause"><span class="clause-num">9.1</span><span class="clause-text">Microcement colour and finish may vary from samples due to substrate conditions, ambient lighting, humidity, and application technique. Samples are indicative only and do not guarantee an exact colour match.</span></div>
+  <div class="clause"><span class="clause-num">9.2</span><span class="clause-text">Colour changes requested after application has commenced will be treated as a variation and charged accordingly.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">10</div><h2>TERMINATION</h2></div>
+  <div class="clause"><span class="clause-num">10.1</span><span class="clause-text">MCK reserves the right to terminate the contract if payment terms are repeatedly breached or if site conditions present an unreasonable risk to workers or materials.</span></div>
+  <div class="clause"><span class="clause-num">10.2</span><span class="clause-text">Upon termination, all work completed to date is invoiced at the agreed rates and is immediately payable. Materials ordered or delivered are non-refundable.</span></div>
+</div>
+
+<div class="tc-section">
+  <div class="tc-section-head"><div class="tc-section-num">11</div><h2>GOVERNING LAW</h2></div>
+  <div class="clause"><span class="clause-num">11.1</span><span class="clause-text">This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</span></div>
+</div>
+
+<div class="end-marker">— END OF TERMS —</div>
+
+<div class="doc-footer">
+  <span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au<br>
+  These terms form part of the formal quotation and are binding upon acceptance.
+</div>
+
+<div class="no-print">
+  <button class="print-btn" onclick="window.print()">PRINT / SAVE AS PDF</button>
+</div>
+
+</div>
+<script>window.onload = function() { setTimeout(function() { window.print(); }, 500); };</script>
+</body>
+</html>`;
+
+  const blob = new Blob([html], { type: 'text/html' });
+  const blobUrl = URL.createObjectURL(blob);
+  const win = window.open(blobUrl, '_blank');
+  if (!win) {
+    const a = document.createElement('a');
+    a.href = blobUrl;
+    a.download = 'MCK-Terms-and-Conditions.html';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
+  } else {
+    setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
+  }
+}
