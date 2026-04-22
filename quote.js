@@ -975,12 +975,25 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   .container { padding: 12pt; }
 }
 @media print {
-  html, body, * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-  html, body { background: #0a0a0a !important; height: auto !important; min-height: 0 !important; }
-  .container { padding: 0 !important; }
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+  html, body { background: #0a0a0a !important; color: #ffffff !important; height: auto !important; min-height: 0 !important; }
+  .container { padding: 0 !important; max-width: 100% !important; }
   .action-bar, .no-print { display: none !important; }
   .page-section { page-break-inside: avoid; }
   .page-section + .page-section { page-break-before: always; }
+  .validity-banner { background: #c9a84c !important; color: #000000 !important; }
+  .sec-num { background: #c9a84c !important; color: #000000 !important; }
+  .meta-grid { background: #1a1a1a !important; }
+  .field { background: #111111 !important; }
+  th { background: #1a1a1a !important; color: #c9a84c !important; }
+  td { background: #111111 !important; color: #ffffff !important; }
+  tr:nth-child(even) td { background: #0d0d0d !important; }
+  tfoot td { background: #1a1a1a !important; }
+  .callout { background: #1a1a1a !important; }
+  .ie-col { background: #111111 !important; }
+  .tc-item { background: #111111 !important; }
+  .doc-footer { background: #1a1a1a !important; }
+  .legal-footer { background: #111111 !important; }
 }
 </style>
 </head>
@@ -1158,14 +1171,6 @@ ${!showAcceptBtn ? `<script>window.onload=function(){setTimeout(function(){windo
 // ═══════════════════════════════════════════════════════════
 
 function generatePDFQuote() {
-  // Margin block check
-  if (window._marginBlocked) {
-    alert('QUOTE BLOCKED: One or more surfaces have a margin below 20%. Provide an override reason in the margin alert section before generating a quote.');
-    const alertWrap = document.getElementById('margin-alert-wrap');
-    if (alertWrap) alertWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
   // Ensure MCK signature is pre-drawn before extracting data
   // Re-draw in case canvas was resized since last draw
   if (typeof preDrawMCKSignature === 'function') {
@@ -1178,12 +1183,22 @@ function generatePDFQuote() {
     const html = buildQuoteHTML(d);
     saveQuoteRevision(d);
 
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(html);
-      printWindow.document.close();
+    // Use Blob URL to open the print window — avoids document.write() blocking in modern browsers
+    const blob = new Blob([html], { type: 'text/html' });
+    const blobUrl = URL.createObjectURL(blob);
+    const printWindow = window.open(blobUrl, '_blank');
+    if (!printWindow) {
+      // Fallback: offer download if popup is blocked
+      const a = document.createElement('a');
+      a.href = blobUrl;
+      a.download = d.quoteNumber + '.html';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 10000);
     } else {
-      alert('Pop-up blocked. Please allow pop-ups for this site and try again.');
+      // Revoke after window has had time to load
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 30000);
     }
   }, 150);
 }
@@ -1194,14 +1209,6 @@ function generatePDFQuote() {
 // ═══════════════════════════════════════════════════════════
 
 async function generateShareableLink() {
-  // Margin block check — prevent quote generation if margin below 20% without override
-  if (window._marginBlocked) {
-    alert('QUOTE BLOCKED: One or more surfaces have a margin below 20%. Provide an override reason in the margin alert section before generating a quote.');
-    const alertWrap = document.getElementById('margin-alert-wrap');
-    if (alertWrap) alertWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
   const d = extractQuoteData();
 
   // Add margin override reason if present
