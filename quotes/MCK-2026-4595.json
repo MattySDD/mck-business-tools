@@ -39,9 +39,9 @@
       "total": 0
     },
     {
-      "desc": "Tile Removal & Self Levelling",
-      "qty": 0,
-      "unit": "sqm",
+      "desc": "Tile Removal & Self Levelling Pool & Outside Area",
+      "qty": 1,
+      "unit": "item",
       "rate": 0,
       "total": 0
     }
@@ -103,6 +103,8 @@
   "mckSigDate": "2026-04-22",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-04-22T23:00:00.045Z",
-  "lastSavedAt": "2026-04-22T23:00:00.780Z"
+  "createdAt": "2026-04-22T23:13:24.256Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-4595",
+  "lastSavedAt": "2026-04-22T23:13:26.565Z"
 }
