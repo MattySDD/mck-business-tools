@@ -6,7 +6,7 @@
   "validityBanner": "QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE",
   "preparedBy": "King Mannion",
   "clientName": "Ulisses Da Silva",
-  "clientPhone": "0488040808",
+  "clientPhone": "0488 040 808",
   "clientEmail": "ulisses_dasilva@hotmail.com",
   "projectAddress": "28 Poinciana Boulevard, Broadbeach Waters",
   "siteContact": "",
@@ -89,6 +89,8 @@
   "mckSigDate": "2026-04-29",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-04-29T07:48:42.477Z",
-  "lastSavedAt": "2026-04-29T07:48:43.297Z"
+  "createdAt": "2026-04-29T07:50:42.413Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-9433",
+  "lastSavedAt": "2026-04-29T07:50:45.648Z"
 }
