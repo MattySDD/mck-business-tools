@@ -12,7 +12,7 @@
   "siteContact": "Andrew Lester",
   "colourFinish": "",
   "substrate": "",
-  "scope": "SUPPLY AND APPLY LABOUR AND MATERIALS for the protection and installation of seamless Microcement to measured surfaces as outlined in the line items below.Scope of Works : Supply and apply labour and materials for Microcement to nominated surfaces.Samples Approval : Samples will be provided and must be approved and signed off prior to commencement.Preparation : All preparation and prevention works are included.Site Requirements / Owner Responsibilities : Owner to supply power, water and a designated working zone for works to be completed.",
+  "scope": "SUPPLY AND APPLY LABOUR AND MATERIALS for the protection and installation of seamless Microcement to measured surfaces as outlined in the line items below.  Scope of Works : Supply and apply labour and materials for Microcement to nominated surfaces. Samples Approval : Samples will be provided and must be approved and signed off prior to commencement. Preparation : All preparation and prevention works are included. Site Requirements / Owner Responsibilities : Owner to supply power, water and a designated working zone for works to be completed.",
   "startDate": "",
   "duration": "",
   "completion": "",
@@ -82,6 +82,8 @@
   "mckSigDate": "2026-05-08",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-05-08T03:39:25.615Z",
-  "lastSavedAt": "2026-05-08T03:39:26.763Z"
+  "createdAt": "2026-05-08T03:43:28.020Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-1452",
+  "lastSavedAt": "2026-05-08T03:43:30.186Z"
 }
