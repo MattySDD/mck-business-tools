@@ -18,28 +18,28 @@
   "completion": "",
   "lineItems": [
     {
-      "desc": "Main bathroom ",
+      "desc": "Main Bathroom - Floors, Walls, Shower, Vanity",
       "qty": 1,
-      "unit": "sqm",
-      "rate": 6000,
-      "total": 6000
+      "unit": "item",
+      "rate": 5600,
+      "total": 5600
     },
     {
-      "desc": "Master ensuite\t",
+      "desc": "Master Ensuite- Floors, Walls, Shower, Vanity",
       "qty": 1,
-      "unit": "sqm",
+      "unit": "item",
       "rate": 5000,
       "total": 5000
     },
     {
-      "desc": "Kitchen benchtops 3.8 m² + 2.0 m²",
+      "desc": "Kitchen Benchtops 3.8 m² + 2.0 m²",
       "qty": 5.8,
       "unit": "sqm",
       "rate": 330,
       "total": 1914
     },
     {
-      "desc": "Kitchen floor 4.6 m² + Dining floor 12 m²",
+      "desc": "Kitchen Floor 4.6 m² + Dining Floor 12 m²",
       "qty": 16.6,
       "unit": "sqm",
       "rate": 330,
@@ -47,23 +47,23 @@
     }
   ],
   "variationItems": [],
-  "subtotal": 18392,
-  "gst": 1839.2,
-  "grandTotal": 20231.2,
-  "baseSubtotal": 18392,
+  "subtotal": 17992,
+  "gst": 1799.2,
+  "grandTotal": 19791.2,
+  "baseSubtotal": 17992,
   "varSubtotal": 0,
   "depositPct": 10,
-  "depositAmt": 1839.2,
-  "materialAmt": 9196,
+  "depositAmt": 1799.2,
+  "materialAmt": 8996,
   "finalPct": 40,
-  "finalAmt": 7356.8,
+  "finalAmt": 7196.8,
   "matPct": 50,
   "progressPayments": [],
   "creditLimit": 10000,
   "upfrontDiscPct": 5,
   "upfrontDiscCap": 1000,
-  "upfrontDisc": 919.6,
-  "upfrontTotal": 17472.4,
+  "upfrontDisc": 899.6,
+  "upfrontTotal": 17092.4,
   "variationRate": 150,
   "variationMinHrs": 2,
   "variationMatAllowance": 500,
@@ -103,6 +103,8 @@
   "mckSigDate": "2026-05-10",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-05-11T01:45:41.348Z",
-  "lastSavedAt": "2026-05-11T01:45:42.058Z"
+  "createdAt": "2026-05-11T02:19:52.267Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-8547",
+  "lastSavedAt": "2026-05-11T02:19:55.579Z"
 }
