@@ -12,9 +12,9 @@
   "siteContact": "",
   "colourFinish": "Dulux Malto Bianco",
   "substrate": "Tiles",
-  "scope": "SUPPLY AND APPLY LABOUR AND MATERIALS for the protection and installation of seamless Microcement to measured surfaces as outlined in the line items below.Scope of Works : Supply and apply labour and materials for Microcement to nominated surfaces.Samples Approval : Samples will be provided and must be approved and signed off prior to commencement.Preparation : All preparation and prevention works are included.Site Requirements / Owner Responsibilities : Owner to supply power, water and a designated working zone for works to be completed.",
+  "scope": "SUPPLY AND APPLY LABOUR AND MATERIALS for the protection and installation of seamless Microcement to measured surfaces as outlined in the line items below.  Scope of Works : Supply and apply labour and materials for Microcement to nominated surfaces.  Samples Approval : Samples will be provided and must be approved and signed off prior to commencement.  Preparation : All preparation and prevention works are included.  Site Requirements / Owner Responsibilities : Owner to supply power, water and a designated working zone for works to be completed.",
   "startDate": "",
-  "duration": "",
+  "duration": "14 Days",
   "completion": "",
   "lineItems": [
     {
@@ -116,6 +116,8 @@
     }
   ],
   "specialConditions": [],
-  "createdAt": "2026-05-26T03:54:32.344Z",
-  "lastSavedAt": "2026-05-26T03:54:33.147Z"
+  "createdAt": "2026-05-26T03:59:24.004Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-1196",
+  "lastSavedAt": "2026-05-26T03:59:27.331Z"
 }
