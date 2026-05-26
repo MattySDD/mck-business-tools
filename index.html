@@ -22,7 +22,6 @@
     <button class="nav-tab" data-tab="terms" onclick="switchTab('terms')">TERMS &amp; CONDITIONS</button>
     <button class="nav-tab" data-tab="po" onclick="switchTab('po')">PO PROCESSOR</button>
     <button class="nav-tab" data-tab="pipeline" onclick="switchTab('pipeline')">PIPELINE</button>
-    <button class="nav-tab" data-tab="ai" onclick="switchTab('ai')">AI AGENT</button>
     <button class="nav-tab" data-tab="settings" onclick="switchTab('settings')">SETTINGS</button>
   </div>
 </nav>
@@ -909,60 +908,6 @@
   </div><!-- /page -->
 </div><!-- /tab-pipeline -->
 
-
-<!-- ═══════════════════════════════════════════════════════════ -->
-<!-- TAB 6: AI AGENT                                             -->
-<!-- ═══════════════════════════════════════════════════════════ -->
-<div id="tab-ai" class="tab-content">
-  <div class="page">
-
-    <!-- GUIDED INTAKE -->
-    <div class="card">
-      <div class="card-header"><h2>AI GUIDED INTAKE</h2><span class="badge">VOICE OR TEXT</span></div>
-      <div class="card-body">
-        <div class="callout callout-gold" style="margin-bottom:16px;">
-          <strong>HOW IT WORKS:</strong> Click "Start Intake" to begin a guided conversation. The AI will ask about the project step by step, then auto-populate the quote and calculator. You can also type or paste a full brief below.
-        </div>
-        <div class="ai-intake-section">
-          <div style="display:flex;gap:10px;flex-wrap:wrap;">
-            <button id="intake-start-btn" onclick="startIntake()" class="tb-btn" style="font-size:13px;padding:12px 24px;">START INTAKE</button>
-            <button id="intake-mic-btn" onclick="toggleMic()" class="tb-btn ghost" style="font-size:13px;padding:12px 24px;">&#127908; VOICE INPUT</button>
-            <button id="speak-toggle-btn" onclick="toggleSpeak()" class="tb-btn ghost" style="font-size:13px;padding:12px 24px;">&#128266; SPEAK RESPONSES: OFF</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- CHAT -->
-    <div class="card">
-      <div class="card-header"><h2>AI CHAT</h2></div>
-      <div class="card-body">
-        <div id="ai-chat-area" class="ai-chat-area"></div>
-        <div class="ai-input-area">
-          <div class="ai-free-section">
-            <textarea id="ai-free-input" rows="3" placeholder="Type a message, paste a brief, or ask a question..." style="width:100%;padding:12px;background:var(--dark);border:1px solid var(--border);border-radius:3px;color:#fff;font-family:inherit;font-size:13px;resize:vertical;"></textarea>
-            <div class="ai-btn-row" style="margin-top:8px;display:flex;gap:10px;">
-              <button onclick="sendFreeMessage()" class="tb-btn" style="font-size:12px;padding:10px 20px;">SEND</button>
-              <button onclick="clearChat()" class="tb-btn ghost" style="font-size:12px;padding:10px 20px;">CLEAR CHAT</button>
-            </div>
-          </div>
-        </div>
-        <!-- FILE UPLOAD -->
-        <div class="ai-upload-zone" style="margin-top:12px;">
-          <div class="upload-hint">Attach site photos or plans for the AI to reference</div>
-          <label class="add-surface-btn" style="cursor:pointer;display:inline-block;">
-            <input type="file" id="ai-file-upload" accept="image/jpeg,image/png,application/pdf" multiple style="display:none;" onchange="handleAIFileUpload(event)">
-            + ATTACH FILES
-          </label>
-          <div id="ai-file-list" class="agent-file-list"></div>
-        </div>
-      </div>
-    </div>
-
-  </div><!-- /page -->
-</div><!-- /tab-ai -->
-
-
 <!-- ═══════════════════════════════════════════════════════════ -->
 <!-- TAB 7: SETTINGS                                             -->
 <!-- ═══════════════════════════════════════════════════════════ -->
@@ -1187,7 +1132,6 @@
 <script src="calculator.js"></script>
 <script src="quote.js"></script>
 <script src="quote-storage.js"></script>
-<script src="ai-agent.js"></script>
 <script>
 // ── TAB SWITCHING ────────────────────────────────────────
 function switchTab(tabId) {
