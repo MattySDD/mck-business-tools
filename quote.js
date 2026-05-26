@@ -257,8 +257,8 @@ function updateQuoteTotals() {
 
   const depositPct = subtotal > threshold ? depOver : depUnder;
 
-  // Recalculate editable payment schedule rows. Subtotal remains ex GST.
-  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
+  // Recalculate editable payment schedule rows using inc GST total.
+  updatePaymentScheduleFromTotals(grandTotal, depositPct, matPct);
 
   // Credit limit warning
   const creditWarn = document.getElementById('q-credit-warning');
@@ -295,7 +295,7 @@ function formatMoney(value) {
   return '$' + num.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function getQuoteSubtotalForPayments() {
+function getQuoteGrandTotalForPayments() {
   let subtotal = 0;
   document.querySelectorAll('.q-line-item').forEach(line => {
     const qty = parseFloat(line.querySelector('.qty')?.value) || 0;
@@ -308,7 +308,8 @@ function getQuoteSubtotalForPayments() {
     const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
     subtotal += (hrs * rate) + mat;
   });
-  return subtotal;
+  const gst = subtotal * 0.1;
+  return subtotal + gst;
 }
 
 function initPaymentStages() {
@@ -387,7 +388,7 @@ function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milesto
     return;
   }
 
-  const subtotal = getQuoteSubtotalForPayments();
+  const grandTotal = getQuoteGrandTotalForPayments();
   const currentPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
   const defaultPct = Number.isFinite(parseFloat(pct)) ? parseFloat(pct) : Math.max(0, Math.round((100 - currentPct) * 100) / 100);
   const tr = createPaymentStageRow({
@@ -396,7 +397,7 @@ function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milesto
     note: 'Progress payment on milestone',
     due,
     pct: defaultPct,
-    amt: subtotal * (defaultPct / 100),
+    amt: grandTotal * (defaultPct / 100),
     manualPct: true,
     id: 'q-progress-row-' + Date.now()
   });
@@ -440,10 +441,10 @@ function handlePaymentPctInput(input) {
   const row = input.closest('.q-payment-stage-row');
   if (row) {
     row.dataset.manualPct = 'true';
-    const subtotal = getQuoteSubtotalForPayments();
+    const grandTotal = getQuoteGrandTotalForPayments();
     const pct = parseFloat(input.value) || 0;
     const amount = row.querySelector('.payment-stage-amount');
-    if (amount) amount.value = subtotal > 0 ? (subtotal * pct / 100).toFixed(2) : '0.00';
+    if (amount) amount.value = grandTotal > 0 ? (grandTotal * pct / 100).toFixed(2) : '0.00';
   }
   updatePaymentStageData();
 }
@@ -452,16 +453,16 @@ function handlePaymentAmountInput(input) {
   const row = input.closest('.q-payment-stage-row');
   if (row) {
     row.dataset.manualPct = 'true';
-    const subtotal = getQuoteSubtotalForPayments();
+    const grandTotal = getQuoteGrandTotalForPayments();
     const amount = parseFloat(input.value) || 0;
     const pctInput = row.querySelector('.payment-stage-pct');
-    if (pctInput) pctInput.value = subtotal > 0 ? roundPct((amount / subtotal) * 100) : '0';
+    if (pctInput) pctInput.value = grandTotal > 0 ? roundPct((amount / grandTotal) * 100) : '0';
   }
   updatePaymentStageData();
 }
 
 function updatePaymentStageData() {
-  updatePaymentScheduleFromTotals(getQuoteSubtotalForPayments());
+  updatePaymentScheduleFromTotals(getQuoteGrandTotalForPayments());
 }
 
 function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMaterialPct) {
@@ -508,8 +509,8 @@ function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMat
   return { totalPct, totalAmt };
 }
 
-function updateProgressPaymentAmounts(subtotal, depositPct, matPct) {
-  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
+function updateProgressPaymentAmounts(grandTotal, depositPct, matPct) {
+  updatePaymentScheduleFromTotals(grandTotal, depositPct, matPct);
 }
 
 function balanceProgressPayments() {
@@ -555,12 +556,12 @@ function syncProgressToggleUI() {
   if (thumb) { thumb.style.background = isOn ? '#000' : '#666'; thumb.style.left = isOn ? '22px' : '2px'; }
 }
 
-function getPaymentStagesData(subtotalOverride) {
-  const subtotal = Number.isFinite(parseFloat(subtotalOverride)) ? parseFloat(subtotalOverride) : getQuoteSubtotalForPayments();
+function getPaymentStagesData(grandTotalOverride) {
+  const grandTotal = Number.isFinite(parseFloat(grandTotalOverride)) ? parseFloat(grandTotalOverride) : getQuoteGrandTotalForPayments();
   return Array.from(document.querySelectorAll('.q-payment-stage-row')).map((row, index) => {
     const pct = parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0;
     const amtInput = parseFloat(row.querySelector('.payment-stage-amount')?.value);
-    const amt = Number.isFinite(amtInput) ? amtInput : subtotal * (pct / 100);
+    const amt = Number.isFinite(amtInput) ? amtInput : grandTotal * (pct / 100);
     return {
       stage: index + 1,
       type: row.dataset.stageType || 'progress',
@@ -962,19 +963,19 @@ function extractQuoteData() {
   const overdueInterest = st('overdue_interest_pct_week') || 3;
   const measureFee = st('measure_fee') || 220;
 
-  const paymentStages = getPaymentStagesData(subtotal);
+  const paymentStages = getPaymentStagesData(grandTotal);
   let progressPayments = paymentStages.filter(p => p.type === 'progress');
   const fallbackDepositPct = subtotal > threshold ? depOver : depUnder;
   const depositStage = paymentStages[0] || {};
   const materialStage = paymentStages.find(p => p.type === 'material') || paymentStages[1] || {};
   const finalStage = [...paymentStages].reverse().find(p => p.type === 'final') || paymentStages[paymentStages.length - 1] || {};
   const depositPct = depositStage.pct ?? fallbackDepositPct;
-  const depositAmt = depositStage.amt ?? subtotal * (depositPct / 100);
-  const materialAmt = materialStage.amt ?? subtotal * (matPct / 100);
+  const depositAmt = depositStage.amt ?? grandTotal * (depositPct / 100);
+  const materialAmt = materialStage.amt ?? grandTotal * (matPct / 100);
   const finalPct = finalStage.pct ?? Math.max(0, 100 - depositPct - matPct);
-  const finalAmt = finalStage.amt ?? subtotal * (finalPct / 100);
-  const upfrontDisc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
-  const upfrontTotal = subtotal - upfrontDisc;
+  const finalAmt = finalStage.amt ?? grandTotal * (finalPct / 100);
+  const upfrontDisc = Math.min(grandTotal * (upfrontDiscPct / 100), upfrontDiscCap);
+  const upfrontTotal = grandTotal - upfrontDisc;
 
   const getListItems = (id, type) => {
     const el = document.getElementById(id);
@@ -1281,9 +1282,9 @@ ${statusBanner}
   <div class="sec-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
   <div class="callout" style="margin-bottom:14pt;"><strong>PAYMENT STRUCTURE:</strong> Payment stages are editable and agreed per quote. Booking deposit is <strong>${d.depositPct}%</strong> by default ${d.subtotal > (d.creditLimit || 20000) ? '(contract exceeds credit limit)' : d.subtotal > 20000 ? '(contract value exceeds $20,000)' : '(contract value under $20,000)'}. Material payment is due before commencement unless edited below.</div>
   <table>
-    <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (EX GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
+    <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (INC GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
     <tbody>${paymentStagesHTML}</tbody>
-    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">${roundPct(paymentPctTotal)}%</td><td></td></tr></tfoot>
+    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (INC GST)</td><td class="right">${$(d.grandTotal)}</td><td class="right">${roundPct(paymentPctTotal)}%</td><td></td></tr></tfoot>
   </table>
   <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct}% reduction</strong> (capped at $${d.upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal)}</strong> (saving ${$(d.upfrontDisc)}).</div>
 </div>
