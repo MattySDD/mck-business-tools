@@ -1430,6 +1430,26 @@ async function generateShareableLink() {
     // Always save/update the main quote file
     d.lastSavedAt = new Date().toISOString();
     const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
+    // ── PostMessage bridge: notify parent dashboard (mckquote.com) ──
+    try {
+      window.parent.postMessage({
+        type: 'MCK_QUOTE_SAVED',
+        quoteNumber: d.quoteNumber,
+        clientName: d.clientName,
+        clientEmail: d.clientEmail,
+        clientPhone: d.clientPhone,
+        projectAddress: d.projectAddress,
+        subtotal: d.subtotal,
+        gst: d.gst,
+        grandTotal: d.grandTotal,
+        lineItems: d.lineItems,
+        paymentStages: d.paymentStages,
+        scope: d.scope,
+        startDate: d.startDate,
+        savedAt: d.lastSavedAt,
+        quoteUrl: result.success ? (result.urls && result.urls.internal) : null,
+      }, 'https://mckquote.com');
+    } catch(e) { /* not in iframe — ignore */ }
     if (result.success) {
       showShareModal(result.urls, d.clientName, d.quoteNumber);
     } else {
