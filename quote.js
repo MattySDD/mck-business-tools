@@ -601,21 +601,84 @@ function setPaymentStagesFromData(d = {}) {
 // EDITABLE INCLUSIONS / EXCLUSIONS
 // ═══════════════════════════════════════════════════════════
 
+function normalizeIeItems(items, type) {
+  const defaultEnabled = type === 'inclusion';
+  if (!Array.isArray(items)) return [];
+  return items.map(item => {
+    if (typeof item === 'string') return { text: item, enabled: defaultEnabled };
+    return {
+      text: (item && (item.text || item.label || item.value) || '').toString(),
+      enabled: item && typeof item.enabled === 'boolean' ? item.enabled : defaultEnabled
+    };
+  }).filter(item => item.text.trim());
+}
+
+function createIeListItem(text, enabled = true, type = 'inclusion') {
+  const li = document.createElement('li');
+  li.className = 'ie-row';
+  li.dataset.enabled = enabled ? 'true' : 'false';
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'ie-toggle no-print';
+  toggle.setAttribute('aria-label', 'Toggle ' + type);
+  toggle.onclick = function() { toggleIeItem(toggle); };
+
+  const marker = document.createElement('span');
+  marker.className = 'ie-print-marker';
+
+  const textSpan = document.createElement('span');
+  textSpan.className = 'ie-text';
+  textSpan.contentEditable = 'true';
+  textSpan.textContent = text;
+
+  const del = document.createElement('button');
+  del.type = 'button';
+  del.className = 'ie-delete no-print';
+  del.textContent = 'Remove';
+  del.setAttribute('aria-label', 'Remove ' + type);
+  del.onclick = function() { deleteIeItem(del); };
+
+  li.append(toggle, marker, textSpan, del);
+  syncIeItem(li);
+  return li;
+}
+
+function syncIeItem(li) {
+  if (!li) return;
+  const enabled = li.dataset.enabled !== 'false';
+  const symbol = enabled ? '✓' : '✗';
+  const toggle = li.querySelector('.ie-toggle');
+  const marker = li.querySelector('.ie-print-marker');
+  if (toggle) toggle.textContent = symbol;
+  if (marker) marker.textContent = symbol;
+}
+
+function toggleIeItem(btn) {
+  const li = btn.closest('.ie-row');
+  if (!li) return;
+  li.dataset.enabled = li.dataset.enabled === 'false' ? 'true' : 'false';
+  syncIeItem(li);
+}
+
+function deleteIeItem(btn) {
+  const li = btn.closest('.ie-row');
+  if (li) li.remove();
+}
+
 function initEditableListItems() {
   ['q-inclusions', 'q-exclusions'].forEach(listId => {
     const list = document.getElementById(listId);
     if (!list) return;
-    list.querySelectorAll('li').forEach(li => {
-      li.contentEditable = 'true';
-      li.style.cursor = 'text';
-      li.addEventListener('focus', function() {
-        this.style.outline = '1px solid #c9a84c';
-        this.style.outlineOffset = '2px';
-        this.style.borderRadius = '2px';
-      });
-      li.addEventListener('blur', function() {
-        this.style.outline = 'none';
-      });
+    const type = listId === 'q-inclusions' ? 'inclusion' : 'exclusion';
+    const defaultEnabled = type === 'inclusion';
+    Array.from(list.querySelectorAll('li')).forEach(li => {
+      if (!li.classList.contains('ie-row')) {
+        const text = li.textContent.trim();
+        li.replaceWith(createIeListItem(text, defaultEnabled, type));
+      } else {
+        syncIeItem(li);
+      }
     });
   });
 }
@@ -623,37 +686,34 @@ function initEditableListItems() {
 function addInclusionItem() {
   const list = document.getElementById('q-inclusions');
   if (!list) return;
-  const li = document.createElement('li');
-  li.contentEditable = 'true';
-  li.style.cursor = 'text';
-  li.textContent = 'New inclusion — click to edit';
-  li.addEventListener('focus', function() {
-    this.style.outline = '1px solid #c9a84c';
-    this.style.outlineOffset = '2px';
-    if (this.textContent === 'New inclusion — click to edit') this.textContent = '';
-  });
-  li.addEventListener('blur', function() { this.style.outline = 'none'; });
+  const li = createIeListItem('New inclusion — click to edit', true, 'inclusion');
   list.appendChild(li);
-  li.focus();
+  const text = li.querySelector('.ie-text');
+  if (text) {
+    text.focus();
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
 }
 
 function addExclusionItem() {
   const list = document.getElementById('q-exclusions');
   if (!list) return;
-  const li = document.createElement('li');
-  li.contentEditable = 'true';
-  li.style.cursor = 'text';
-  li.textContent = 'New exclusion — click to edit';
-  li.addEventListener('focus', function() {
-    this.style.outline = '1px solid #c9a84c';
-    this.style.outlineOffset = '2px';
-    if (this.textContent === 'New exclusion — click to edit') this.textContent = '';
-  });
-  li.addEventListener('blur', function() { this.style.outline = 'none'; });
+  const li = createIeListItem('New exclusion — click to edit', false, 'exclusion');
   list.appendChild(li);
-  li.focus();
+  const text = li.querySelector('.ie-text');
+  if (text) {
+    text.focus();
+    const range = document.createRange();
+    range.selectNodeContents(text);
+    const sel = window.getSelection();
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
 }
-
 
 // ═══════════════════════════════════════════════════════════
 // SIGNATURE CANVAS — BOTH CLIENT AND MCK AUTHORISED
@@ -661,20 +721,14 @@ function addExclusionItem() {
 
 function initSignature() {
   initSigCanvas('q-sig-canvas', 'q-canvas-wrap', 'q-canvas-hint', 'q-accept-btn');
-  initSigCanvas('q-mck-sig-canvas', 'q-mck-canvas-wrap', 'q-mck-canvas-hint', 'q-mck-accept-btn');
   initSigCanvas('tc-sig-canvas', 'tc-canvas-wrap', 'tc-canvas-hint', 'tc-accept-btn');
 
   // Set default dates to today
   const today = new Date().toISOString().split('T')[0];
-  ['q-sig-date', 'q-mck-sig-date', 'tc-sig-date', 'tc-mck-sig-date'].forEach(id => {
+  ['q-sig-date', 'tc-sig-date', 'tc-mck-sig-date'].forEach(id => {
     const el = document.getElementById(id);
     if (el && !el.value) el.value = today;
   });
-
-  // Pre-draw King Mannion signature on MCK canvas after a short delay
-  setTimeout(() => {
-    preDrawMCKSignature('q-mck-sig-canvas');
-  }, 500);
 }
 
 function preDrawMCKSignature(canvasId) {
@@ -832,7 +886,6 @@ function clearQuoteForm() {
   addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
   updateQuoteTotals();
   clearQuoteSig();
-  clearMCKSig();
 }
 
 
@@ -923,13 +976,17 @@ function extractQuoteData() {
   const upfrontDisc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
   const upfrontTotal = subtotal - upfrontDisc;
 
-  const getListItems = id => {
+  const getListItems = (id, type) => {
     const el = document.getElementById(id);
     if (!el) return [];
-    return Array.from(el.querySelectorAll('li')).map(li => li.textContent.trim()).filter(t => t);
+    return Array.from(el.querySelectorAll('li')).map(li => {
+      const textEl = li.querySelector('.ie-text');
+      const text = (textEl ? textEl.textContent : li.textContent).trim();
+      return { text, enabled: li.dataset.enabled !== 'false' };
+    }).filter(item => item.text);
   };
-  const inclusions = getListItems('q-inclusions');
-  const exclusions = getListItems('q-exclusions');
+  const inclusions = getListItems('q-inclusions', 'inclusion');
+  const exclusions = getListItems('q-exclusions', 'exclusion');
 
   // Signature images
   let sigDataURL = '';
@@ -939,23 +996,11 @@ function extractQuoteData() {
     blank.width = sigCanvas.width; blank.height = sigCanvas.height;
     if (sigCanvas.toDataURL() !== blank.toDataURL()) sigDataURL = sigCanvas.toDataURL();
   }
-  let mckSigDataURL = '';
-  const mckSigCanvas = document.getElementById('q-mck-sig-canvas');
-  if (mckSigCanvas) {
-    const blank = document.createElement('canvas');
-    blank.width = mckSigCanvas.width; blank.height = mckSigCanvas.height;
-    if (mckSigCanvas.toDataURL() !== blank.toDataURL()) mckSigDataURL = mckSigCanvas.toDataURL();
-  }
-  // If MCK canvas is blank, use embedded signature
-  if (!mckSigDataURL) mckSigDataURL = MCK_SIGNATURE_DATA_URL;
 
   // Typed names and dates
   const clientTypedName = (document.getElementById('q-sig-typed-name') || {}).value || '';
   const clientPrintName = (document.getElementById('q-sig-print-name') || {}).value || '';
   const clientSigDate = (document.getElementById('q-sig-date') || {}).value || '';
-  const mckTypedName = (document.getElementById('q-mck-typed-name') || {}).value || 'King Mannion';
-  const mckTypedTitle = (document.getElementById('q-mck-typed-title') || {}).value || 'Director';
-  const mckSigDate = (document.getElementById('q-mck-sig-date') || {}).value || '';
 
   return {
     quoteNumber, dateIssued, validityLabel, validityHours, validityBanner, preparedBy,
@@ -967,8 +1012,8 @@ function extractQuoteData() {
     creditLimit, upfrontDiscPct, upfrontDiscCap, upfrontDisc, upfrontTotal,
     variationRate, variationMinHrs, variationMatAllowance,
     overdueAdminFee, overdueInterest, measureFee,
-    inclusions, exclusions, sigDataURL, mckSigDataURL,
-    clientTypedName, clientPrintName, clientSigDate, mckTypedName, mckTypedTitle, mckSigDate,
+    inclusions, exclusions, sigDataURL,
+    clientTypedName, clientPrintName, clientSigDate,
     attachments: window._quoteAttachments || [],
     specialConditions: getSpecialConditions(),
     createdAt: new Date().toISOString(),
@@ -1030,6 +1075,8 @@ function buildQuoteHTML(d, options = {}) {
     <div class="callout" style="margin-top:10pt;"><strong>VARIATION TERMS:</strong> All variations are charged at $${d.variationRate}/hr (${d.variationMinHrs}-hour minimum) plus materials at cost + ${d.variationMatAllowance ? '$' + d.variationMatAllowance + ' allowance' : 'cost'}. Variations must be agreed in writing before work commences.</div>`;
   }
 
+  const inclusions = normalizeIeItems(d.inclusions, 'inclusion');
+  const exclusions = normalizeIeItems(d.exclusions, 'exclusion');
   const paymentStages = getPrintablePaymentStages(d);
   const paymentPctTotal = paymentStages.reduce((sum, stage) => sum + (parseFloat(stage.pct) || 0), 0);
   const paymentStagesHTML = paymentStages.map((stage, i) => `
@@ -1224,8 +1271,8 @@ ${statusBanner}
 <div class="page-section">
   <div class="sec-hd"><div class="sec-num">04</div><h2>INCLUSIONS &amp; EXCLUSIONS</h2></div>
   <div class="inc-exc-grid">
-    <div class="ie-col inc"><h3>INCLUSIONS</h3>${d.inclusions.map(i => `<div class="ie-item"><span class="tick">\u2713</span>${i}</div>`).join('')}</div>
-    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${d.exclusions.map(e => `<div class="ie-item"><span class="cross">\u2717</span>${e}</div>`).join('')}</div>
+    <div class="ie-col inc"><h3>INCLUSIONS</h3>${inclusions.map(i => `<div class="ie-item"><span class="${i.enabled ? 'tick' : 'cross'}">${i.enabled ? '✓' : '✗'}</span>${i.text}</div>`).join('')}</div>
+    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${exclusions.map(e => `<div class="ie-item"><span class="${e.enabled ? 'tick' : 'cross'}">${e.enabled ? '✓' : '✗'}</span>${e.text}</div>`).join('')}</div>
   </div>
 </div>
 
@@ -1294,15 +1341,8 @@ ${(d.specialConditions && d.specialConditions.length > 0) ? `
       <div class="sig-sub" style="margin-top:4pt;">Print Name: <strong style="color:#fff;">${d.clientPrintName || '___________________________'}</strong></div>
       <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : '___________________________'}</strong></div>
     </div>
-    <div class="sig-block">
-      <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
-      <div class="sig-line">${d.mckSigDataURL ? `<img src="${d.mckSigDataURL}" alt="MCK Signature">` : ''}</div>
-      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.mckSigDate ? formatDateForPDF(d.mckSigDate) : '___________________________'}</strong></div>
-    </div>
   </div>
-  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>
+  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by the client and the booking deposit is received.</div>
   <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</div>
 </div>
 
@@ -1323,12 +1363,6 @@ ${!showAcceptBtn ? `<script>window.onload=function(){setTimeout(function(){windo
 // ═══════════════════════════════════════════════════════════
 
 function generatePDFQuote() {
-  // Ensure MCK signature is pre-drawn before extracting data
-  // Re-draw in case canvas was resized since last draw
-  if (typeof preDrawMCKSignature === 'function') {
-    preDrawMCKSignature('q-mck-sig-canvas');
-  }
-
   // Small delay to ensure canvas render is complete
   setTimeout(function() {
     const d = extractQuoteData();
@@ -1768,33 +1802,9 @@ async function loadQuoteForEditing(quoteId) {
 
     // Populate payment stages
     setPaymentStagesFromData(d);
-
-    // Populate inclusions
-    if (d.inclusions && d.inclusions.length > 0) {
-      const incList = document.getElementById('q-inclusions');
-      if (incList) {
-        incList.innerHTML = '';
-        d.inclusions.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = item;
-          li.contentEditable = true;
-          incList.appendChild(li);
-        });
-      }
-    }
-
-    // Populate exclusions
-    if (d.exclusions && d.exclusions.length > 0) {
-      const excList = document.getElementById('q-exclusions');
-      if (excList) {
-        excList.innerHTML = '';
-        d.exclusions.forEach(item => {
-          const li = document.createElement('li');
-          li.textContent = item;
-          li.contentEditable = true;
-          excList.appendChild(li);
-        });
-      }
+    // Populate inclusions / exclusions
+    if (d.inclusions && d.inclusions.length > 0) populateIeList('q-inclusions', d.inclusions, 'inclusion');
+    if (d.exclusions && d.exclusions.length > 0) populateIeList('q-exclusions', d.exclusions, 'exclusion');
     }
 
     // Populate signature fields
@@ -1804,10 +1814,6 @@ async function loadQuoteForEditing(quoteId) {
     if (sigPrintName && d.clientPrintName) sigPrintName.value = d.clientPrintName;
     const sigDate = document.getElementById('q-sig-date');
     if (sigDate && d.clientSigDate) sigDate.value = d.clientSigDate;
-    const mckTypedName = document.getElementById('q-mck-typed-name');
-    if (mckTypedName && d.mckTypedName) mckTypedName.value = d.mckTypedName;
-    const mckSigDate = document.getElementById('q-mck-sig-date');
-    if (mckSigDate && d.mckSigDate) mckSigDate.value = d.mckSigDate;
 
     // Restore special conditions
     if (d.specialConditions && d.specialConditions.length > 0) {

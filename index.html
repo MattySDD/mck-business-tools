@@ -178,32 +178,38 @@
         </div>
         <div class="inc-exc">
           <div class="inc-col">
-            <h4>INCLUSIONS</h4>
+            <div class="ie-col-head">
+              <h4>INCLUSIONS</h4>
+              <button type="button" class="ie-add-btn no-print" onclick="addInclusionItem()">Add Inclusion</button>
+            </div>
             <ul class="ie-list" id="q-inclusions">
-              <li contenteditable="true">All microcement materials (Ideal Works / Solidro / supplier equivalent)</li>
-              <li contenteditable="true">Professional surface preparation</li>
-              <li contenteditable="true">PRIMER-RR application (where required per system rules)</li>
-              <li contenteditable="true">WB Mesh Blocker + fibreglass mesh reinforcement (floors/wet areas/benchtops)</li>
-              <li contenteditable="true">Base coat application (1 coat)</li>
-              <li contenteditable="true">Finish coat application (2 coats)</li>
-              <li contenteditable="true">PU100 polyurethane sealer (2 coats)</li>
-              <li contenteditable="true">Micro Seal protective topcoat (floors/benchtops/wet areas)</li>
-              <li contenteditable="true">Full clean-up and site protection</li>
-              <li contenteditable="true">Workmanship warranty as per statutory requirements</li>
-              <li contenteditable="true">Manufacturer product warranties passed through</li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">All microcement materials (Ideal Works / Solidro / supplier equivalent)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Professional surface preparation</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">PRIMER-RR application (where required per system rules)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">WB Mesh Blocker + fibreglass mesh reinforcement (floors/wet areas/benchtops)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Base coat application (1 coat)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Finish coat application (2 coats)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">PU100 polyurethane sealer (2 coats)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Micro Seal protective topcoat (floors/benchtops/wet areas)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Full clean-up and site protection</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Workmanship warranty as per statutory requirements</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="true"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle inclusion">✓</button><span class="ie-print-marker">✓</span><span class="ie-text" contenteditable="true">Manufacturer product warranties passed through</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove inclusion">Remove</button></li>
             </ul>
           </div>
           <div class="exc-col">
-            <h4>EXCLUSIONS</h4>
+            <div class="ie-col-head">
+              <h4>EXCLUSIONS</h4>
+              <button type="button" class="ie-add-btn no-print" onclick="addExclusionItem()">Add Exclusion</button>
+            </div>
             <ul class="ie-list" id="q-exclusions">
-              <li contenteditable="true">Structural repairs or substrate rectification</li>
-              <li contenteditable="true">Waterproofing (unless specified in scope)</li>
-              <li contenteditable="true">Plumbing, electrical, or other trade work</li>
-              <li contenteditable="true">Furniture removal or storage</li>
-              <li contenteditable="true">Floor levelling or grinding (unless specified)</li>
-              <li contenteditable="true">Colour changes after application has commenced</li>
-              <li contenteditable="true">Damage caused by other trades after completion</li>
-              <li contenteditable="true">Ongoing maintenance products</li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Structural repairs or substrate rectification</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Waterproofing (unless specified in scope)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Plumbing, electrical, or other trade work</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Furniture removal or storage</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Floor levelling or grinding (unless specified)</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Colour changes after application has commenced</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Damage caused by other trades after completion</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
+              <li class="ie-row" data-enabled="false"><button type="button" class="ie-toggle no-print" onclick="toggleIeItem(this)" aria-label="Toggle exclusion">✗</button><span class="ie-print-marker">✗</span><span class="ie-text" contenteditable="true">Ongoing maintenance products</span><button type="button" class="ie-delete no-print" onclick="deleteIeItem(this)" aria-label="Remove exclusion">Remove</button></li>
             </ul>
           </div>
         </div>
@@ -348,37 +354,6 @@
             <div class="sig-field">
               <label class="sig-field-label">DATE</label>
               <input type="date" id="q-sig-date" class="sig-field-input sig-editable">
-            </div>
-          </div>
-        </div>
-
-        <!-- MCK AUTHORISED SIGNATURE — CLEAN PRE-DRAWN -->
-        <div class="digital-sig-block" id="q-mck-sig-block" style="margin-top:24px;">
-          <div class="digital-sig-title">MCK AUTHORISED SIGNATORY</div>
-          <div class="digital-sig-subtitle">King Mannion — Director</div>
-          <div class="sig-accepted-banner" id="q-mck-sig-accepted-banner">
-            <img id="q-mck-sig-image" src="" alt="MCK Signature" style="max-width:300px;margin-top:8px;display:none;">
-          </div>
-          <div class="canvas-wrap" id="q-mck-canvas-wrap">
-            <canvas id="q-mck-sig-canvas"></canvas>
-            <div class="canvas-hint" id="q-mck-canvas-hint">MCK SIGN HERE</div>
-          </div>
-          <div class="sig-btn-row" id="q-mck-sig-btn-row">
-            <button class="sig-btn sig-btn-clear" onclick="clearMckSig()">CLEAR SIGNATURE</button>
-            <button class="sig-btn sig-btn-accept" id="q-mck-accept-btn" onclick="acceptMckSig()" disabled>ACCEPT &amp; SIGN</button>
-          </div>
-          <div class="sig-fields-row">
-            <div class="sig-field">
-              <label class="sig-field-label">NAME</label>
-              <input type="text" id="q-mck-typed-name" class="sig-field-input" value="King Mannion" readonly style="color:var(--gold);">
-            </div>
-            <div class="sig-field">
-              <label class="sig-field-label">TITLE</label>
-              <input type="text" id="q-mck-typed-title" class="sig-field-input" value="Director" readonly style="color:var(--gold);">
-            </div>
-            <div class="sig-field">
-              <label class="sig-field-label">DATE</label>
-              <input type="date" id="q-mck-sig-date" class="sig-field-input sig-editable">
             </div>
           </div>
         </div>

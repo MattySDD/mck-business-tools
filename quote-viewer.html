@@ -191,6 +191,23 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
       return dateStr;
     } catch(e) { return dateStr; }
   }
+  function normalizeIeItems(items, type) {
+    const defaultEnabled = type === 'inclusion';
+    if (!Array.isArray(items)) return [];
+    return items.map(function(item) {
+      if (typeof item === 'string') return { text: item, enabled: defaultEnabled };
+      return {
+        text: String(item && (item.text || item.label || item.value) || ''),
+        enabled: item && typeof item.enabled === 'boolean' ? item.enabled : defaultEnabled
+      };
+    }).filter(function(item) { return item.text.trim(); });
+  }
+  function renderIeItems(items, type) {
+    return normalizeIeItems(items, type).map(function(item) {
+      const enabled = item.enabled !== false;
+      return '<div class="ie-item"><span class="' + (enabled ? 'tick' : 'cross') + '">' + (enabled ? '✓' : '✗') + '</span>' + item.text + '</div>';
+    }).join('');
+  }
 
   // Parse URL parameters
   const params = new URLSearchParams(window.location.search);
@@ -407,300 +424,8 @@ ${scHTML}
       <div class="sig-sub">Full Name: <strong style="color:#fff;" id="tc-client-name">${d.clientName || '___________________________'}</strong></div>
       <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">___________________________</span></strong></div>
     </div>
-    <div class="sig-block">
-      <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
-      <div class="sig-line">${d.mckSigDataURL ? '<img src="'+d.mckSigDataURL+'" alt="MCK Signature">' : ''}</div>
-      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
-    </div>
   </div>
-</div>
-
-<div class="doc-footer"><span class="gold">RENDER RENDER PTY LTD trading as MICRO CEMENT KING</span> — Payment Terms & Conditions<br>RK: 0468 041 477 | MCK: 0468 053 819 | projects@microcementking.com.au</div>
-
-<div class="action-bar no-print">
-  <button class="action-btn ghost" onclick="window.print()">PRINT / SAVE PDF</button>
-  <button class="action-btn" onclick="showTcAcceptModal()">ACCEPT & SIGN T&Cs</button>
-</div>
-`;
-
-    // T&C Accept modal
-    window.showTcAcceptModal = function() {
-      const overlay = document.createElement('div');
-      overlay.className = 'sig-modal-overlay';
-      overlay.id = 'tc-accept-modal';
-      overlay.innerHTML = '<div class="sig-modal">' +
-        '<h3>ACCEPT TERMS & CONDITIONS</h3>' +
-        '<p style="color:#aaa;font-size:10px;margin:0 0 14px 0;">Draw your signature below to accept the Payment Terms & Conditions.</p>' +
-        '<canvas id="tc-accept-sig-canvas" width="440" height="160"></canvas>' +
-        '<label>FULL NAME</label>' +
-        '<input type="text" id="tc-accept-name" placeholder="Type your full name" value="' + (d.clientName || '') + '">' +
-        '<div class="btn-row">' +
-          '<button class="action-btn" onclick="submitTcAcceptance()" style="padding:10px 24px;font-size:11px;">SUBMIT</button>' +
-          '<button class="action-btn ghost" onclick="clearTcAcceptSig()" style="padding:10px 24px;font-size:11px;">CLEAR</button>' +
-          '<button class="action-btn ghost" onclick="document.getElementById(\'tc-accept-modal\').remove();" style="padding:10px 24px;font-size:11px;border-color:#666;color:#666;">CANCEL</button>' +
-        '</div></div>';
-      document.body.appendChild(overlay);
-      overlay.addEventListener('click', function(e) { if (e.target === overlay) overlay.remove(); });
-      initModalCanvas('tc-accept-sig-canvas');
-    };
-
-    window.clearTcAcceptSig = function() {
-      const c = document.getElementById('tc-accept-sig-canvas');
-      if (c) c.getContext('2d').clearRect(0, 0, c.width, c.height);
-    };
-
-    window.submitTcAcceptance = async function() {
-      const canvas = document.getElementById('tc-accept-sig-canvas');
-      if (!canvas) return;
-      const blank = document.createElement('canvas');
-      blank.width = canvas.width; blank.height = canvas.height;
-      if (canvas.toDataURL() === blank.toDataURL()) { alert('Please sign before submitting.'); return; }
-
-      const name = (document.getElementById('tc-accept-name') || {}).value || '';
-      const sigData = canvas.toDataURL();
-      const now = new Date();
-
-      // Update UI
-      const sigLine = document.getElementById('client-sig-line');
-      if (sigLine) sigLine.innerHTML = '<img src="' + sigData + '" alt="Client Signature">';
-      const nameEl = document.getElementById('tc-client-name');
-      if (nameEl) nameEl.textContent = name || d.clientName || '';
-      const dateEl = document.getElementById('client-sig-date');
-      if (dateEl) dateEl.textContent = now.toLocaleDateString('en-AU');
-
-      document.getElementById('tc-accept-modal').remove();
-
-      // Save back to GitHub if we have a quote ID
-      if (quoteId) {
-        showSavingOverlay();
-        const result = await MCK_QUOTE_STORAGE.updateQuote(quoteId, {
-          tcAcceptedAt: now.toISOString(),
-          tcSignature: sigData,
-          tcSignedName: name,
-          _updateType: 'T&C acceptance'
-        });
-        hideSavingOverlay();
-        if (result.success) {
-          alert('Terms & Conditions accepted and saved. Thank you.');
-        } else {
-          alert('Signature saved locally. Note: Could not save to server (' + (result.error || 'unknown error') + ').');
-        }
-      } else {
-        alert('Terms & Conditions accepted. Thank you.');
-      }
-    };
-
-    return; // End T&C only view
-  }
-
-  // ═══════════════════════════════════════════════════════════
-  // CLIENT VIEW — No internal data (margins, costs, settings)
-  // ═══════════════════════════════════════════════════════════
-  // INTERNAL VIEW — Full data with margin info + edit button
-  // ═══════════════════════════════════════════════════════════
-
-  // Check if declined
-  if (d.status === 'DECLINED') {
-    status = 'DECLINED';
-  }
-
-  // Build status banner
-  let statusBanner = '';
-  if (isExpired) {
-    statusBanner = '<div class="status-banner status-expired">THIS QUOTE HAS EXPIRED</div>' +
-      '<div class="callout warning" style="text-align:center;margin-bottom:16pt;"><strong>This quote has expired.</strong> Please contact us for a current quote.<br><span style="color:#c9a84c;font-size:14pt;font-weight:800;">0468 053 819</span><br><span style="font-size:9pt;color:#aaa;">projects@microcementking.com.au</span></div>';
-  } else if (status === 'ACCEPTED') {
-    statusBanner = '<div class="status-banner status-accepted">QUOTE ACCEPTED</div>';
-  } else if (status === 'DECLINED') {
-    statusBanner = '<div class="status-banner" style="background:#ff4444!important;color:#fff!important;">QUOTE DECLINED</div>';
-  } else {
-    statusBanner = '<div class="status-banner status-pending">QUOTE STATUS: PENDING ACCEPTANCE</div>';
-  }
-
-  // Variation rows HTML
-  let variationHTML = '';
-  if (d.variationItems && d.variationItems.length > 0) {
-    variationHTML = '<div style="height:14pt;"></div>' +
-      '<div class="sec-hd"><div class="sec-num">03B</div><h2>VARIATIONS</h2></div>' +
-      '<table><thead><tr><th style="width:40%">DESCRIPTION</th><th class="right" style="width:12%">HOURS</th><th class="right" style="width:16%">RATE/HR</th><th class="right" style="width:16%">MATERIALS</th><th class="right" style="width:16%">TOTAL (EX GST)</th></tr></thead><tbody>' +
-      d.variationItems.map(function(v){return '<tr><td>'+v.desc+'</td><td class="right">'+(v.hrs||0)+'</td><td class="right">'+$(v.rate||0)+'</td><td class="right">'+$(v.mat||0)+'</td><td class="right">'+$(v.total||0)+'</td></tr>';}).join('') +
-      '</tbody><tfoot><tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL (EX GST)</td><td class="right">'+$(d.varSubtotal||0)+'</td></tr></tfoot></table>';
-  }
-
-  // Payment stages HTML
-  const paymentStages = Array.isArray(d.paymentStages) && d.paymentStages.length ? d.paymentStages : [];
-  const paymentStagesHTML = paymentStages.map(function(p,i){
-    return '<tr><td class="pay-stage">'+(i+1)+'</td><td><strong>'+(p.title || p.desc || ('Payment Stage '+(i+1)))+'</strong>'+(p.note ? '<br><span class="pay-note">'+p.note+'</span>' : '')+'</td><td class="right">'+$(p.amt||0)+'</td><td class="right">'+(p.pct||0)+'%</td><td class="pay-note">'+(p.due||'')+'</td></tr>';
-  }).join('');
-  const paymentPctTotal = paymentStages.reduce(function(sum,p){ return sum + (parseFloat(p.pct)||0); }, 0);
-
-  // Attachments HTML
-  let attachmentsHTML = '';
-  if (d.attachments && d.attachments.length > 0) {
-    attachmentsHTML = '<div class="page-section"><div class="sec-hd"><div class="sec-num">07B</div><h2>SITE PHOTOS, PLANS & MARKUPS</h2></div>' +
-      '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180pt,1fr));gap:10pt;">' +
-      d.attachments.map(function(att){
-        return att.type === 'application/pdf' ?
-          '<div style="background:#1a1a1a;border:1px solid #333;border-radius:4px;padding:12pt;text-align:center;"><div style="font-size:24pt;color:#c9a84c;margin-bottom:6pt;">PDF</div><div style="font-size:8pt;color:#999;">'+att.name+'</div></div>' :
-          '<div style="border:1px solid #333;border-radius:4px;overflow:hidden;"><img src="'+att.data+'" style="width:100%;height:auto;display:block;"><div style="padding:4pt 8pt;font-size:8pt;color:#999;background:#1a1a1a;">'+att.name+'</div></div>';
-      }).join('') +
-      '</div></div>';
-  }
-
-  // Special conditions HTML
-  let scHTML = '';
-  if (d.specialConditions && d.specialConditions.length > 0) {
-    scHTML = '<div class="page-section"><div class="sec-hd"><div class="sec-num" style="background:#c9a84c;color:#000;">SC</div><h2>SPECIAL CONDITIONS</h2></div>' +
-      d.specialConditions.map(function(c,i){return '<div style="padding:6pt 0;border-bottom:1px solid #333;"><span style="color:#c9a84c;font-weight:700;margin-right:8pt;">SC.'+(i+1)+'</span><span style="color:#fff;">'+c+'</span></div>';}).join('') +
-    '</div>';
-  }
-
-  // View badge
-  let viewBadge = '';
-  if (isClient) {
-    viewBadge = '<div class="view-badge client">CLIENT VIEW</div>';
-  } else if (isInternal) {
-    viewBadge = '<div class="view-badge internal">INTERNAL VIEW</div>';
-  }
-
-  // Build the main quote HTML
-  container.innerHTML = `
-${viewBadge}
-${statusBanner}
-
-<!-- PAGE 1: HEADER + CLIENT DETAILS -->
-<div class="page-section">
-  <div class="doc-header">
-    <div class="header-row">
-      <div class="brand-block">
-        <div class="label">FORMAL QUOTATION</div>
-        <h1>MICRO CEMENT KING</h1>
-        <div class="tagline">Gold Coast's Premium Seamless Surfaces Specialist</div>
-      </div>
-      <div class="contact-block">
-        <div><strong>PHONE</strong> 0468 053 819</div>
-        <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
-        <div><strong>WEB</strong> microcementking.com.au</div>
-        <div><strong>INSTAGRAM</strong> @microcementking</div>
-        <div style="margin-top:6pt;font-size:7.5pt;color:#666;">All prices ex GST unless stated</div>
-      </div>
-    </div>
-    <div class="meta-grid">
-      <div class="meta-cell"><div class="meta-label">QUOTE NUMBER</div><div class="meta-value">${d.quoteNumber}</div></div>
-      <div class="meta-cell"><div class="meta-label">DATE ISSUED</div><div class="meta-value">${d.dateIssued}</div></div>
-      <div class="meta-cell"><div class="meta-label">VALIDITY</div><div class="meta-value">${d.validityLabel}</div></div>
-      <div class="meta-cell"><div class="meta-label">PREPARED BY</div><div class="meta-value">${d.preparedBy}</div></div>
-    </div>
-  </div>
-  <div class="validity-banner">${d.validityBanner}</div>
-  <div class="sec-hd"><div class="sec-num">01</div><h2>CLIENT DETAILS</h2></div>
-  <div class="field-grid">
-    <div class="field"><div class="field-lbl">CLIENT NAME</div><div class="field-val">${d.clientName || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">PROJECT ADDRESS</div><div class="field-val">${d.projectAddress || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">PHONE NUMBER</div><div class="field-val">${d.clientPhone || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">SITE CONTACT</div><div class="field-val">${d.siteContact || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">EMAIL ADDRESS</div><div class="field-val">${d.clientEmail || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">PREPARED BY</div><div class="field-val">${d.preparedBy}</div></div>
-  </div>
-  <div style="height:14pt;"></div>
-  <div class="sec-hd"><div class="sec-num">02</div><h2>PROJECT SCOPE</h2></div>
-  <div class="field-grid">
-    <div class="field"><div class="field-lbl">COLOUR / FINISH</div><div class="field-val">${d.colourFinish || '\u2014'}</div></div>
-    <div class="field"><div class="field-lbl">SUBSTRATE</div><div class="field-val">${d.substrate || '\u2014'}</div></div>
-  </div>
-  <div style="height:8pt;"></div>
-  <div class="field field-full"><div class="field-lbl">SCOPE OF WORKS</div><div class="field-val">${d.scope || '\u2014'}</div></div>
-</div>
-
-<!-- PAGE 2: PRICING -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">03</div><h2>SCOPE OF WORKS & PRICING</h2></div>
-  <table>
-    <thead><tr><th style="width:42%">DESCRIPTION</th><th class="right" style="width:10%">QTY</th><th style="width:12%">UNIT</th><th class="right" style="width:18%">RATE (EX GST)</th><th class="right" style="width:18%">TOTAL (EX GST)</th></tr></thead>
-    <tbody>${(d.lineItems||[]).map(function(l){return '<tr><td>'+l.desc+'</td><td class="right">'+l.qty+'</td><td>'+l.unit+'</td><td class="right">'+$(l.rate)+'</td><td class="right">'+$(l.total)+'</td></tr>';}).join('')}</tbody>
-    <tfoot>
-      <tr><td colspan="4" style="text-align:right;">SUBTOTAL (EX GST)</td><td class="right">${$(d.baseSubtotal || d.subtotal)}</td></tr>
-      ${d.varSubtotal > 0 ? '<tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL</td><td class="right">'+$(d.varSubtotal)+'</td></tr>' : ''}
-      <tr><td colspan="4" style="text-align:right;">GST (10%)</td><td class="right">${$(d.gst)}</td></tr>
-      <tr class="grand-total"><td colspan="4" style="text-align:right;">TOTAL (INC GST)</td><td class="right">${$(d.grandTotal)}</td></tr>
-    </tfoot>
-  </table>
-  <div class="callout"><strong>ON-SITE MEASURE FEE:</strong> A non-refundable on-site measure fee of <strong>$${d.measureFee || 220} ex GST</strong> applies where a site visit is required. This fee is <strong>credited in full against the contract</strong> upon acceptance.</div>
-  ${variationHTML}
-</div>
-
-<!-- PAGE 3: INCLUSIONS & EXCLUSIONS -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">04</div><h2>INCLUSIONS & EXCLUSIONS</h2></div>
-  <div class="inc-exc-grid">
-    <div class="ie-col inc"><h3>INCLUSIONS</h3>${(d.inclusions||[]).map(function(i){return '<div class="ie-item"><span class="tick">\u2713</span>'+i+'</div>';}).join('')}</div>
-    <div class="ie-col exc"><h3>EXCLUSIONS</h3>${(d.exclusions||[]).map(function(e){return '<div class="ie-item"><span class="cross">\u2717</span>'+e+'</div>';}).join('')}</div>
-  </div>
-</div>
-
-<!-- PAGE 4: PAYMENT SCHEDULE -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
-  <table>
-    <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (EX GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
-    <tbody>
-      ${paymentStagesHTML}
-    </tbody>
-    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">${paymentPctTotal}%</td><td></td></tr></tfoot>
-  </table>
-  <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct || 5}% reduction</strong> (capped at $${(d.upfrontDiscCap||1000).toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal || d.subtotal)}</strong>.</div>
-</div>
-
-<!-- PAGE 5: TIMELINE + KEY TERMS -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">06</div><h2>PROJECT TIMELINE</h2></div>
-  <div class="field-grid-3">
-    <div class="field"><div class="field-lbl">ESTIMATED START DATE</div><div class="field-val">${d.startDate || 'TBC'}</div></div>
-    <div class="field"><div class="field-lbl">ESTIMATED DURATION</div><div class="field-val">${d.duration || 'TBC'}</div></div>
-    <div class="field"><div class="field-lbl">ESTIMATED COMPLETION</div><div class="field-val">${d.completion || 'TBC'}</div></div>
-  </div>
-  <div class="callout" style="margin-top:12pt;margin-bottom:18pt;"><strong>TIMELINE NOTE:</strong> Microcement is a multi-coat system requiring full cure time between each coat. Timeline assumes unobstructed site access and standard environmental conditions.</div>
-  <div class="sec-hd"><div class="sec-num">07</div><h2>TERMS & CONDITIONS SUMMARY</h2></div>
-  <div class="tc-grid">
-    <div class="tc-item"><div class="tc-head">Quote Validity</div>This quote is valid for the period stated above from date of issue.</div>
-    <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing. Rate: $${d.variationRate||150}/hr (${d.variationMinHrs||2}-hour minimum).</div>
-    <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
-    <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all Ideal Works, Solidro, and Rusico products are passed through to the client in full.</div>
-    <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
-    <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $${d.overdueAdminFee||220} admin fee. Interest accrues at ${d.overdueInterest||3}% per week from Day 4.</div>
-    <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration.</div>
-    <div class="tc-item"><div class="tc-head">Termination</div>Either party may terminate with written notice. All completed work is payable immediately upon termination.</div>
-    <div class="tc-item"><div class="tc-head">Colour & Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions.</div>
-    <div class="tc-item"><div class="tc-head">Substrate Responsibility</div>The client is responsible for ensuring the substrate is structurally sound prior to commencement.</div>
-  </div>
-  <div class="callout" style="margin-top:12pt;"><strong>FULL TERMS & CONDITIONS:</strong> The above is a summary only. Full Payment Terms & Conditions are set out in the companion document.</div>
-</div>
-
-${attachmentsHTML}
-${scHTML}
-
-<!-- PAGE 6: SIGNATURES -->
-<div class="page-section">
-  <div class="sec-hd"><div class="sec-num">08</div><h2>ACCEPTANCE & SIGNATURE</h2></div>
-  <div class="callout" style="margin-bottom:18pt;"><strong>HOW TO ACCEPT:</strong> Click "Accept & Sign" below, sign digitally, and pay the booking deposit to confirm your start date.</div>
-  <div class="sig-grid">
-    <div class="sig-block">
-      <div class="sig-label">CLIENT SIGNATURE</div>
-      <div class="sig-line" id="client-sig-line">${d.sigDataURL ? '<img src="'+d.sigDataURL+'" alt="Client Signature">' : (d.clientAcceptedSignature ? '<img src="'+d.clientAcceptedSignature+'" alt="Client Signature">' : '')}</div>
-      <div class="sig-sub">Full Name: <strong style="color:#fff;" id="client-full-name">${d.clientTypedName || d.clientName || '___________________________'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Print Name: <strong style="color:#fff;">${d.clientPrintName || '___________________________'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;"><span id="client-sig-date">${d.clientSigDate ? formatDateForPDF(d.clientSigDate) : (d.clientAcceptedAt ? new Date(d.clientAcceptedAt).toLocaleDateString('en-AU') : '___________________________')}</span></strong></div>
-    </div>
-    <div class="sig-block">
-      <div class="sig-label">MICRO CEMENT KING — AUTHORISED SIGNATORY</div>
-      <div class="sig-line">${d.mckSigDataURL ? '<img src="'+d.mckSigDataURL+'" alt="MCK Signature">' : ''}</div>
-      <div class="sig-sub">Name: <strong style="color:#fff;">${d.mckTypedName || 'King Mannion'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Title: <strong style="color:#fff;">${d.mckTypedTitle || 'Director'}</strong></div>
-      <div class="sig-sub" style="margin-top:4pt;">Date: <strong style="color:#fff;">${d.mckSigDate ? formatDateForPDF(d.mckSigDate) : '___________________________'}</strong></div>
-    </div>
-  </div>
-  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms & Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by both parties and the booking deposit is received.</div>
+  <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms & Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by the client and the booking deposit is received.</div>
   <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</div>
 </div>
 

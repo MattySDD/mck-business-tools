@@ -422,17 +422,44 @@ body {
 
 /* ═══ INCLUSIONS / EXCLUSIONS ═══ */
 .inc-exc { display:grid; grid-template-columns:1fr 1fr; gap:30px; }
+.ie-col-head { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:12px; }
 .inc-col h4, .exc-col h4 {
   font-size:11px; font-weight:800; letter-spacing:1.5px;
-  text-transform:uppercase; color:var(--gold); margin-bottom:12px;
+  text-transform:uppercase; color:var(--gold); margin:0;
 }
-.ie-list { list-style:none; padding:0; }
-.ie-list li {
-  font-size:11px; margin-bottom:8px; color:var(--text-secondary);
-  position:relative; padding-left:18px; line-height:1.6;
+.ie-add-btn {
+  background:none; border:1px solid var(--gold-dark); color:var(--gold);
+  padding:7px 10px; font-family:inherit; font-size:9px; font-weight:800;
+  letter-spacing:1px; text-transform:uppercase; cursor:pointer; border-radius:3px;
 }
-.inc-col .ie-list li::before { content:"✓"; position:absolute; left:0; color:var(--green); font-weight:900; }
-.exc-col .ie-list li::before { content:"×"; position:absolute; left:0; color:var(--red); font-weight:900; }
+.ie-add-btn:hover { background:var(--gold); color:var(--black); border-color:var(--gold); }
+.ie-list { list-style:none; padding:0; margin:0; }
+.ie-list li,
+.ie-row {
+  display:grid; grid-template-columns:28px 1fr auto; align-items:start; gap:8px;
+  font-size:11px; margin-bottom:8px; color:var(--text-secondary); line-height:1.6;
+}
+.ie-toggle,
+.ie-print-marker {
+  width:22px; height:22px; display:inline-flex; align-items:center; justify-content:center;
+  border-radius:50%; font-weight:900; line-height:1; flex:0 0 auto;
+}
+.ie-toggle {
+  border:1px solid var(--border); background:var(--dark); cursor:pointer; font-family:inherit;
+}
+.ie-row[data-enabled="true"] .ie-toggle,
+.ie-row[data-enabled="true"] .ie-print-marker { color:var(--green); border-color:var(--green); }
+.ie-row[data-enabled="false"] .ie-toggle,
+.ie-row[data-enabled="false"] .ie-print-marker { color:var(--red); border-color:var(--red); }
+.ie-text { min-height:20px; outline:none; }
+.ie-text:focus { color:var(--gold); outline:1px solid var(--gold); outline-offset:2px; border-radius:2px; }
+.ie-delete {
+  background:none; border:1px solid var(--border); color:var(--text-secondary);
+  padding:4px 8px; font-family:inherit; font-size:8px; font-weight:800;
+  letter-spacing:0.8px; text-transform:uppercase; cursor:pointer; border-radius:3px;
+}
+.ie-delete:hover { border-color:var(--red); color:var(--red); }
+.ie-print-marker { display:none; }
 
 /* ═══ PAYMENT TABLE ═══ */
 .payment-table { width:100%; border-collapse:collapse; border:1px solid var(--border); }
@@ -992,10 +1019,6 @@ body {
 }
 .quote-history-table .qh-btn:hover { opacity: 0.85; }
 
-/* ═══ MCK SIGNATURE BLOCK ═══ */
-#q-mck-sig-block .digital-sig-title { color: var(--gold); }
-#q-mck-sig-block .digital-sig-subtitle { color: var(--text-secondary); }
-
 /* ═══ SHARE LINK MODAL ═══ */
 .share-modal-overlay {
   position: fixed; top: 0; left: 0; right: 0; bottom: 0;
@@ -1067,6 +1090,9 @@ button { font-family:'Inter',sans-serif; }
   .digital-sig-block,
   .btn-remove-line,
   .add-line-btn,
+  .ie-add-btn,
+  .ie-toggle,
+  .ie-delete,
   #intake-start-btn,
   #intake-mic-btn,
   #speak-toggle-btn,
@@ -1299,11 +1325,31 @@ button { font-family:'Inter',sans-serif; }
   }
 
   .inc-block li,
-  .exc-block li {
+  .exc-block li,
+  .ie-list li {
     color: #ffffff !important;
     font-size: 8.5pt !important;
     margin-bottom: 3pt !important;
   }
+  .ie-row {
+    display: grid !important;
+    grid-template-columns: 14pt 1fr !important;
+    gap: 5pt !important;
+    align-items: start !important;
+    padding-left: 0 !important;
+  }
+
+  .ie-print-marker {
+    display: inline-flex !important;
+    width: 12pt !important;
+    height: 12pt !important;
+    border: none !important;
+    font-size: 9pt !important;
+  }
+
+  .ie-row[data-enabled="true"] .ie-print-marker { color: #27AE60 !important; }
+  .ie-row[data-enabled="false"] .ie-print-marker { color: #ff6b6b !important; }
+
 
   /* ── Payment schedule ── */
   .payment-row {
