@@ -103,6 +103,7 @@ function initQuote() {
   if (dateEl) dateEl.textContent = dateStr;
 
   updateQuoteValidity();
+  initPaymentStages();
 
   if (document.getElementById('q-pricing-body').children.length === 0) {
     addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
@@ -255,18 +256,9 @@ function updateQuoteTotals() {
   const upfrontDiscCap = s('upfront_reduction_cap') || 1000;
 
   const depositPct = subtotal > threshold ? depOver : depUnder;
-  const depositAmt = subtotal * (depositPct / 100);
-  const materialAmt = subtotal * (matPct / 100);
-  const finalPct = 100 - depositPct - matPct;
-  const finalAmt = subtotal - depositAmt - materialAmt;
 
-  document.getElementById('q-deposit-amt').textContent = '$' + depositAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('q-deposit-pct').textContent = depositPct + '%';
-  document.getElementById('q-material-amt').textContent = '$' + materialAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-  document.getElementById('q-payment-total').textContent = '$' + subtotal.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
-
-  // Recalculate progress payment rows if toggle is on
-  updateProgressPaymentAmounts(subtotal, depositPct, matPct);
+  // Recalculate editable payment schedule rows. Subtotal remains ex GST.
+  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
 
   // Credit limit warning
   const creditWarn = document.getElementById('q-credit-warning');
@@ -287,109 +279,27 @@ function updateQuoteTotals() {
     upfrontEl.innerHTML = `<strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${upfrontDiscPct}% reduction</strong> (capped at $${upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront prior to commencement. Upfront price: <strong>$${discTotal.toLocaleString(undefined, {minimumFractionDigits:2})}</strong> (saving $${disc.toLocaleString(undefined, {minimumFractionDigits:2})}).`;
   }
 
-  if (subtotal === 0) {
-    ['q-deposit-amt','q-material-amt','q-payment-total'].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.textContent = '—';
-    });
-    const depPctEl = document.getElementById('q-deposit-pct');
-    if (depPctEl) depPctEl.textContent = '—';
-  }
 }
+
 
 
 // ═══════════════════════════════════════════════════════════
-// PROGRESS PAYMENT TOGGLE
+// EDITABLE PAYMENT SCHEDULE
 // ═══════════════════════════════════════════════════════════
 
-function toggleProgressPayment() {
-  const toggle = document.getElementById('q-progress-toggle');
-  const track = document.getElementById('q-progress-toggle-track');
-  const thumb = document.getElementById('q-progress-toggle-thumb');
-  const addWrap = document.getElementById('q-add-progress-wrap');
-  const isOn = toggle && toggle.checked;
+const PAYMENT_STAGE_MIN = 2;
+const PAYMENT_STAGE_MAX = 5;
 
-  if (track) track.style.background = isOn ? '#c9a84c' : '#333';
-  if (thumb) { thumb.style.background = isOn ? '#000' : '#666'; thumb.style.left = isOn ? '22px' : '2px'; }
-  if (addWrap) addWrap.style.display = isOn ? 'block' : 'none';
-
-  if (isOn) {
-    // Add default progress payment row if none exist
-    const existing = document.querySelectorAll('.q-progress-row');
-    if (existing.length === 0) addProgressPaymentRow();
-  } else {
-    // Remove all progress rows
-    document.querySelectorAll('.q-progress-row').forEach(r => r.remove());
-    renumberPaymentRows();
-  }
-
-  // Trigger recalc
-  updateQuoteTotals();
+function formatMoney(value) {
+  const num = parseFloat(value) || 0;
+  return '$' + num.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function addProgressPaymentRow(pct) {
-  const body = document.getElementById('q-payment-body');
-  const finalRow = document.getElementById('q-pay-row-final');
-  if (!body || !finalRow) return;
-
-  const rowCount = document.querySelectorAll('.q-progress-row').length;
-  const defaultPct = pct || 25;
-  const rowId = 'q-progress-row-' + Date.now();
-
-  const tr = document.createElement('tr');
-  tr.className = 'q-progress-row';
-  tr.id = rowId;
-  tr.innerHTML = `
-    <td class="stage-num" id="stage-num-${rowId}">—</td>
-    <td>
-      <strong>Progress Payment ${rowCount + 1}</strong><br>
-      <input type="text" value="Mid-job progress claim" style="background:#1a1a1a;border:1px solid #444;color:#fff;padding:3px 6px;font-size:11px;width:180px;border-radius:3px;" class="prog-desc" oninput="">
-    </td>
-    <td id="prog-amt-${rowId}">—</td>
-    <td>
-      <input type="number" value="${defaultPct}" min="1" max="90" step="1" class="prog-pct-input" style="width:55px;background:#1a1a1a;border:1px solid #c9a84c;color:#c9a84c;padding:3px 6px;font-size:12px;font-weight:700;border-radius:3px;text-align:center;" onchange="balanceProgressPayments()" oninput="balanceProgressPayments()">
-      <span style="color:#888;font-size:11px;">%</span>
-    </td>
-    <td style="font-style:italic;color:var(--grey-mid);">On milestone</td>
-    <td class="no-print"><button onclick="removeProgressRow('${rowId}')" style="background:transparent;border:1px solid #666;color:#666;padding:2px 8px;border-radius:3px;cursor:pointer;font-size:11px;">&times;</button></td>
-  `;
-
-  // Insert before final row
-  body.insertBefore(tr, finalRow);
-  renumberPaymentRows();
-  balanceProgressPayments();
-}
-
-function removeProgressRow(rowId) {
-  const row = document.getElementById(rowId);
-  if (row) row.remove();
-  renumberPaymentRows();
-  balanceProgressPayments();
-}
-
-function renumberPaymentRows() {
-  const body = document.getElementById('q-payment-body');
-  if (!body) return;
-  const rows = body.querySelectorAll('tr');
-  let num = 1;
-  rows.forEach(row => {
-    const stageCell = row.querySelector('.stage-num');
-    if (stageCell) { stageCell.textContent = num; num++; }
-  });
-}
-
-function balanceProgressPayments() {
-  const s = typeof getSetting === 'function' ? getSetting : (k => null);
-  const threshold = s('deposit_threshold') || 20000;
-  const depOver = s('deposit_pct_over') || 5;
-  const depUnder = s('deposit_pct_under') || 10;
-  const matPct = s('material_pct') || 50;
-
-  // Get current subtotal
+function getQuoteSubtotalForPayments() {
   let subtotal = 0;
   document.querySelectorAll('.q-line-item').forEach(line => {
-    const qty = parseFloat(line.querySelector('.qty').value) || 0;
-    const rate = parseFloat(line.querySelector('.rate').value) || 0;
+    const qty = parseFloat(line.querySelector('.qty')?.value) || 0;
+    const rate = parseFloat(line.querySelector('.rate')?.value) || 0;
     subtotal += qty * rate;
   });
   document.querySelectorAll('.q-variation-item').forEach(row => {
@@ -398,66 +308,294 @@ function balanceProgressPayments() {
     const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
     subtotal += (hrs * rate) + mat;
   });
-
-  const depositPct = subtotal > threshold ? depOver : depUnder;
-  updateProgressPaymentAmounts(subtotal, depositPct, matPct);
+  return subtotal;
 }
 
-function updateProgressPaymentAmounts(subtotal, depositPct, matPct) {
-  const toggle = document.getElementById('q-progress-toggle');
-  const progressRows = document.querySelectorAll('.q-progress-row');
-  const hasProgress = toggle && toggle.checked && progressRows.length > 0;
+function initPaymentStages() {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  body.querySelectorAll('.q-payment-stage-row').forEach(row => {
+    if (!row.dataset.stageType) row.dataset.stageType = 'progress';
+  });
+  renumberPaymentRows();
+  updateAddPaymentButtonState();
+}
 
-  if (!hasProgress) {
-    // Standard 3-row schedule
-    const finalPct = 100 - depositPct - matPct;
-    const finalAmt = subtotal * (finalPct / 100);
-    const finalAmtEl = document.getElementById('q-final-amt');
-    const finalPctEl = document.getElementById('q-final-pct');
-    if (finalAmtEl) finalAmtEl.textContent = subtotal > 0 ? '$' + finalAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-    if (finalPctEl) finalPctEl.textContent = subtotal > 0 ? finalPct + '%' : '—';
-    const pctTotalEl = document.getElementById('q-payment-pct-total');
-    if (pctTotalEl) pctTotalEl.textContent = '100%';
+function escapeAttr(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function roundPct(value) {
+  const n = parseFloat(value) || 0;
+  return (Math.round(n * 100) / 100).toString();
+}
+
+function createPaymentStageRow(stage = {}) {
+  const tr = document.createElement('tr');
+  const type = stage.type || 'progress';
+  tr.className = 'q-payment-stage-row' + (type === 'progress' ? ' q-progress-row' : '');
+  tr.dataset.stageType = type;
+  if (stage.autoPct) tr.dataset.autoPct = stage.autoPct;
+  if (stage.manualPct) tr.dataset.manualPct = 'true';
+  if (stage.id) tr.id = stage.id;
+
+  const title = stage.title || stage.desc || 'Progress Payment';
+  const note = stage.note || (type === 'progress' ? 'Progress payment on milestone' : '');
+  const due = stage.due || (type === 'progress' ? 'On milestone' : '');
+  const pct = Number.isFinite(parseFloat(stage.pct)) ? parseFloat(stage.pct) : 0;
+  const amt = Number.isFinite(parseFloat(stage.amt)) ? parseFloat(stage.amt) : 0;
+
+  tr.innerHTML = `
+    <td class="stage-num">—</td>
+    <td><input type="text" class="payment-stage-title" value="${escapeAttr(title)}" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="${escapeAttr(note)}" oninput="updatePaymentStageData()"></td>
+    <td><input type="number" class="payment-stage-amount" value="${amt.toFixed(2)}" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+    <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="${roundPct(pct)}" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
+    <td><input type="text" class="payment-stage-due" value="${escapeAttr(due)}" oninput="updatePaymentStageData()"></td>
+    <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
+  `;
+  return tr;
+}
+
+function toggleProgressPayment() {
+  const toggle = document.getElementById('q-progress-toggle');
+  const isOn = toggle && toggle.checked;
+  syncProgressToggleUI();
+
+  if (isOn) {
+    const rows = document.querySelectorAll('.q-payment-stage-row');
+    const existingProgress = document.querySelectorAll('.q-progress-row');
+    if (existingProgress.length === 0 && rows.length < PAYMENT_STAGE_MAX) addProgressPaymentRow();
+  } else {
+    document.querySelectorAll('.q-progress-row').forEach(row => {
+      if (document.querySelectorAll('.q-payment-stage-row').length > PAYMENT_STAGE_MIN) row.remove();
+    });
+    updateQuoteTotals();
+  }
+}
+
+function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milestone') {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  const rows = body.querySelectorAll('.q-payment-stage-row');
+  if (rows.length >= PAYMENT_STAGE_MAX) {
+    alert('Maximum 5 payment stages allowed.');
+    updateAddPaymentButtonState();
     return;
   }
 
-  // Progress payment schedule: sum all progress row percentages
-  let totalProgressPct = 0;
-  progressRows.forEach(row => {
-    const inp = row.querySelector('.prog-pct-input');
-    totalProgressPct += parseFloat(inp?.value) || 0;
+  const subtotal = getQuoteSubtotalForPayments();
+  const currentPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
+  const defaultPct = Number.isFinite(parseFloat(pct)) ? parseFloat(pct) : Math.max(0, Math.round((100 - currentPct) * 100) / 100);
+  const tr = createPaymentStageRow({
+    type: 'progress',
+    title: desc || 'Progress Payment',
+    note: 'Progress payment on milestone',
+    due,
+    pct: defaultPct,
+    amt: subtotal * (defaultPct / 100),
+    manualPct: true,
+    id: 'q-progress-row-' + Date.now()
   });
 
-  // Final pct = 100 - deposit - material - all progress
-  const finalPct = Math.max(0, 100 - depositPct - matPct - totalProgressPct);
-  const finalAmt = subtotal * (finalPct / 100);
+  const finalRow = body.querySelector('[data-stage-type="final"]');
+  if (finalRow) body.insertBefore(tr, finalRow);
+  else body.appendChild(tr);
 
-  // Update progress row amounts
-  progressRows.forEach(row => {
-    const inp = row.querySelector('.prog-pct-input');
-    const pct = parseFloat(inp?.value) || 0;
-    const amt = subtotal * (pct / 100);
-    const amtId = row.id ? 'prog-amt-' + row.id : null;
-    if (amtId) {
-      const amtEl = document.getElementById(amtId);
-      if (amtEl) amtEl.textContent = subtotal > 0 ? '$' + amt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-    }
-  });
-
-  const finalAmtEl = document.getElementById('q-final-amt');
-  const finalPctEl = document.getElementById('q-final-pct');
-  if (finalAmtEl) finalAmtEl.textContent = subtotal > 0 ? '$' + finalAmt.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
-  if (finalPctEl) finalPctEl.textContent = subtotal > 0 ? finalPct + '%' : '—';
-
-  // Show total pct
-  const totalPct = depositPct + matPct + totalProgressPct + finalPct;
-  const pctTotalEl = document.getElementById('q-payment-pct-total');
-  if (pctTotalEl) {
-    pctTotalEl.textContent = Math.round(totalPct) + '%';
-    pctTotalEl.style.color = Math.round(totalPct) === 100 ? '#c9a84c' : '#ff4444';
-  }
+  const toggle = document.getElementById('q-progress-toggle');
+  if (toggle) toggle.checked = document.querySelectorAll('.q-progress-row').length > 0;
+  syncProgressToggleUI();
+  updateQuoteTotals();
 }
 
+function removePaymentStage(button) {
+  const rows = document.querySelectorAll('.q-payment-stage-row');
+  if (rows.length <= PAYMENT_STAGE_MIN) {
+    alert('Minimum 2 payment stages required.');
+    return;
+  }
+  const row = button.closest('.q-payment-stage-row');
+  if (row) row.remove();
+  const toggle = document.getElementById('q-progress-toggle');
+  if (toggle) toggle.checked = document.querySelectorAll('.q-progress-row').length > 0;
+  syncProgressToggleUI();
+  updateQuoteTotals();
+}
+
+function removeProgressRow(rowId) {
+  const row = document.getElementById(rowId);
+  if (!row) return;
+  if (document.querySelectorAll('.q-payment-stage-row').length <= PAYMENT_STAGE_MIN) {
+    alert('Minimum 2 payment stages required.');
+    return;
+  }
+  row.remove();
+  updateQuoteTotals();
+}
+
+function handlePaymentPctInput(input) {
+  const row = input.closest('.q-payment-stage-row');
+  if (row) {
+    row.dataset.manualPct = 'true';
+    const subtotal = getQuoteSubtotalForPayments();
+    const pct = parseFloat(input.value) || 0;
+    const amount = row.querySelector('.payment-stage-amount');
+    if (amount) amount.value = subtotal > 0 ? (subtotal * pct / 100).toFixed(2) : '0.00';
+  }
+  updatePaymentStageData();
+}
+
+function handlePaymentAmountInput(input) {
+  const row = input.closest('.q-payment-stage-row');
+  if (row) {
+    row.dataset.manualPct = 'true';
+    const subtotal = getQuoteSubtotalForPayments();
+    const amount = parseFloat(input.value) || 0;
+    const pctInput = row.querySelector('.payment-stage-pct');
+    if (pctInput) pctInput.value = subtotal > 0 ? roundPct((amount / subtotal) * 100) : '0';
+  }
+  updatePaymentStageData();
+}
+
+function updatePaymentStageData() {
+  updatePaymentScheduleFromTotals(getQuoteSubtotalForPayments());
+}
+
+function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMaterialPct) {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  const rows = Array.from(body.querySelectorAll('.q-payment-stage-row'));
+
+  rows.forEach(row => {
+    const pctInput = row.querySelector('.payment-stage-pct');
+    const amountInput = row.querySelector('.payment-stage-amount');
+    if (!pctInput || !amountInput) return;
+
+    if (row.dataset.manualPct !== 'true') {
+      if (row.dataset.autoPct === 'deposit' && Number.isFinite(parseFloat(defaultDepositPct))) {
+        pctInput.value = roundPct(defaultDepositPct);
+      } else if (row.dataset.autoPct === 'material' && Number.isFinite(parseFloat(defaultMaterialPct))) {
+        pctInput.value = roundPct(defaultMaterialPct);
+      } else if (row.dataset.autoPct === 'final') {
+        const otherPct = rows.filter(r => r !== row).reduce((sum, r) => sum + (parseFloat(r.querySelector('.payment-stage-pct')?.value) || 0), 0);
+        pctInput.value = roundPct(Math.max(0, 100 - otherPct));
+      }
+    }
+
+    const pct = parseFloat(pctInput.value) || 0;
+    amountInput.value = subtotal > 0 ? (subtotal * pct / 100).toFixed(2) : '0.00';
+  });
+
+  const totalPct = rows.reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
+  const totalAmt = rows.reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-amount')?.value) || 0), 0);
+
+  const totalEl = document.getElementById('q-payment-total');
+  if (totalEl) totalEl.textContent = subtotal > 0 ? formatMoney(subtotal) : '—';
+
+  const pctTotalEl = document.getElementById('q-payment-pct-total');
+  if (pctTotalEl) {
+    pctTotalEl.textContent = roundPct(totalPct) + '%';
+    const isBalanced = Math.abs(totalPct - 100) < 0.01 || subtotal === 0;
+    pctTotalEl.style.color = isBalanced ? '#c9a84c' : '#ff4444';
+    pctTotalEl.title = isBalanced ? 'Payment percentages equal 100%' : 'Payment percentages should equal 100%';
+  }
+
+  renumberPaymentRows();
+  updateAddPaymentButtonState();
+  return { totalPct, totalAmt };
+}
+
+function updateProgressPaymentAmounts(subtotal, depositPct, matPct) {
+  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
+}
+
+function balanceProgressPayments() {
+  updateQuoteTotals();
+}
+
+function renumberPaymentRows() {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  const rows = body.querySelectorAll('.q-payment-stage-row');
+  rows.forEach((row, idx) => {
+    const stageCell = row.querySelector('.stage-num');
+    if (stageCell) stageCell.textContent = idx + 1;
+  });
+  updateAddPaymentButtonState();
+}
+
+function updateAddPaymentButtonState() {
+  const rows = document.querySelectorAll('.q-payment-stage-row');
+  const addBtn = document.getElementById('q-add-progress-btn');
+  const limit = document.getElementById('q-payment-stage-limit');
+  if (addBtn) {
+    addBtn.disabled = rows.length >= PAYMENT_STAGE_MAX;
+    addBtn.textContent = rows.length >= PAYMENT_STAGE_MAX ? 'MAX 5 PAYMENT STAGES' : '+ ADD PAYMENT STAGE';
+  }
+  if (limit) {
+    const totalPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
+    limit.textContent = `${rows.length}/${PAYMENT_STAGE_MAX} stages. Total ${roundPct(totalPct)}% — edit amount or percentage as needed.`;
+    limit.style.color = Math.abs(totalPct - 100) < 0.01 ? '#888' : '#ff7777';
+  }
+  rows.forEach(row => {
+    const btn = row.querySelector('.payment-stage-remove');
+    if (btn) btn.disabled = rows.length <= PAYMENT_STAGE_MIN;
+  });
+}
+
+function syncProgressToggleUI() {
+  const toggle = document.getElementById('q-progress-toggle');
+  const track = document.getElementById('q-progress-toggle-track');
+  const thumb = document.getElementById('q-progress-toggle-thumb');
+  const isOn = toggle && toggle.checked;
+  if (track) track.style.background = isOn ? '#c9a84c' : '#333';
+  if (thumb) { thumb.style.background = isOn ? '#000' : '#666'; thumb.style.left = isOn ? '22px' : '2px'; }
+}
+
+function getPaymentStagesData(subtotalOverride) {
+  const subtotal = Number.isFinite(parseFloat(subtotalOverride)) ? parseFloat(subtotalOverride) : getQuoteSubtotalForPayments();
+  return Array.from(document.querySelectorAll('.q-payment-stage-row')).map((row, index) => {
+    const pct = parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0;
+    const amtInput = parseFloat(row.querySelector('.payment-stage-amount')?.value);
+    const amt = Number.isFinite(amtInput) ? amtInput : subtotal * (pct / 100);
+    return {
+      stage: index + 1,
+      type: row.dataset.stageType || 'progress',
+      title: row.querySelector('.payment-stage-title')?.value?.trim() || `Payment Stage ${index + 1}`,
+      desc: row.querySelector('.payment-stage-title')?.value?.trim() || `Payment Stage ${index + 1}`,
+      note: row.querySelector('.payment-stage-note')?.value?.trim() || '',
+      due: row.querySelector('.payment-stage-due')?.value?.trim() || '',
+      pct: Math.round(pct * 100) / 100,
+      amt: Math.round(amt * 100) / 100
+    };
+  });
+}
+
+function setPaymentStagesFromData(d = {}) {
+  const body = document.getElementById('q-payment-body');
+  if (!body) return;
+  let stages = Array.isArray(d.paymentStages) && d.paymentStages.length ? d.paymentStages : null;
+
+  if (!stages) {
+    stages = [];
+    if (d.depositPct != null || d.depositAmt != null) stages.push({ type:'deposit', title:'Booking Deposit', note:'Secures your place in the schedule', due:'On acceptance', pct:d.depositPct || 10, amt:d.depositAmt || 0, autoPct:'deposit' });
+    if (d.matPct != null || d.materialAmt != null) stages.push({ type:'material', title:'Material Payment', note:'Works do not start until paid', due:'Prior to start date', pct:d.matPct || 50, amt:d.materialAmt || 0, autoPct:'material' });
+    (d.progressPayments || []).forEach(p => stages.push({ type:'progress', title:p.title || p.desc || 'Progress Payment', note:p.note || 'Progress payment on milestone', due:p.due || 'On milestone', pct:p.pct || 0, amt:p.amt || 0, manualPct:true }));
+    stages.push({ type:'final', title:'Final Claim', note:'On practical completion and sign-off', due:'Within 3 business days', pct:d.finalPct || 0, amt:d.finalAmt || 0, autoPct:'final' });
+  }
+
+  stages = stages.slice(0, PAYMENT_STAGE_MAX);
+  if (stages.length < PAYMENT_STAGE_MIN) return;
+  body.innerHTML = '';
+  stages.forEach(stage => body.appendChild(createPaymentStageRow({ ...stage, manualPct: true, autoPct: stage.autoPct })));
+  const toggle = document.getElementById('q-progress-toggle');
+  if (toggle) toggle.checked = document.querySelectorAll('.q-progress-row').length > 0;
+  syncProgressToggleUI();
+  updateQuoteTotals();
+}
 
 // ═══════════════════════════════════════════════════════════
 // EDITABLE INCLUSIONS / EXCLUSIONS
@@ -771,25 +909,17 @@ function extractQuoteData() {
   const overdueInterest = st('overdue_interest_pct_week') || 3;
   const measureFee = st('measure_fee') || 220;
 
-  const depositPct = subtotal > threshold ? depOver : depUnder;
-  const depositAmt = subtotal * (depositPct / 100);
-  const materialAmt = subtotal * (matPct / 100);
-
-  // Progress payment rows
-  const progressToggle = document.getElementById('q-progress-toggle');
-  const hasProgress = progressToggle && progressToggle.checked;
-  const progressPayments = [];
-  if (hasProgress) {
-    document.querySelectorAll('.q-progress-row').forEach(row => {
-      const desc = row.querySelector('.prog-desc')?.value || 'Progress Payment';
-      const pct = parseFloat(row.querySelector('.prog-pct-input')?.value) || 0;
-      const amt = subtotal * (pct / 100);
-      progressPayments.push({ desc, pct, amt });
-    });
-  }
-  const totalProgressPct = progressPayments.reduce((s, p) => s + p.pct, 0);
-  const finalPct = Math.max(0, 100 - depositPct - matPct - totalProgressPct);
-  const finalAmt = subtotal * (finalPct / 100);
+  const paymentStages = getPaymentStagesData(subtotal);
+  let progressPayments = paymentStages.filter(p => p.type === 'progress');
+  const fallbackDepositPct = subtotal > threshold ? depOver : depUnder;
+  const depositStage = paymentStages[0] || {};
+  const materialStage = paymentStages.find(p => p.type === 'material') || paymentStages[1] || {};
+  const finalStage = [...paymentStages].reverse().find(p => p.type === 'final') || paymentStages[paymentStages.length - 1] || {};
+  const depositPct = depositStage.pct ?? fallbackDepositPct;
+  const depositAmt = depositStage.amt ?? subtotal * (depositPct / 100);
+  const materialAmt = materialStage.amt ?? subtotal * (matPct / 100);
+  const finalPct = finalStage.pct ?? Math.max(0, 100 - depositPct - matPct);
+  const finalAmt = finalStage.amt ?? subtotal * (finalPct / 100);
   const upfrontDisc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
   const upfrontTotal = subtotal - upfrontDisc;
 
@@ -833,7 +963,7 @@ function extractQuoteData() {
     colourFinish, substrate, scope, startDate, duration, completion,
     lineItems, variationItems, subtotal, gst, grandTotal, baseSubtotal, varSubtotal,
     depositPct, depositAmt, materialAmt, finalPct, finalAmt, matPct,
-    progressPayments,
+    progressPayments, paymentStages,
     creditLimit, upfrontDiscPct, upfrontDiscCap, upfrontDisc, upfrontTotal,
     variationRate, variationMinHrs, variationMatAllowance,
     overdueAdminFee, overdueInterest, measureFee,
@@ -850,8 +980,30 @@ function extractQuoteData() {
 // BUILD STATIC QUOTE HTML (shared by PDF and Share)
 // ═══════════════════════════════════════════════════════════
 
+
+function getPrintablePaymentStages(d) {
+  if (Array.isArray(d.paymentStages) && d.paymentStages.length) {
+    return d.paymentStages.slice(0, PAYMENT_STAGE_MAX).map((p, i) => ({
+      stage: i + 1,
+      type: p.type || 'progress',
+      title: p.title || p.desc || `Payment Stage ${i + 1}`,
+      desc: p.desc || p.title || `Payment Stage ${i + 1}`,
+      note: p.note || '',
+      due: p.due || '',
+      pct: parseFloat(p.pct) || 0,
+      amt: parseFloat(p.amt) || 0
+    }));
+  }
+  return [
+    { type:'deposit', title:'Booking Deposit', note:'Secures your place in the schedule', due:'On acceptance', pct:d.depositPct || 0, amt:d.depositAmt || 0 },
+    { type:'material', title:'Material Payment', note:'Works do not start until paid', due:'Prior to start date', pct:d.matPct || 0, amt:d.materialAmt || 0 },
+    ...(d.progressPayments || []).map(p => ({ type:'progress', title:p.title || p.desc || 'Progress Payment', note:p.note || 'Progress payment on milestone', due:p.due || 'On milestone', pct:p.pct || 0, amt:p.amt || 0 })),
+    { type:'final', title:'Final Claim', note:'On practical completion and sign-off', due:'Within 3 business days', pct:d.finalPct || 0, amt:d.finalAmt || 0 }
+  ].slice(0, PAYMENT_STAGE_MAX);
+}
+
 function buildQuoteHTML(d, options = {}) {
-  const $ = v => '$' + v.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
+  const $ = v => '$' + (parseFloat(v) || 0).toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
   const showAcceptBtn = options.showAcceptBtn || false;
   const showPrintBtn = options.showPrintBtn || false;
   const isExpired = options.isExpired || false;
@@ -877,6 +1029,11 @@ function buildQuoteHTML(d, options = {}) {
     </table>
     <div class="callout" style="margin-top:10pt;"><strong>VARIATION TERMS:</strong> All variations are charged at $${d.variationRate}/hr (${d.variationMinHrs}-hour minimum) plus materials at cost + ${d.variationMatAllowance ? '$' + d.variationMatAllowance + ' allowance' : 'cost'}. Variations must be agreed in writing before work commences.</div>`;
   }
+
+  const paymentStages = getPrintablePaymentStages(d);
+  const paymentPctTotal = paymentStages.reduce((sum, stage) => sum + (parseFloat(stage.pct) || 0), 0);
+  const paymentStagesHTML = paymentStages.map((stage, i) => `
+      <tr><td class="pay-stage">${i + 1}</td><td><div class="pay-stage">${stage.title || 'Payment Stage'}</div><div class="pay-note">${stage.note || ''}</div></td><td class="right">${$(stage.amt)}</td><td class="right">${roundPct(stage.pct)}%</td><td>${stage.due || 'TBC'}</td></tr>`).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1075,16 +1232,11 @@ ${statusBanner}
 <!-- PAGE 4: PAYMENT SCHEDULE -->
 <div class="page-section">
   <div class="sec-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
-  <div class="callout" style="margin-bottom:14pt;"><strong>PAYMENT STRUCTURE:</strong> Booking deposit is <strong>${d.depositPct}%</strong> ${d.subtotal > (d.creditLimit || 20000) ? '(contract exceeds credit limit)' : d.subtotal > 20000 ? '(contract value exceeds $20,000)' : '(contract value under $20,000)'}. Material payment is due before commencement.</div>
+  <div class="callout" style="margin-bottom:14pt;"><strong>PAYMENT STRUCTURE:</strong> Payment stages are editable and agreed per quote. Booking deposit is <strong>${d.depositPct}%</strong> by default ${d.subtotal > (d.creditLimit || 20000) ? '(contract exceeds credit limit)' : d.subtotal > 20000 ? '(contract value exceeds $20,000)' : '(contract value under $20,000)'}. Material payment is due before commencement unless edited below.</div>
   <table>
     <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (EX GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
-    <tbody>
-      <tr><td class="pay-stage">1</td><td><strong>Booking Deposit</strong><br><span class="pay-note">Secures your place in the schedule</span></td><td class="right">${$(d.depositAmt)}</td><td class="right">${d.depositPct}%</td><td class="pay-note">On acceptance</td></tr>
-      <tr><td class="pay-stage">2</td><td><strong>Material Payment</strong><br><span class="pay-note">Works do not start until paid</span></td><td class="right">${$(d.materialAmt)}</td><td class="right">${d.matPct}%</td><td class="pay-note">Prior to start date</td></tr>
-      ${(d.progressPayments||[]).map((p,i) => `<tr><td class="pay-stage">${3+i}</td><td><strong>${p.desc}</strong><br><span class="pay-note">Progress payment on milestone</span></td><td class="right">${$(p.amt)}</td><td class="right">${p.pct}%</td><td class="pay-note">On milestone</td></tr>`).join('')}
-      <tr><td class="pay-stage">${3+(d.progressPayments||[]).length}</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
-    </tbody>
-    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
+    <tbody>${paymentStagesHTML}</tbody>
+    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">${roundPct(paymentPctTotal)}%</td><td></td></tr></tfoot>
   </table>
   <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct}% reduction</strong> (capped at $${d.upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal)}</strong> (saving ${$(d.upfrontDisc)}).</div>
 </div>
@@ -1515,6 +1667,7 @@ function reloadQuoteFromHistory(idx) {
     }
   }
 
+  setPaymentStagesFromData(d);
   updateQuoteTotals();
 
   const tab = document.getElementById('tab-quote');
@@ -1613,30 +1766,8 @@ async function loadQuoteForEditing(quoteId) {
       }
     }
 
-    // Populate progress payments
-    if (d.progressPayments && d.progressPayments.length > 0) {
-      const toggle = document.getElementById('q-progress-toggle');
-      if (toggle) {
-        toggle.checked = true;
-        if (typeof toggleProgressPayment === 'function') toggleProgressPayment();
-        // Remove default row and add stored ones
-        const container = document.getElementById('q-progress-rows');
-        if (container) {
-          container.innerHTML = '';
-          d.progressPayments.forEach(p => {
-            if (typeof addProgressPaymentRow === 'function') addProgressPaymentRow();
-            const rows = container.querySelectorAll('.q-progress-row');
-            const lastRow = rows[rows.length - 1];
-            if (lastRow) {
-              const descInput = lastRow.querySelector('.prog-desc');
-              const pctInput = lastRow.querySelector('.prog-pct-input');
-              if (descInput) descInput.value = p.desc;
-              if (pctInput) pctInput.value = p.pct;
-            }
-          });
-        }
-      }
-    }
+    // Populate payment stages
+    setPaymentStagesFromData(d);
 
     // Populate inclusions
     if (d.inclusions && d.inclusions.length > 0) {

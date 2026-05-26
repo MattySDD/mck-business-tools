@@ -259,6 +259,12 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   d.specialConditions = d.specialConditions || [];
   d.attachments = d.attachments || [];
   d.progressPayments = d.progressPayments || [];
+  d.paymentStages = Array.isArray(d.paymentStages) && d.paymentStages.length ? d.paymentStages : [
+    { type:'deposit', title:'Booking Deposit', note:'Secures your place in the schedule', due:'On acceptance', pct:d.depositPct || 0, amt:d.depositAmt || 0 },
+    { type:'material', title:'Material Payment', note:'Works do not start until paid', due:'Prior to start date', pct:d.matPct || 0, amt:d.materialAmt || 0 },
+    ...(d.progressPayments || []).map(p => ({ type:'progress', title:p.title || p.desc || 'Progress Payment', note:p.note || 'Progress payment on milestone', due:p.due || 'On milestone', pct:p.pct || 0, amt:p.amt || 0 })),
+    { type:'final', title:'Final Claim', note:'On practical completion and sign-off', due:'Within 3 business days', pct:d.finalPct || 0, amt:d.finalAmt || 0 }
+  ];
   d.measureFee = d.measureFee || 220;
   d.baseSubtotal = d.baseSubtotal || d.subtotal;
   d.varSubtotal = d.varSubtotal || 0;
@@ -522,13 +528,12 @@ ${scHTML}
       '</tbody><tfoot><tr><td colspan="4" style="text-align:right;">VARIATIONS SUBTOTAL (EX GST)</td><td class="right">'+$(d.varSubtotal||0)+'</td></tr></tfoot></table>';
   }
 
-  // Progress payments HTML
-  let progressHTML = '';
-  if (d.progressPayments && d.progressPayments.length > 0) {
-    progressHTML = d.progressPayments.map(function(p,i){
-      return '<tr><td class="pay-stage">'+(3+i)+'</td><td><strong>'+p.desc+'</strong><br><span class="pay-note">Progress payment on milestone</span></td><td class="right">'+$(p.amt||0)+'</td><td class="right">'+(p.pct||0)+'%</td><td class="pay-note">On milestone</td></tr>';
-    }).join('');
-  }
+  // Payment stages HTML
+  const paymentStages = Array.isArray(d.paymentStages) && d.paymentStages.length ? d.paymentStages : [];
+  const paymentStagesHTML = paymentStages.map(function(p,i){
+    return '<tr><td class="pay-stage">'+(i+1)+'</td><td><strong>'+(p.title || p.desc || ('Payment Stage '+(i+1)))+'</strong>'+(p.note ? '<br><span class="pay-note">'+p.note+'</span>' : '')+'</td><td class="right">'+$(p.amt||0)+'</td><td class="right">'+(p.pct||0)+'%</td><td class="pay-note">'+(p.due||'')+'</td></tr>';
+  }).join('');
+  const paymentPctTotal = paymentStages.reduce(function(sum,p){ return sum + (parseFloat(p.pct)||0); }, 0);
 
   // Attachments HTML
   let attachmentsHTML = '';
@@ -640,12 +645,9 @@ ${statusBanner}
   <table>
     <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (EX GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
     <tbody>
-      <tr><td class="pay-stage">1</td><td><strong>Booking Deposit</strong><br><span class="pay-note">Secures your place in the schedule</span></td><td class="right">${$(d.depositAmt)}</td><td class="right">${d.depositPct}%</td><td class="pay-note">On acceptance</td></tr>
-      <tr><td class="pay-stage">2</td><td><strong>Material Payment</strong><br><span class="pay-note">Works do not start until paid</span></td><td class="right">${$(d.materialAmt)}</td><td class="right">${d.matPct || 50}%</td><td class="pay-note">Prior to start date</td></tr>
-      ${progressHTML}
-      <tr><td class="pay-stage">${3+(d.progressPayments||[]).length}</td><td><strong>Final Claim</strong><br><span class="pay-note">On practical completion and sign-off</span></td><td class="right">${$(d.finalAmt)}</td><td class="right">${d.finalPct}%</td><td class="pay-note">Within 3 business days</td></tr>
+      ${paymentStagesHTML}
     </tbody>
-    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">100%</td><td></td></tr></tfoot>
+    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (EX GST)</td><td class="right">${$(d.subtotal)}</td><td class="right">${paymentPctTotal}%</td><td></td></tr></tfoot>
   </table>
   <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct || 5}% reduction</strong> (capped at $${(d.upfrontDiscCap||1000).toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal || d.subtotal)}</strong>.</div>
 </div>

@@ -453,6 +453,39 @@ body {
 }
 .stage-num { font-weight:900; color:var(--gold); font-size:13px; }
 
+.payment-control-bar {
+  display:flex; align-items:center; gap:12px; margin-bottom:14px; padding:10px 14px;
+  background:#111; border:1px solid #333; border-radius:4px;
+}
+.payment-toggle-label {
+  display:flex; align-items:center; gap:10px; cursor:pointer; font-size:12px;
+  font-weight:700; letter-spacing:1px; color:var(--gold); text-transform:uppercase;
+}
+.payment-toggle { position:relative; width:44px; height:24px; }
+.payment-toggle input { opacity:0; width:0; height:0; position:absolute; }
+.payment-toggle-track { position:absolute; top:0; left:0; right:0; bottom:0; background:#333; border-radius:12px; transition:0.2s; cursor:pointer; }
+.payment-toggle-thumb { position:absolute; top:2px; left:2px; width:20px; height:20px; background:#666; border-radius:50%; transition:0.2s; }
+.payment-help-text { font-size:11px; color:#888; }
+.payment-add-wrap { margin-top:10px; }
+.payment-table input.payment-stage-title,
+.payment-table input.payment-stage-note,
+.payment-table input.payment-stage-due,
+.payment-table input.payment-stage-amount,
+.payment-table input.payment-stage-pct {
+  background:#1a1a1a; border:1px solid #444; color:var(--white); padding:5px 7px;
+  font-family:inherit; font-size:11px; border-radius:3px; outline:none; width:100%; box-sizing:border-box;
+}
+.payment-table input.payment-stage-title { color:var(--white); font-weight:800; margin-bottom:5px; }
+.payment-table input.payment-stage-note,
+.payment-table input.payment-stage-due { color:var(--grey-mid); font-style:italic; }
+.payment-table input.payment-stage-amount,
+.payment-table input.payment-stage-pct { color:var(--gold); font-weight:800; text-align:right; }
+.payment-table input:focus { border-color:var(--gold); }
+.payment-pct-wrap { display:flex; align-items:center; gap:5px; }
+.payment-pct-wrap span { color:var(--grey-mid); font-size:11px; }
+.payment-stage-remove:disabled { opacity:0.35; cursor:not-allowed; }
+#q-add-progress-btn:disabled { opacity:0.5; cursor:not-allowed; }
+
 /* ═══ T&C SUMMARY GRID ═══ */
 .tc-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
 .tc-item {
@@ -1225,6 +1258,22 @@ button { font-family:'Inter',sans-serif; }
     font-weight: 700 !important;
     border-top: 2px solid #c9a84c !important;
   }
+
+
+
+  .payment-table input.payment-stage-title,
+  .payment-table input.payment-stage-note,
+  .payment-table input.payment-stage-due,
+  .payment-table input.payment-stage-amount,
+  .payment-table input.payment-stage-pct {
+    border: none !important;
+    background: transparent !important;
+    padding: 0 !important;
+    color: inherit !important;
+    box-shadow: none !important;
+  }
+
+  .payment-pct-wrap { justify-content: flex-end !important; }
 
   /* ── Inclusions / Exclusions lists ── */
   .inc-exc {
