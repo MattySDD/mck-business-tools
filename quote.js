@@ -1805,7 +1805,6 @@ async function loadQuoteForEditing(quoteId) {
     // Populate inclusions / exclusions
     if (d.inclusions && d.inclusions.length > 0) populateIeList('q-inclusions', d.inclusions, 'inclusion');
     if (d.exclusions && d.exclusions.length > 0) populateIeList('q-exclusions', d.exclusions, 'exclusion');
-    }
 
     // Populate signature fields
     const sigTypedName = document.getElementById('q-sig-typed-name');
