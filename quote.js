@@ -1241,8 +1241,8 @@ ${statusBanner}
       </div>
       <div class="contact-block">
         <div><strong>PHONE</strong> 0468 053 819</div>
-        <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
-        <div><strong>WEB</strong> microcementking.com.au</div>
+        <div><strong>EMAIL</strong> projects@microcementking.au</div>
+        <div><strong>WEB</strong> microcementking.au</div>
         <div><strong>INSTAGRAM</strong> @microcementking</div>
         <div style="margin-top:6pt;font-size:7.5pt;color:#666;">All prices ex GST unless stated</div>
       </div>
@@ -1368,7 +1368,7 @@ ${(d.specialConditions && d.specialConditions.length > 0) ? `
     </div>
   </div>
   <div class="legal-footer">By signing this document, the client confirms they have read and agree to all terms summarised in Section 07 and the full Payment Terms &amp; Conditions.<br>This quote is a formal offer. It does not constitute a binding contract until signed by the client and the booking deposit is received.</div>
-  <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au</div>
+  <div class="doc-footer"><span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.au &nbsp;|&nbsp; microcementking.au</div>
 </div>
 
 ${showPrintBtn || showAcceptBtn ? `<div class="action-bar no-print">
@@ -1595,7 +1595,7 @@ function shareViaSMS(url, clientName) {
 function shareViaEmail(url, clientName, quoteNumber) {
   const name = clientName || 'there';
   const subject = encodeURIComponent('Micro Cement King Quote' + (quoteNumber ? ' — ' + quoteNumber : ''));
-  const body = encodeURIComponent(`Hi ${name},\n\nPlease find your Micro Cement King quote here:\n${url}\n\nIf you have any questions, please don't hesitate to reach out.\n\nKind regards,\nMicro Cement King\n0468 053 819\nprojects@microcementking.com.au`);
+  const body = encodeURIComponent(`Hi ${name},\n\nPlease find your Micro Cement King quote here:\n${url}\n\nIf you have any questions, please don't hesitate to reach out.\n\nKind regards,\nMicro Cement King\n0468 053 819\nprojects@microcementking.au`);
   window.open('mailto:?subject=' + subject + '&body=' + body);
 }
 
@@ -1995,8 +1995,8 @@ html, body {
     </div>
     <div class="contact-block">
       <div><strong>PHONE</strong> 0468 053 819</div>
-      <div><strong>EMAIL</strong> projects@microcementking.com.au</div>
-      <div><strong>WEB</strong> microcementking.com.au</div>
+      <div><strong>EMAIL</strong> projects@microcementking.au</div>
+      <div><strong>WEB</strong> microcementking.au</div>
       <div style="margin-top:6pt;font-size:7.5pt;color:#555;">All prices ex GST unless stated</div>
     </div>
   </div>
@@ -2079,7 +2079,7 @@ html, body {
 <div class="end-marker">— END OF TERMS —</div>
 
 <div class="doc-footer">
-  <span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.com.au &nbsp;|&nbsp; microcementking.com.au<br>
+  <span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.au &nbsp;|&nbsp; microcementking.au<br>
   These terms form part of the formal quotation and are binding upon acceptance.
 </div>
 
