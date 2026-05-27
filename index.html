@@ -235,12 +235,14 @@
         </div>
 
         <table class="payment-table" id="q-payment-table">
-          <thead><tr><th style="width:5%">#</th><th style="width:30%">STAGE</th><th style="width:20%">AMOUNT (INC GST)</th><th style="width:18%">% OF CONTRACT</th><th style="width:19%">DUE</th><th style="width:8%" class="no-print">ACTION</th></tr></thead>
+          <thead><tr><th style="width:4%">#</th><th style="width:24%">STAGE</th><th style="width:15%">AMOUNT (EX GST)</th><th style="width:11%">GST</th><th style="width:15%">TOTAL (INC GST)</th><th style="width:12%">% OF CONTRACT</th><th style="width:13%">DUE</th><th style="width:6%" class="no-print">ACTION</th></tr></thead>
           <tbody id="q-payment-body">
             <tr id="q-pay-row-deposit" class="q-payment-stage-row" data-stage-type="deposit" data-auto-pct="deposit">
               <td class="stage-num">1</td>
               <td><input type="text" class="payment-stage-title" value="Booking Deposit" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="Secures your place in the schedule" oninput="updatePaymentStageData()"></td>
               <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+              <td class="payment-stage-gst right">$0.00</td>
+              <td class="payment-stage-inc-gst right">$0.00</td>
               <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="10" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
               <td><input type="text" class="payment-stage-due" value="On acceptance" oninput="updatePaymentStageData()"></td>
               <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
@@ -249,6 +251,8 @@
               <td class="stage-num">2</td>
               <td><input type="text" class="payment-stage-title" value="Material Payment" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="Works do not start until paid" oninput="updatePaymentStageData()"></td>
               <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+              <td class="payment-stage-gst right">$0.00</td>
+              <td class="payment-stage-inc-gst right">$0.00</td>
               <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="50" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
               <td><input type="text" class="payment-stage-due" value="Prior to start date" oninput="updatePaymentStageData()"></td>
               <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
@@ -257,12 +261,14 @@
               <td class="stage-num">3</td>
               <td><input type="text" class="payment-stage-title" value="Final Claim" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="On practical completion and sign-off" oninput="updatePaymentStageData()"></td>
               <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+              <td class="payment-stage-gst right">$0.00</td>
+              <td class="payment-stage-inc-gst right">$0.00</td>
               <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="40" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
               <td><input type="text" class="payment-stage-due" value="Within 3 business days" oninput="updatePaymentStageData()"></td>
               <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
             </tr>
           </tbody>
-          <tfoot><tr><td colspan="2">TOTAL CONTRACT VALUE (INC GST)</td><td id="q-payment-total">&nbsp;</td><td id="q-payment-pct-total" style="font-weight:700;">100%</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr></tfoot>
+          <tfoot><tr><td colspan="2">TOTAL</td><td id="q-payment-total-exgst">&nbsp;</td><td id="q-payment-total-gst">&nbsp;</td><td id="q-payment-total">&nbsp;</td><td id="q-payment-pct-total" style="font-weight:700;">100%</td><td>&nbsp;</td><td class="no-print">&nbsp;</td></tr></tfoot>
         </table>
 
         <div id="q-add-progress-wrap" class="payment-add-wrap no-print">

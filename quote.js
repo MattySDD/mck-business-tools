@@ -257,8 +257,8 @@ function updateQuoteTotals() {
 
   const depositPct = subtotal > threshold ? depOver : depUnder;
 
-  // Recalculate editable payment schedule rows using inc GST total.
-  updatePaymentScheduleFromTotals(grandTotal, depositPct, matPct);
+  // Recalculate editable payment schedule rows. Amount is ex GST, GST and inc GST shown separately.
+  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
 
   // Credit limit warning
   const creditWarn = document.getElementById('q-credit-warning');
@@ -295,7 +295,7 @@ function formatMoney(value) {
   return '$' + num.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 }
 
-function getQuoteGrandTotalForPayments() {
+function getQuoteSubtotalForPayments() {
   let subtotal = 0;
   document.querySelectorAll('.q-line-item').forEach(line => {
     const qty = parseFloat(line.querySelector('.qty')?.value) || 0;
@@ -308,8 +308,7 @@ function getQuoteGrandTotalForPayments() {
     const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
     subtotal += (hrs * rate) + mat;
   });
-  const gst = subtotal * 0.1;
-  return subtotal + gst;
+  return subtotal;
 }
 
 function initPaymentStages() {
@@ -350,10 +349,15 @@ function createPaymentStageRow(stage = {}) {
   const pct = Number.isFinite(parseFloat(stage.pct)) ? parseFloat(stage.pct) : 0;
   const amt = Number.isFinite(parseFloat(stage.amt)) ? parseFloat(stage.amt) : 0;
 
+  const gstAmt = amt * 0.1;
+  const incGstAmt = amt + gstAmt;
+
   tr.innerHTML = `
     <td class="stage-num">—</td>
     <td><input type="text" class="payment-stage-title" value="${escapeAttr(title)}" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="${escapeAttr(note)}" oninput="updatePaymentStageData()"></td>
     <td><input type="number" class="payment-stage-amount" value="${amt.toFixed(2)}" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+    <td class="payment-stage-gst right">${formatMoney(gstAmt)}</td>
+    <td class="payment-stage-inc-gst right">${formatMoney(incGstAmt)}</td>
     <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="${roundPct(pct)}" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
     <td><input type="text" class="payment-stage-due" value="${escapeAttr(due)}" oninput="updatePaymentStageData()"></td>
     <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
@@ -388,7 +392,7 @@ function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milesto
     return;
   }
 
-  const grandTotal = getQuoteGrandTotalForPayments();
+  const subtotal = getQuoteSubtotalForPayments();
   const currentPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
   const defaultPct = Number.isFinite(parseFloat(pct)) ? parseFloat(pct) : Math.max(0, Math.round((100 - currentPct) * 100) / 100);
   const tr = createPaymentStageRow({
@@ -397,7 +401,7 @@ function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milesto
     note: 'Progress payment on milestone',
     due,
     pct: defaultPct,
-    amt: grandTotal * (defaultPct / 100),
+    amt: subtotal * (defaultPct / 100),
     manualPct: true,
     id: 'q-progress-row-' + Date.now()
   });
@@ -441,10 +445,10 @@ function handlePaymentPctInput(input) {
   const row = input.closest('.q-payment-stage-row');
   if (row) {
     row.dataset.manualPct = 'true';
-    const grandTotal = getQuoteGrandTotalForPayments();
+    const subtotal = getQuoteSubtotalForPayments();
     const pct = parseFloat(input.value) || 0;
     const amount = row.querySelector('.payment-stage-amount');
-    if (amount) amount.value = grandTotal > 0 ? (grandTotal * pct / 100).toFixed(2) : '0.00';
+    if (amount) amount.value = subtotal > 0 ? (subtotal * pct / 100).toFixed(2) : '0.00';
   }
   updatePaymentStageData();
 }
@@ -453,16 +457,16 @@ function handlePaymentAmountInput(input) {
   const row = input.closest('.q-payment-stage-row');
   if (row) {
     row.dataset.manualPct = 'true';
-    const grandTotal = getQuoteGrandTotalForPayments();
+    const subtotal = getQuoteSubtotalForPayments();
     const amount = parseFloat(input.value) || 0;
     const pctInput = row.querySelector('.payment-stage-pct');
-    if (pctInput) pctInput.value = grandTotal > 0 ? roundPct((amount / grandTotal) * 100) : '0';
+    if (pctInput) pctInput.value = subtotal > 0 ? roundPct((amount / subtotal) * 100) : '0';
   }
   updatePaymentStageData();
 }
 
 function updatePaymentStageData() {
-  updatePaymentScheduleFromTotals(getQuoteGrandTotalForPayments());
+  updatePaymentScheduleFromTotals(getQuoteSubtotalForPayments());
 }
 
 function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMaterialPct) {
@@ -487,14 +491,31 @@ function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMat
     }
 
     const pct = parseFloat(pctInput.value) || 0;
-    amountInput.value = subtotal > 0 ? (subtotal * pct / 100).toFixed(2) : '0.00';
+    const exGstAmt = subtotal > 0 ? (subtotal * pct / 100) : 0;
+    amountInput.value = exGstAmt.toFixed(2);
+
+    // Update GST and inc GST cells
+    const gstCell = row.querySelector('.payment-stage-gst');
+    const incGstCell = row.querySelector('.payment-stage-inc-gst');
+    const gstAmt = exGstAmt * 0.1;
+    const incGstAmt = exGstAmt + gstAmt;
+    if (gstCell) gstCell.textContent = formatMoney(gstAmt);
+    if (incGstCell) incGstCell.textContent = formatMoney(incGstAmt);
   });
 
   const totalPct = rows.reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
-  const totalAmt = rows.reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-amount')?.value) || 0), 0);
+  const totalExGst = rows.reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-amount')?.value) || 0), 0);
+  const totalGst = totalExGst * 0.1;
+  const totalIncGst = totalExGst + totalGst;
+
+  const totalExGstEl = document.getElementById('q-payment-total-exgst');
+  if (totalExGstEl) totalExGstEl.textContent = subtotal > 0 ? formatMoney(totalExGst) : '—';
+
+  const totalGstEl = document.getElementById('q-payment-total-gst');
+  if (totalGstEl) totalGstEl.textContent = subtotal > 0 ? formatMoney(totalGst) : '—';
 
   const totalEl = document.getElementById('q-payment-total');
-  if (totalEl) totalEl.textContent = subtotal > 0 ? formatMoney(subtotal) : '—';
+  if (totalEl) totalEl.textContent = subtotal > 0 ? formatMoney(totalIncGst) : '—';
 
   const pctTotalEl = document.getElementById('q-payment-pct-total');
   if (pctTotalEl) {
@@ -506,11 +527,11 @@ function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMat
 
   renumberPaymentRows();
   updateAddPaymentButtonState();
-  return { totalPct, totalAmt };
+  return { totalPct, totalAmt: totalIncGst };
 }
 
-function updateProgressPaymentAmounts(grandTotal, depositPct, matPct) {
-  updatePaymentScheduleFromTotals(grandTotal, depositPct, matPct);
+function updateProgressPaymentAmounts(subtotal, depositPct, matPct) {
+  updatePaymentScheduleFromTotals(subtotal, depositPct, matPct);
 }
 
 function balanceProgressPayments() {
@@ -556,12 +577,12 @@ function syncProgressToggleUI() {
   if (thumb) { thumb.style.background = isOn ? '#000' : '#666'; thumb.style.left = isOn ? '22px' : '2px'; }
 }
 
-function getPaymentStagesData(grandTotalOverride) {
-  const grandTotal = Number.isFinite(parseFloat(grandTotalOverride)) ? parseFloat(grandTotalOverride) : getQuoteGrandTotalForPayments();
+function getPaymentStagesData(subtotalOverride) {
+  const subtotal = Number.isFinite(parseFloat(subtotalOverride)) ? parseFloat(subtotalOverride) : getQuoteSubtotalForPayments();
   return Array.from(document.querySelectorAll('.q-payment-stage-row')).map((row, index) => {
     const pct = parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0;
     const amtInput = parseFloat(row.querySelector('.payment-stage-amount')?.value);
-    const amt = Number.isFinite(amtInput) ? amtInput : grandTotal * (pct / 100);
+    const amt = Number.isFinite(amtInput) ? amtInput : subtotal * (pct / 100);
     return {
       stage: index + 1,
       type: row.dataset.stageType || 'progress',
@@ -963,19 +984,19 @@ function extractQuoteData() {
   const overdueInterest = st('overdue_interest_pct_week') || 3;
   const measureFee = st('measure_fee') || 220;
 
-  const paymentStages = getPaymentStagesData(grandTotal);
+  const paymentStages = getPaymentStagesData(subtotal);
   let progressPayments = paymentStages.filter(p => p.type === 'progress');
   const fallbackDepositPct = subtotal > threshold ? depOver : depUnder;
   const depositStage = paymentStages[0] || {};
   const materialStage = paymentStages.find(p => p.type === 'material') || paymentStages[1] || {};
   const finalStage = [...paymentStages].reverse().find(p => p.type === 'final') || paymentStages[paymentStages.length - 1] || {};
   const depositPct = depositStage.pct ?? fallbackDepositPct;
-  const depositAmt = depositStage.amt ?? grandTotal * (depositPct / 100);
-  const materialAmt = materialStage.amt ?? grandTotal * (matPct / 100);
+  const depositAmt = depositStage.amt ?? subtotal * (depositPct / 100);
+  const materialAmt = materialStage.amt ?? subtotal * (matPct / 100);
   const finalPct = finalStage.pct ?? Math.max(0, 100 - depositPct - matPct);
-  const finalAmt = finalStage.amt ?? grandTotal * (finalPct / 100);
-  const upfrontDisc = Math.min(grandTotal * (upfrontDiscPct / 100), upfrontDiscCap);
-  const upfrontTotal = grandTotal - upfrontDisc;
+  const finalAmt = finalStage.amt ?? subtotal * (finalPct / 100);
+  const upfrontDisc = Math.min(subtotal * (upfrontDiscPct / 100), upfrontDiscCap);
+  const upfrontTotal = subtotal - upfrontDisc;
 
   const getListItems = (id, type) => {
     const el = document.getElementById(id);
@@ -1080,8 +1101,11 @@ function buildQuoteHTML(d, options = {}) {
   const exclusions = normalizeIeItems(d.exclusions, 'exclusion');
   const paymentStages = getPrintablePaymentStages(d);
   const paymentPctTotal = paymentStages.reduce((sum, stage) => sum + (parseFloat(stage.pct) || 0), 0);
-  const paymentStagesHTML = paymentStages.map((stage, i) => `
-      <tr><td class="pay-stage">${i + 1}</td><td><div class="pay-stage">${stage.title || 'Payment Stage'}</div><div class="pay-note">${stage.note || ''}</div></td><td class="right">${$(stage.amt)}</td><td class="right">${roundPct(stage.pct)}%</td><td>${stage.due || 'TBC'}</td></tr>`).join('');
+  const paymentStagesHTML = paymentStages.map((stage, i) => {
+    const stageGst = (parseFloat(stage.amt) || 0) * 0.1;
+    const stageIncGst = (parseFloat(stage.amt) || 0) + stageGst;
+    return `<tr><td class="pay-stage">${i + 1}</td><td><div class="pay-stage">${stage.title || 'Payment Stage'}</div><div class="pay-note">${stage.note || ''}</div></td><td class="right">${$(stage.amt)}</td><td class="right">${$(stageGst)}</td><td class="right">${$(stageIncGst)}</td><td class="right">${roundPct(stage.pct)}%</td><td>${stage.due || 'TBC'}</td></tr>`;
+  }).join('');
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -1282,9 +1306,9 @@ ${statusBanner}
   <div class="sec-hd"><div class="sec-num">05</div><h2>PAYMENT SCHEDULE</h2></div>
   <div class="callout" style="margin-bottom:14pt;"><strong>PAYMENT STRUCTURE:</strong> Payment stages are editable and agreed per quote. Booking deposit is <strong>${d.depositPct}%</strong> by default ${d.subtotal > (d.creditLimit || 20000) ? '(contract exceeds credit limit)' : d.subtotal > 20000 ? '(contract value exceeds $20,000)' : '(contract value under $20,000)'}. Material payment is due before commencement unless edited below.</div>
   <table>
-    <thead><tr><th style="width:5%">#</th><th style="width:32%">STAGE</th><th class="right" style="width:22%">AMOUNT (INC GST)</th><th class="right" style="width:22%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
+    <thead><tr><th style="width:4%">#</th><th style="width:24%">STAGE</th><th class="right" style="width:15%">AMOUNT (EX GST)</th><th class="right" style="width:11%">GST</th><th class="right" style="width:15%">TOTAL (INC GST)</th><th class="right" style="width:12%">% OF CONTRACT</th><th style="width:19%">DUE</th></tr></thead>
     <tbody>${paymentStagesHTML}</tbody>
-    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL CONTRACT VALUE (INC GST)</td><td class="right">${$(d.grandTotal)}</td><td class="right">${roundPct(paymentPctTotal)}%</td><td></td></tr></tfoot>
+    <tfoot><tr class="grand-total"><td colspan="2" style="text-align:right;">TOTAL</td><td class="right">${$(d.subtotal)}</td><td class="right">${$(d.gst)}</td><td class="right">${$(d.grandTotal)}</td><td class="right">${roundPct(paymentPctTotal)}%</td><td></td></tr></tfoot>
   </table>
   <div class="callout" style="margin-top:14pt;"><strong>UPFRONT PAYMENT REDUCTION:</strong> A <strong>${d.upfrontDiscPct}% reduction</strong> (capped at $${d.upfrontDiscCap.toLocaleString()}) is available for clients who pay the full contract amount upfront. Upfront price: <strong>${$(d.upfrontTotal)}</strong> (saving ${$(d.upfrontDisc)}).</div>
 </div>
