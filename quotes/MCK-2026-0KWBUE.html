@@ -1,288 +1,839 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Micro Cement King - Quote MCK-2026-0KWBUE</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue", sans-serif;
-            background-color: #0A0A0A;
-            color: #FFFFFF;
-            margin: 0;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            border: 1px solid #C9A84C;
-            box-shadow: 0 0 10px rgba(201, 168, 76, 0.5);
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: #C9A84C;
-            text-transform: uppercase;
-            margin-top: 20px;
-            margin-bottom: 10px;
-        }
-        .header-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        .header-section h1 {
-            font-size: 2.5em;
-            margin-bottom: 5px;
-        }
-        .header-section p {
-            color: #FFFFFF;
-            font-size: 1.1em;
-        }
-        .quote-details, .client-details, .project-details, .inclusions, .exclusions, .special-conditions, .payment-schedule {
-            margin-bottom: 20px;
-            padding: 15px;
-            border-left: 3px solid #C9A84C;
-            background-color: #1A1A1A;
-        }
-        .quote-details p, .client-details p, .project-details p {
-            margin: 5px 0;
-        }
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        th, td {
-            border: 1px solid #C9A84C;
-            padding: 10px;
-            text-align: left;
-        }
-        th {
-            background-color: #C9A84C;
-            color: #0A0A0A;
-            text-transform: uppercase;
-        }
-        .totals-table td:first-child {
-            font-weight: bold;
-        }
-        .validity-banner {
-            background-color: #C9A84C;
-            color: #0A0A0A;
-            text-align: center;
-            padding: 10px;
-            margin-bottom: 20px;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .button-container {
-            text-align: center;
-            margin-top: 30px;
-            margin-bottom: 30px;
-        }
-        .button-container button {
-            background-color: #C9A84C;
-            color: #0A0A0A;
-            border: none;
-            padding: 15px 30px;
-            font-size: 1.1em;
-            cursor: pointer;
-            margin: 0 10px;
-            border-radius: 5px;
-            text-transform: uppercase;
-            font-weight: bold;
-            transition: background-color 0.3s ease;
-        }
-        .button-container button:hover {
-            background-color: #B0953F;
-        }
-        .footer {
-            text-align: center;
-            margin-top: 40px;
-            padding-top: 20px;
-            border-top: 1px solid #C9A84C;
-            font-size: 0.9em;
-            color: #FFFFFF;
-        }
-        .footer a {
-            color: #C9A84C;
-            text-decoration: none;
-        }
-        .footer a:hover {
-            text-decoration: underline;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="format-detection" content="telephone=yes">
+  <title>Micro Cement King Quote MCK-2026-0KWBUE</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
 
-        /* Mobile Responsiveness */
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .container {
-                padding: 10px;
-            }
-            .header-section h1 {
-                font-size: 1.8em;
-            }
-            .header-section p {
-                font-size: 1em;
-            }
-            .button-container button {
-                width: 100%;
-                margin: 10px 0;
-            }
-        }
+    :root {
+      --black: #0A0A0A;
+      --panel: #111111;
+      --panel-2: #171717;
+      --gold: #C9A84C;
+      --gold-soft: rgba(201, 168, 76, 0.14);
+      --gold-line: rgba(201, 168, 76, 0.42);
+      --white: #FFFFFF;
+      --muted: #D8D8D8;
+      --dim: #AFAFAF;
+      --danger: #777777;
+      --radius: 18px;
+    }
 
-        /* Print Styles */
-        @media print {
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            body {
-                background-color: #0A0A0A !important;
-                color: #FFFFFF !important;
-            }
-            .container {
-                border-color: #C9A84C !important;
-                box-shadow: none !important;
-            }
-            h1, h2, h3, h4, h5, h6 {
-                color: #C9A84C !important;
-            }
-            th {
-                background-color: #C9A84C !important;
-                color: #0A0A0A !important;
-                border-color: #C9A84C !important;
-            }
-            td {
-                border-color: #C9A84C !important;
-            }
-            .validity-banner {
-                background-color: #C9A84C !important;
-                color: #0A0A0A !important;
-            }
-            .button-container {
-                display: none;
-            }
-            .footer {
-                border-color: #C9A84C !important;
-            }
-        }
-    </style>
+    html {
+      margin: 0;
+      padding: 0;
+      background: var(--black);
+      color: var(--white);
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      min-width: 320px;
+      overflow-x: hidden;
+      background:
+        radial-gradient(circle at top right, rgba(201, 168, 76, 0.16), transparent 34rem),
+        linear-gradient(180deg, #0A0A0A 0%, #050505 100%);
+      color: var(--white);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    a {
+      color: var(--gold);
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .page {
+      width: 100%;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px;
+    }
+
+    .quote-shell {
+      width: 100%;
+      border: 1px solid var(--gold-line);
+      border-radius: 22px;
+      overflow: hidden;
+      background: rgba(10, 10, 10, 0.96);
+      box-shadow: 0 18px 70px rgba(0, 0, 0, 0.72), 0 0 0 1px rgba(255,255,255,0.02) inset;
+    }
+
+    .validity-banner {
+      width: 100%;
+      padding: 12px 16px;
+      background: var(--gold);
+      color: var(--black);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hero {
+      padding: 28px 18px 22px;
+      border-bottom: 1px solid var(--gold-line);
+      background:
+        linear-gradient(135deg, rgba(201, 168, 76, 0.13), transparent 55%),
+        var(--panel);
+    }
+
+    .eyebrow {
+      margin: 0 0 9px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.045em;
+      line-height: 1.12;
+    }
+
+    h1 {
+      font-size: clamp(30px, 9vw, 58px);
+      letter-spacing: 0.02em;
+    }
+
+    h2 {
+      font-size: 18px;
+      margin-bottom: 14px;
+    }
+
+    h3 {
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .hero-subtitle {
+      margin: 10px 0 0;
+      max-width: 740px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .meta-tile,
+    .card,
+    .terms-card,
+    .agreement-box {
+      min-width: 0;
+      border: 1px solid var(--gold-line);
+      border-radius: var(--radius);
+      background: linear-gradient(180deg, rgba(255,255,255,0.035), rgba(255,255,255,0.012));
+    }
+
+    .meta-tile {
+      padding: 14px;
+    }
+
+    .label {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--dim);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.11em;
+      text-transform: uppercase;
+    }
+
+    .value {
+      display: block;
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 750;
+      overflow-wrap: anywhere;
+    }
+
+    .content {
+      padding: 18px;
+    }
+
+    .section {
+      margin: 0 0 18px;
+      padding: 0;
+      min-width: 0;
+    }
+
+    .section:last-child {
+      margin-bottom: 0;
+    }
+
+    .card {
+      padding: 16px;
+      background-color: var(--panel-2);
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    .detail-item {
+      min-width: 0;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+    }
+
+    .detail-item:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .summary-strip {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 18px 0;
+    }
+
+    .summary-tile {
+      padding: 16px;
+      border: 1px solid var(--gold-line);
+      border-radius: var(--radius);
+      background: var(--gold-soft);
+    }
+
+    .summary-tile .value {
+      color: var(--gold);
+      font-size: 24px;
+      font-weight: 950;
+    }
+
+    .table-wrap {
+      width: 100%;
+      max-width: 100%;
+      overflow: visible;
+    }
+
+    table {
+      width: 100%;
+      max-width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+      margin: 0;
+    }
+
+    th, td {
+      border: 1px solid var(--gold-line);
+      padding: 12px;
+      text-align: left;
+      vertical-align: top;
+      overflow-wrap: anywhere;
+      word-break: normal;
+    }
+
+    th {
+      background: var(--gold);
+      color: var(--black);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    td {
+      color: var(--white);
+      background: rgba(255,255,255,0.018);
+      font-size: 14px;
+    }
+
+    .amount {
+      font-weight: 900;
+      color: var(--white);
+      white-space: nowrap;
+    }
+
+    .total-row td {
+      color: var(--gold);
+      font-size: 16px;
+      font-weight: 950;
+      background: rgba(201, 168, 76, 0.10);
+    }
+
+    .list-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+    }
+
+    li {
+      margin: 8px 0;
+      padding-left: 2px;
+      color: var(--muted);
+    }
+
+    li::marker {
+      color: var(--gold);
+    }
+
+    .action-links {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .button,
+    button.button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 100%;
+      min-height: 52px;
+      padding: 13px 16px;
+      border: 1px solid var(--gold);
+      border-radius: 14px;
+      background: var(--gold);
+      color: var(--black);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 950;
+      letter-spacing: 0.08em;
+      text-align: center;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: transform 160ms ease, opacity 160ms ease, background 160ms ease, color 160ms ease;
+      appearance: none;
+    }
+
+    .button:hover:not(:disabled) {
+      transform: translateY(-1px);
+      background: #D9BD66;
+    }
+
+    .button.secondary {
+      background: transparent;
+      color: var(--gold);
+    }
+
+    .button.secondary:hover {
+      background: rgba(201, 168, 76, 0.09);
+    }
+
+    .button:disabled,
+    .button.disabled {
+      border-color: #3A3A3A;
+      background: #2A2A2A;
+      color: #8A8A8A;
+      cursor: not-allowed;
+      opacity: 0.82;
+      transform: none;
+    }
+
+    .terms-intro {
+      margin: 0 0 14px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .terms-card {
+      padding: 16px;
+      margin-bottom: 12px;
+      background: rgba(255,255,255,0.022);
+    }
+
+    .terms-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .terms-card strong {
+      color: var(--white);
+    }
+
+    .agreement-box {
+      padding: 16px;
+      background: rgba(201, 168, 76, 0.08);
+    }
+
+    .checkbox-row {
+      display: grid;
+      grid-template-columns: 30px 1fr;
+      gap: 12px;
+      align-items: start;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    input[type="checkbox"] {
+      width: 24px;
+      height: 24px;
+      margin: 1px 0 0;
+      accent-color: var(--gold);
+      cursor: pointer;
+    }
+
+    .checkbox-text {
+      color: var(--white);
+      font-size: 15px;
+      font-weight: 800;
+      line-height: 1.42;
+    }
+
+    .accept-note {
+      margin: 12px 0 0;
+      color: var(--dim);
+      font-size: 13px;
+    }
+
+    .footer {
+      padding: 20px 18px 24px;
+      border-top: 1px solid var(--gold-line);
+      color: var(--muted);
+      text-align: center;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      overflow-wrap: anywhere;
+    }
+
+    @media (max-width: 720px) {
+      .responsive-table thead {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
+      .responsive-table,
+      .responsive-table tbody,
+      .responsive-table tr,
+      .responsive-table td {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+      }
+
+      .responsive-table tr {
+        margin-bottom: 12px;
+        border: 1px solid var(--gold-line);
+        border-radius: 16px;
+        overflow: hidden;
+        background: rgba(255,255,255,0.018);
+      }
+
+      .responsive-table tr:last-child {
+        margin-bottom: 0;
+      }
+
+      .responsive-table td {
+        display: grid;
+        grid-template-columns: minmax(92px, 38%) minmax(0, 1fr);
+        gap: 10px;
+        align-items: start;
+        border: 0;
+        border-bottom: 1px solid rgba(201, 168, 76, 0.18);
+        padding: 11px 12px;
+        background: transparent;
+      }
+
+      .responsive-table td:last-child {
+        border-bottom: 0;
+      }
+
+      .responsive-table td::before {
+        content: attr(data-label);
+        color: var(--gold);
+        font-size: 11px;
+        font-weight: 950;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+      }
+
+      .amount {
+        white-space: normal;
+      }
+    }
+
+    @media (min-width: 560px) {
+      .page {
+        padding: 22px;
+      }
+
+      .hero,
+      .content {
+        padding-left: 26px;
+        padding-right: 26px;
+      }
+
+      .hero-meta,
+      .summary-strip,
+      .action-links {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .detail-grid,
+      .list-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .button,
+      button.button {
+        width: auto;
+      }
+    }
+
+    @media (min-width: 860px) {
+      body {
+        font-size: 16px;
+      }
+
+      .page {
+        padding: 34px;
+      }
+
+      .hero {
+        padding: 42px 42px 34px;
+      }
+
+      .content {
+        padding: 34px 42px;
+      }
+
+      .hero-meta {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .summary-strip {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+      }
+
+      .action-links {
+        grid-template-columns: auto auto;
+        justify-content: start;
+      }
+    }
+
+    @page {
+      size: A4;
+      margin: 12mm;
+      background: #0A0A0A;
+    }
+
+    @media print {
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+      }
+
+      html,
+      body {
+        width: 100% !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        background: #0A0A0A !important;
+        color: #FFFFFF !important;
+        overflow: visible !important;
+      }
+
+      body {
+        font-size: 11px !important;
+        line-height: 1.35 !important;
+      }
+
+      .page {
+        max-width: none !important;
+        padding: 0 !important;
+      }
+
+      .quote-shell,
+      .card,
+      .meta-tile,
+      .terms-card,
+      .agreement-box,
+      .summary-tile {
+        background: #111111 !important;
+        border-color: #C9A84C !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+
+      .hero {
+        background: #111111 !important;
+        border-color: #C9A84C !important;
+        padding: 18px !important;
+      }
+
+      .content {
+        padding: 16px 18px !important;
+      }
+
+      .validity-banner,
+      th {
+        background: #C9A84C !important;
+        color: #0A0A0A !important;
+      }
+
+      h1, h2, h3,
+      .eyebrow,
+      .label,
+      .summary-tile .value,
+      li::marker,
+      a {
+        color: #C9A84C !important;
+      }
+
+      .value,
+      .checkbox-text,
+      .amount,
+      td,
+      p,
+      li {
+        color: #FFFFFF !important;
+      }
+
+      .action-links,
+      .agreement-box {
+        display: none !important;
+      }
+
+      table,
+      thead,
+      tbody,
+      tr,
+      th,
+      td {
+        display: table-row-group;
+      }
+
+      table {
+        display: table !important;
+        width: 100% !important;
+        border-collapse: collapse !important;
+      }
+
+      thead {
+        display: table-header-group !important;
+      }
+
+      tbody {
+        display: table-row-group !important;
+      }
+
+      tr {
+        display: table-row !important;
+      }
+
+      th,
+      td {
+        display: table-cell !important;
+        border: 1px solid #C9A84C !important;
+        padding: 7px !important;
+      }
+
+      td::before {
+        content: none !important;
+      }
+
+      .footer {
+        border-color: #C9A84C !important;
+        color: #FFFFFF !important;
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <div class="validity-banner">
-            QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE
+  <main class="page">
+    <article class="quote-shell">
+      <div class="validity-banner">QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE</div>
+
+      <header class="hero">
+        <p class="eyebrow">Premium Microcement Quote</p>
+        <h1>Micro Cement King</h1>
+        <p class="hero-subtitle">Supply and install microcement to floors over existing tiles for Kai Budgen, Gold Coast QLD.</p>
+
+        <div class="hero-meta" aria-label="Quote summary">
+          <div class="meta-tile">
+            <span class="label">Quote Number</span>
+            <span class="value">MCK-2026-0KWBUE</span>
+          </div>
+          <div class="meta-tile">
+            <span class="label">Date Issued</span>
+            <span class="value">31/05/2026</span>
+          </div>
+          <div class="meta-tile">
+            <span class="label">Valid</span>
+            <span class="value">48 Hours</span>
+          </div>
+          <div class="meta-tile">
+            <span class="label">Prepared By</span>
+            <span class="value">King Mannion</span>
+          </div>
         </div>
 
-        <div class="header-section">
-            <h1>Micro Cement King</h1>
-            <p>Premium Architectural Finishes</p>
+        <div class="action-links">
+          <a class="button secondary" href="#terms">READ TERMS &amp; CONDITIONS</a>
+          <button class="button secondary" type="button" onclick="window.print()">PRINT / SAVE PDF</button>
         </div>
+      </header>
 
-        <h2>Quote Details</h2>
-        <div class="quote-details">
-            <p><strong>Quote Number:</strong> MCK-2026-0KWBUE</p>
-            <p><strong>Date Issued:</strong> 31/05/2026</p>
-            <p><strong>Valid:</strong> 48 Hours</p>
-            <p><strong>Prepared By:</strong> King Mannion</p>
-        </div>
+      <section class="content">
+        <section class="section" aria-labelledby="client-project-heading">
+          <h2 id="client-project-heading">Client & Project Details</h2>
+          <div class="card detail-grid">
+            <div class="detail-item">
+              <span class="label">Client</span>
+              <span class="value">Kai Budgen</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Phone</span>
+              <span class="value">0452 388 879</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Email</span>
+              <span class="value">kaibudgen@gmail.com</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Project Address</span>
+              <span class="value">4224, Gold Coast QLD</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Substrate</span>
+              <span class="value">Existing tiles</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Timeline</span>
+              <span class="value">ASAP</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Scope</span>
+              <span class="value">Supply and install microcement to floors over existing tiles</span>
+            </div>
+            <div class="detail-item">
+              <span class="label">Colour / Finish</span>
+              <span class="value">TBC</span>
+            </div>
+          </div>
+        </section>
 
-        <h2>Client Details</h2>
-        <div class="client-details">
-            <p><strong>Client:</strong> Kai Budgen</p>
-            <p><strong>Phone:</strong> 0452 388 879</p>
-            <p><strong>Email:</strong> kaibudgen@gmail.com</p>
-        </div>
+        <section class="section" aria-labelledby="line-items-heading">
+          <h2 id="line-items-heading">Line Items</h2>
+          <div class="table-wrap">
+            <table class="responsive-table" aria-label="Line items">
+              <thead>
+                <tr>
+                  <th>Description</th>
+                  <th>Qty</th>
+                  <th>Unit</th>
+                  <th>Rate</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td data-label="Description">Micro Cement Application — Floors (Over Existing Tiles)</td>
+                  <td data-label="Qty">30</td>
+                  <td data-label="Unit">sqm</td>
+                  <td data-label="Rate" class="amount">$350.00</td>
+                  <td data-label="Total" class="amount">$10,500.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-        <h2>Project Details</h2>
-        <div class="project-details">
-            <p><strong>Project Address:</strong> 4224, Gold Coast QLD</p>
-            <p><strong>Substrate:</strong> Existing tiles</p>
-            <p><strong>Scope:</strong> Supply and install microcement to floors over existing tiles</p>
-            <p><strong>Colour/Finish:</strong> TBC</p>
-            <p><strong>Timeline:</strong> ASAP</p>
-        </div>
+        <section class="section" aria-labelledby="totals-heading">
+          <h2 id="totals-heading">Totals</h2>
+          <div class="summary-strip">
+            <div class="summary-tile">
+              <span class="label">Subtotal Ex GST</span>
+              <span class="value">$10,500.00</span>
+            </div>
+            <div class="summary-tile">
+              <span class="label">GST 10%</span>
+              <span class="value">$1,050.00</span>
+            </div>
+            <div class="summary-tile">
+              <span class="label">Total Inc GST</span>
+              <span class="value">$11,550.00</span>
+            </div>
+          </div>
+        </section>
 
-        <h2>Line Items</h2>
-        <table>
-            <thead>
+        <section class="section" aria-labelledby="payment-heading">
+          <h2 id="payment-heading">Payment Schedule</h2>
+          <div class="table-wrap">
+            <table class="responsive-table" aria-label="Payment schedule">
+              <thead>
                 <tr>
-                    <th>Description</th>
-                    <th>Qty</th>
-                    <th>Unit</th>
-                    <th>Rate</th>
-                    <th>Total</th>
+                  <th>Stage</th>
+                  <th>%</th>
+                  <th>Amount Ex GST</th>
+                  <th>GST</th>
+                  <th>Total Inc GST</th>
                 </tr>
-            </thead>
-            <tbody>
+              </thead>
+              <tbody>
                 <tr>
-                    <td>Micro Cement Application — Floors (Over Existing Tiles)</td>
-                    <td>30</td>
-                    <td>sqm</td>
-                    <td>$350.00</td>
-                    <td>$10,500.00</td>
+                  <td data-label="Stage">Deposit</td>
+                  <td data-label="%">10%</td>
+                  <td data-label="Amount Ex GST" class="amount">$1,050.00</td>
+                  <td data-label="GST" class="amount">$105.00</td>
+                  <td data-label="Total Inc GST" class="amount">$1,155.00</td>
                 </tr>
-            </tbody>
-        </table>
+                <tr>
+                  <td data-label="Stage">Materials &amp; Scheduling</td>
+                  <td data-label="%">50%</td>
+                  <td data-label="Amount Ex GST" class="amount">$5,250.00</td>
+                  <td data-label="GST" class="amount">$525.00</td>
+                  <td data-label="Total Inc GST" class="amount">$5,775.00</td>
+                </tr>
+                <tr>
+                  <td data-label="Stage">Completion</td>
+                  <td data-label="%">40%</td>
+                  <td data-label="Amount Ex GST" class="amount">$4,200.00</td>
+                  <td data-label="GST" class="amount">$420.00</td>
+                  <td data-label="Total Inc GST" class="amount">$4,620.00</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
 
-        <h2>Totals</h2>
-        <table class="totals-table">
-            <tbody>
-                <tr>
-                    <td>Subtotal (Ex GST):</td>
-                    <td>$10,500.00</td>
-                </tr>
-                <tr>
-                    <td>GST (10%):</td>
-                    <td>$1,050.00</td>
-                </tr>
-                <tr>
-                    <td>TOTAL (Inc GST):</td>
-                    <td>$11,550.00</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>Payment Schedule</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th>Stage</th>
-                    <th>%</th>
-                    <th>Amount (Ex GST)</th>
-                    <th>GST</th>
-                    <th>Total (Inc GST)</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>Deposit</td>
-                    <td>10%</td>
-                    <td>$1,050.00</td>
-                    <td>$105.00</td>
-                    <td>$1,155.00</td>
-                </tr>
-                <tr>
-                    <td>Materials & Scheduling</td>
-                    <td>50%</td>
-                    <td>$5,250.00</td>
-                    <td>$525.00</td>
-                    <td>$5,775.00</td>
-                </tr>
-                <tr>
-                    <td>Completion</td>
-                    <td>40%</td>
-                    <td>$4,200.00</td>
-                    <td>$420.00</td>
-                    <td>$4,620.00</td>
-                </tr>
-            </tbody>
-        </table>
-
-        <h2>Inclusions</h2>
-        <div class="inclusions">
-            <ul>
+        <section class="section list-grid" aria-label="Inclusions and exclusions">
+          <div>
+            <h2>Inclusions</h2>
+            <div class="card">
+              <ul>
                 <li>Supply of all microcement materials (Solidro system)</li>
                 <li>Professional surface preparation over existing tiles</li>
                 <li>Bonding agent and primer application (tile-specific prep)</li>
@@ -290,39 +841,157 @@
                 <li>Finish coat application</li>
                 <li>PU100 polyurethane sealer — 2 coats</li>
                 <li>Full site protection and clean-up</li>
-            </ul>
-        </div>
-
-        <h2>Exclusions</h2>
-        <div class="exclusions">
-            <ul>
+              </ul>
+            </div>
+          </div>
+          <div>
+            <h2>Exclusions</h2>
+            <div class="card">
+              <ul>
                 <li>Tile removal and disposal</li>
                 <li>Waterproofing (excluded unless specified)</li>
                 <li>Plumbing, electrical, or other trade work</li>
                 <li>Floor levelling or grinding</li>
                 <li>Furniture removal or storage</li>
                 <li>Colour changes after work commences (variation applies)</li>
-            </ul>
-        </div>
+              </ul>
+            </div>
+          </div>
+        </section>
 
-        <h2>Special Conditions</h2>
-        <div class="special-conditions">
+        <section class="section" aria-labelledby="special-heading">
+          <h2 id="special-heading">Special Conditions</h2>
+          <div class="card">
             <ul>
-                <li>Final colour/finish to be confirmed before scheduling</li>
-                <li>Full street address required before mobilisation</li>
-                <li>Subject to site inspection</li>
-                <li>Quote valid 48 hours from date of issue</li>
+              <li>Final colour/finish to be confirmed before scheduling</li>
+              <li>Full street address required before mobilisation</li>
+              <li>Subject to site inspection</li>
+              <li>Quote valid 48 hours from date of issue</li>
             </ul>
-        </div>
+          </div>
+        </section>
 
-        <div class="button-container">
-            <button onclick="window.location.href='mailto:projects@microcementking.au?subject=Quote Acceptance: MCK-2026-0KWBUE'">ACCEPT QUOTE</button>
-            <button onclick="window.print()">PRINT / SAVE PDF</button>
-        </div>
+        <section class="section" id="terms" aria-labelledby="terms-heading">
+          <h2 id="terms-heading">Payment Terms &amp; Conditions</h2>
+          <p class="terms-intro">The following Micro Cement King Payment Terms &amp; Conditions form part of this quote. Acceptance requires agreement to these terms.</p>
 
-        <div class="footer">
-            MICRO CEMENT KING | <a href="https://microcementking.au">microcementking.au</a> | projects@microcementking.au | 0468 053 819
-        </div>
-    </div>
+          <div class="terms-card">
+            <h3>01. Definitions</h3>
+            <p><strong>1.1</strong> "MCK" refers to Micro Cement King and its authorised representatives. "Client" refers to the party named in the associated quotation. "Works" refers to all microcement application, surface preparation, sealing, and related services described in the quotation scope.</p>
+            <p><strong>1.2</strong> "Contract" means the accepted quotation together with these Payment Terms &amp; Conditions, forming the entire agreement between the parties.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>02. Quote Validity &amp; Acceptance</h3>
+            <p><strong>2.1</strong> Quotes are valid for the period stated on the quotation from the date of issue. After expiry, pricing must be reconfirmed in writing by MCK.</p>
+            <p><strong>2.2</strong> Acceptance of the quotation is confirmed by the client's signature (digital or physical) on the quotation document AND receipt of the booking deposit. Both conditions must be met.</p>
+            <p><strong>2.3</strong> MCK reserves the right to withdraw or amend any quotation prior to formal acceptance.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>03. Payment Terms</h3>
+            <p><strong>3.1 — Booking Deposit:</strong> A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</p>
+            <p><strong>3.2 — Material Payment:</strong> 50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</p>
+            <p><strong>3.3 — Final Claim:</strong> The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</p>
+            <p><strong>3.4 — Progress Claims:</strong> For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</p>
+            <p><strong>3.5 — Upfront Payment Reduction:</strong> A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</p>
+            <p><strong>3.6 — On-Site Measure Fee:</strong> A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>04. Overdue Payments &amp; Debt Recovery</h3>
+            <p><strong>4.1</strong> Invoices overdue by more than 3 business days will incur an administration fee of $220 (ex GST).</p>
+            <p><strong>4.2</strong> Interest accrues at 3% per week on outstanding amounts from Day 4 of the overdue period, compounding weekly.</p>
+            <p><strong>4.3</strong> If payment remains outstanding for 30 days or more, the matter will be referred to an external debt recovery agent. All recovery costs, legal fees, and collection charges will be added to the outstanding amount and are payable by the client.</p>
+            <p><strong>4.4</strong> MCK reserves the right to suspend or terminate works immediately if any payment milestone is not met within the specified timeframe.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>05. Variations</h3>
+            <p><strong>5.1</strong> All variations to the original scope must be agreed in writing before work commences. Verbal agreements are not binding.</p>
+            <p><strong>5.2</strong> Variations are charged at $150/hr (ex GST) with a 2-hour minimum, plus materials at cost + 20%. A $500 material allowance applies per variation unless otherwise agreed.</p>
+            <p><strong>5.3</strong> Variation invoices are payable within 3 business days of issue and are subject to the same overdue terms as the primary contract.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>06. Warranties</h3>
+            <p><strong>6.1</strong> All workmanship is covered under statutory warranties as required by Queensland law.</p>
+            <p><strong>6.2</strong> Manufacturer product warranties are passed through to the client in full. MCK will assist with any warranty claims where reasonable.</p>
+            <p><strong>6.3</strong> Warranties do not cover damage caused by misuse, neglect, other trades, structural movement, or failure to follow maintenance guidelines provided by MCK.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>07. Dispute Resolution</h3>
+            <p><strong>7.1</strong> No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties. Engaging third parties without prior written consent voids all warranties.</p>
+            <p><strong>7.2</strong> Any disputes shall first be addressed through direct negotiation. If unresolved within 14 days, the matter may be referred to mediation in accordance with Queensland law.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>08. Site Access &amp; Conditions</h3>
+            <p><strong>8.1</strong> The client must ensure unobstructed access to the work area for the full project duration. Restricted access, delays caused by other trades, or site conditions not disclosed at quoting may incur additional charges.</p>
+            <p><strong>8.2</strong> MCK is not responsible for damage to surfaces caused by other trades working in or near the application area after MCK has completed its works.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>09. Colour &amp; Finish Disclaimer</h3>
+            <p><strong>9.1</strong> Microcement colour and finish may vary from samples due to substrate conditions, ambient lighting, humidity, and application technique. Samples are indicative only and do not guarantee an exact colour match.</p>
+            <p><strong>9.2</strong> Colour changes requested after application has commenced will be treated as a variation and charged accordingly.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>10. Termination</h3>
+            <p><strong>10.1</strong> MCK reserves the right to terminate the contract if payment terms are repeatedly breached or if site conditions present an unreasonable risk to workers or materials.</p>
+            <p><strong>10.2</strong> Upon termination, all work completed to date is invoiced at the agreed rates and is immediately payable. Materials ordered or delivered are non-refundable.</p>
+          </div>
+
+          <div class="terms-card">
+            <h3>11. Governing Law</h3>
+            <p><strong>11.1</strong> This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</p>
+          </div>
+        </section>
+
+        <section class="section" aria-labelledby="acceptance-heading">
+          <h2 id="acceptance-heading">Accept Quote</h2>
+          <div class="agreement-box">
+            <label class="checkbox-row" for="termsAgree">
+              <input id="termsAgree" type="checkbox" aria-describedby="acceptNote">
+              <span class="checkbox-text">I have read and agree to the Micro Cement King Payment Terms &amp; Conditions</span>
+            </label>
+            <p class="accept-note" id="acceptNote">The accept button will activate after the checkbox is ticked.</p>
+          </div>
+
+          <div class="action-links">
+            <button class="button" id="acceptQuote" type="button" disabled>ACCEPT QUOTE</button>
+            <button class="button secondary" type="button" onclick="window.print()">PRINT / SAVE PDF</button>
+          </div>
+        </section>
+      </section>
+
+      <footer class="footer">
+        MICRO CEMENT KING | <a href="https://microcementking.au">microcementking.au</a> | <a href="mailto:projects@microcementking.au">projects@microcementking.au</a> | <a href="tel:0468053819">0468 053 819</a>
+      </footer>
+    </article>
+  </main>
+
+  <script>
+    (function () {
+      var checkbox = document.getElementById('termsAgree');
+      var acceptButton = document.getElementById('acceptQuote');
+      var mailto = 'mailto:projects@microcementking.au?subject=' + encodeURIComponent('Quote Accepted — MCK-2026-0KWBUE — Kai Budgen') + '&body=' + encodeURIComponent('I accept this quote and agree to the Payment Terms & Conditions.');
+
+      function updateAcceptState() {
+        acceptButton.disabled = !checkbox.checked;
+        acceptButton.setAttribute('aria-disabled', String(!checkbox.checked));
+      }
+
+      checkbox.addEventListener('change', updateAcceptState);
+      acceptButton.addEventListener('click', function () {
+        if (!checkbox.checked) return;
+        window.location.href = mailto;
+      });
+
+      updateAcceptState();
+    })();
+  </script>
 </body>
 </html>
