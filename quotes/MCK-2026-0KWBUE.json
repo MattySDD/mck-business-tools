@@ -1,0 +1,65 @@
+{
+  "quoteNumber": "MCK-2026-0KWBUE",
+  "dateIssued": "31/05/2026",
+  "validityLabel": "48 Hours",
+  "validityHours": 48,
+  "validityBanner": "QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE",
+  "preparedBy": "King Mannion",
+  "clientName": "Kai Budgen",
+  "clientPhone": "0452 388 879",
+  "clientEmail": "kaibudgen@gmail.com",
+  "projectAddress": "4224, Gold Coast QLD (full address TBC)",
+  "siteContact": "Kai Budgen",
+  "colourFinish": "TBC — to be confirmed with client",
+  "substrate": "Existing tiles",
+  "scope": "Supply and install microcement to floors over existing tiles",
+  "startDate": "ASAP",
+  "duration": "3-4 working days",
+  "completion": "TBC",
+  "lineItems": [
+    {
+      "desc": "Micro Cement Application — Floors (Over Existing Tiles)",
+      "qty": 30,
+      "unit": "sqm",
+      "rate": 350,
+      "total": 10500
+    }
+  ],
+  "variationItems": [],
+  "inclusions": [
+    "Supply of all microcement materials (Solidro system)",
+    "Professional surface preparation over existing tiles",
+    "Bonding agent and primer application (tile-specific prep)",
+    "Base coat application",
+    "Finish coat application",
+    "PU100 polyurethane sealer — 2 coats",
+    "Full site protection and clean-up"
+  ],
+  "exclusions": [
+    "Tile removal and disposal",
+    "Waterproofing (excluded unless specified)",
+    "Plumbing, electrical, or other trade work",
+    "Floor levelling or grinding",
+    "Furniture removal or storage",
+    "Colour changes after work commences (variation applies)"
+  ],
+  "specialConditions": [
+    "Final colour/finish to be confirmed before scheduling",
+    "Full street address required before mobilisation",
+    "Subject to site inspection",
+    "Quote valid 48 hours from date of issue"
+  ],
+  "depositPct": 10,
+  "matPct": 50,
+  "status": "Sent",
+  "createdAt": "2026-05-31T05:00:00.000+10:00",
+  "baseSubtotal": 10500,
+  "varSubtotal": 0,
+  "subtotal": 10500,
+  "gst": 1050,
+  "grandTotal": 11550,
+  "depositAmt": 1050,
+  "materialAmt": 5250,
+  "finalPct": 40,
+  "finalAmt": 4200
+}
