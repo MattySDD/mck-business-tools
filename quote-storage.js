@@ -221,39 +221,47 @@ const MCK_QUOTE_STORAGE = (() => {
   async function loadQuote(quoteId) {
     const filename = `${quoteId}.json`;
 
+    // Helper: fetch with timeout (5 seconds max)
+    function fetchWithTimeout(url, options, ms) {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), ms);
+      return fetch(url, { ...options, signal: controller.signal }).finally(() => clearTimeout(timer));
+    }
+
+    // Try API first, then fallback to raw URL
     try {
-      if (USE_API_FOR_READ) {
-        // Use API for fresh reads (bypasses CDN cache)
-        const apiUrl = `${API_BASE}/${filename}`;
-        const resp = await fetch(apiUrl, {
-          headers: { 'Authorization': `token ${GH_TOKEN}` }
-        });
+      const apiUrl = `${API_BASE}/${filename}`;
+      const resp = await fetchWithTimeout(apiUrl, {
+        headers: { 'Authorization': `token ${GH_TOKEN}` }
+      }, 5000);
 
-        if (!resp.ok) {
-          if (resp.status === 404) {
-            return { success: false, error: 'Quote not found' };
-          }
-          return { success: false, error: 'Failed to load quote' };
-        }
-
+      if (resp.ok) {
         const fileData = await resp.json();
         const jsonStr = decodeURIComponent(escape(atob(fileData.content)));
         const data = JSON.parse(jsonStr);
         return { success: true, data };
-      } else {
-        // Use raw URL (may be cached for up to 5 min)
-        const rawUrl = `${RAW_BASE}/${filename}?t=${Date.now()}`;
-        const resp = await fetch(rawUrl);
-
-        if (!resp.ok) {
-          return { success: false, error: 'Quote not found' };
-        }
-
-        const data = await resp.json();
-        return { success: true, data };
       }
+
+      if (resp.status === 404) {
+        return { success: false, error: 'Quote not found' };
+      }
+    } catch (apiErr) {
+      // API failed or timed out — fall through to raw URL
+    }
+
+    // Fallback: raw URL (works without token, may be cached up to 5 min)
+    try {
+      const rawUrl = `${RAW_BASE}/${filename}?t=${Date.now()}`;
+      const resp = await fetchWithTimeout(rawUrl, {}, 5000);
+
+      if (!resp.ok) {
+        return { success: false, error: 'Quote not found' };
+      }
+
+      const data = await resp.json();
+      return { success: true, data };
     } catch (e) {
-      return { success: false, error: e.message };
+      return { success: false, error: 'Network error: ' + e.message };
     }
   }
 
