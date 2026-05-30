@@ -245,7 +245,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
       return;
     }
   } else if (isTcOnly && !quoteId) {
-    // T&C only view without a quote — show standalone T&Cs
+    // T&C only view without a quote - show standalone T&Cs
     d = { quoteNumber: 'N/A', specialConditions: [] };
   } else {
     container.innerHTML = '<div class="error-state"><h2>NO QUOTE DATA</h2><p>This link does not contain valid quote data. Please request a new link from Micro Cement King.</p></div>';
@@ -308,7 +308,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   // T&C ONLY VIEW
   // ═══════════════════════════════════════════════════════════
   if (isTcOnly) {
-    document.title = 'MCK Terms & Conditions' + (d.quoteNumber !== 'N/A' ? ' — ' + d.quoteNumber : '');
+    document.title = 'MCK Terms & Conditions' + (d.quoteNumber !== 'N/A' ? ' - ' + d.quoteNumber : '');
 
     let scHTML = '';
     if (d.specialConditions && d.specialConditions.length > 0) {
@@ -335,7 +335,7 @@ tfoot td { background: #1a1a1a !important; font-weight: 700; border-top: 2px sol
   </div>
 </div>
 
-${d.quoteNumber !== 'N/A' ? '<div class="callout" style="margin-bottom:16pt;"><strong>QUOTE REFERENCE:</strong> ' + d.quoteNumber + (d.clientName ? ' — ' + d.clientName : '') + '</div>' : ''}
+${d.quoteNumber !== 'N/A' ? '<div class="callout" style="margin-bottom:16pt;"><strong>QUOTE REFERENCE:</strong> ' + d.quoteNumber + (d.clientName ? ' - ' + d.clientName : '') + '</div>' : ''}
 
 ${scHTML}
 
@@ -411,7 +411,7 @@ ${scHTML}
   <div class="clause"><span class="clause-num">10.2</span><span class="clause-text">Upon termination, any work completed up to that point will be invoiced and is payable immediately.</span></div>
 </div>
 
-<div style="text-align:center;padding:16pt 0;color:#666;font-size:9pt;letter-spacing:2px;">— END OF TERMS —</div>
+<div style="text-align:center;padding:16pt 0;color:#666;font-size:9pt;letter-spacing:2px;"> - END OF TERMS - </div>
 
 <!-- SIGNATURE SECTION -->
 <div class="page-section">
@@ -638,7 +638,7 @@ ${isInternal ? '<div id="revision-history-panel" class="no-print" style="margin-
     const specialInstructions = (d.specialConditions || []).map(function(c, i) {
       return '<li>' + c + '</li>';
     }).join('');
-    brief.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>JOB BRIEF — ' + d.quoteNumber + '</title>' +
+    brief.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"><title>JOB BRIEF - ' + d.quoteNumber + '</title>' +
       '<style>*{box-sizing:border-box;margin:0;padding:0;}body{font-family:Arial,sans-serif;padding:30px;color:#000;background:#fff;font-size:12pt;}' +
       'h1{font-size:20pt;border-bottom:3px solid #c9a84c;padding-bottom:8px;margin-bottom:16px;}' +
       'h2{font-size:13pt;color:#c9a84c;margin:18px 0 8px;text-transform:uppercase;letter-spacing:1px;}' +
@@ -649,12 +649,12 @@ ${isInternal ? '<div id="revision-history-panel" class="no-print" style="margin-
       '.schedule{background:#f0f0f0;padding:16px;border-radius:4px;margin-bottom:16px;}' +
       '.footer{margin-top:30px;padding-top:12px;border-top:2px solid #c9a84c;font-size:9pt;color:#666;text-align:center;}' +
       '@media print{body{padding:15mm;}}</style></head><body>' +
-      '<h1>JOB BRIEF — ' + d.quoteNumber + '</h1>' +
-      '<div class="no-pricing">CREW DOCUMENT — NO PRICING INFORMATION</div>' +
+      '<h1>JOB BRIEF - ' + d.quoteNumber + '</h1>' +
+      '<div class="no-pricing">CREW DOCUMENT - NO PRICING INFORMATION</div>' +
       '<h2>Site Details</h2>' +
       '<div class="grid">' +
         '<div class="field"><div class="field-lbl">Site Address</div><div class="field-val">' + (d.projectAddress || 'TBC') + '</div></div>' +
-        '<div class="field"><div class="field-lbl">Client Contact</div><div class="field-val">' + (d.clientName || '') + (d.clientPhone ? ' — ' + d.clientPhone : '') + '</div></div>' +
+        '<div class="field"><div class="field-lbl">Client Contact</div><div class="field-val">' + (d.clientName || '') + (d.clientPhone ? ' - ' + d.clientPhone : '') + '</div></div>' +
         '<div class="field"><div class="field-lbl">Site Contact</div><div class="field-val">' + (d.siteContact || d.clientName || 'TBC') + '</div></div>' +
         '<div class="field"><div class="field-lbl">Colour / Finish</div><div class="field-val">' + (d.colourFinish || 'TBC') + '</div></div>' +
         '<div class="field"><div class="field-lbl">Substrate</div><div class="field-val">' + (d.substrate || 'TBC') + '</div></div>' +
@@ -674,13 +674,13 @@ ${isInternal ? '<div id="revision-history-panel" class="no-print" style="margin-
         '</div>' +
       '</div>' +
       (specialInstructions ? '<h2>Special Instructions</h2><ul style="padding-left:20px;margin-bottom:16px;">' + specialInstructions + '</ul>' : '') +
-      '<div class="footer">MICRO CEMENT KING — 0468 053 819 — projects@microcementking.au<br>Generated ' + new Date().toLocaleDateString('en-AU') + '</div>' +
+      '<div class="footer">MICRO CEMENT KING - 0468 053 819 - projects@microcementking.au<br>Generated ' + new Date().toLocaleDateString('en-AU') + '</div>' +
       '<script>window.onload=function(){setTimeout(function(){window.print();},500);};<\/script>' +
       '</body></html>');
     brief.document.close();
   };
 
-  // Edit Quote — redirect to index.html with edit param (internal only)
+  // Edit Quote - redirect to index.html with edit param (internal only)
   window.editQuote = function(quoteNumber) {
     const baseUrl = window.location.href.replace(/quote-viewer\.html.*$/, '');
     window.location.href = baseUrl + 'index.html?edit=' + encodeURIComponent(quoteNumber);

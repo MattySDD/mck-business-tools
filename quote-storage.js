@@ -1,11 +1,11 @@
 // ═══════════════════════════════════════════════════════════
-// MCK QUOTE STORAGE v2.0 — GitHub Repo Backend
+// MCK QUOTE STORAGE v2.0 - GitHub Repo Backend
 // Stores quotes as JSON files in the GitHub repo
 // Read: public raw.githubusercontent.com (no auth)
 // Write: GitHub Contents API (token required)
 //
 // ═══════════════════════════════════════════════════════════
-// AGENT API — JSON SCHEMA DOCUMENTATION
+// AGENT API - JSON SCHEMA DOCUMENTATION
 // ═══════════════════════════════════════════════════════════
 //
 // External AI agents can create quotes by calling saveQuote()
@@ -13,7 +13,7 @@
 // except quoteNumber and at least one lineItem.
 //
 // {
-//   "quoteNumber": "MCK-2026-XXXX",        // REQUIRED — unique ID
+//   "quoteNumber": "MCK-2026-XXXX",        // REQUIRED - unique ID
 //   "dateIssued": "24/03/2026",             // DD/MM/YYYY
 //   "validityLabel": "48 Hours",            // Display label
 //   "validityHours": 48,                    // Numeric hours
@@ -24,15 +24,15 @@
 //   "clientEmail": "john@example.com",
 //   "projectAddress": "123 Gold Coast Hwy, Surfers Paradise QLD 4217",
 //   "siteContact": "John Smith",
-//   "colourFinish": "Grigio Cemento — Matte",
-//   "substrate": "Existing tiles — ground floor",
+//   "colourFinish": "Grigio Cemento - Matte",
+//   "substrate": "Existing tiles - ground floor",
 //   "scope": "Supply and install microcement to bathroom floors and walls",
 //   "startDate": "TBC",
 //   "duration": "5 working days",
 //   "completion": "TBC",
-//   "lineItems": [                          // REQUIRED — at least 1
+//   "lineItems": [                          // REQUIRED - at least 1
 //     {
-//       "desc": "Micro Cement Application — Bathroom Floors",
+//       "desc": "Micro Cement Application - Bathroom Floors",
 //       "qty": 24,
 //       "unit": "sqm",
 //       "rate": 280,
@@ -124,7 +124,7 @@ const MCK_QUOTE_STORAGE = (() => {
       }
 
       const body = {
-        message: `quote: ${quoteId} — ${storageData.clientName || 'Unknown'} — $${(storageData.subtotal || 0).toLocaleString()}`,
+        message: `quote: ${quoteId} - ${storageData.clientName || 'Unknown'} - $${(storageData.subtotal || 0).toLocaleString()}`,
         content: contentBase64,
         branch: BRANCH
       };
@@ -187,7 +187,7 @@ const MCK_QUOTE_STORAGE = (() => {
       const contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
 
       const body = {
-        message: `update: ${quoteId} — ${updates._updateType || 'field update'}`,
+        message: `update: ${quoteId} - ${updates._updateType || 'field update'}`,
         content: contentBase64,
         branch: BRANCH,
         sha: sha
@@ -246,7 +246,7 @@ const MCK_QUOTE_STORAGE = (() => {
         return { success: false, error: 'Quote not found' };
       }
     } catch (apiErr) {
-      // API failed or timed out — fall through to raw URL
+      // API failed or timed out - fall through to raw URL
     }
 
     // Fallback: raw URL (works without token, may be cached up to 5 min)

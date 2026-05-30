@@ -1,5 +1,5 @@
 // ═══════════════════════════════════════════════════════════
-// MCK QUOTE GENERATOR v3.0 — FULL REBUILD
+// MCK QUOTE GENERATOR v3.0 - FULL REBUILD
 // Variations, SMS, editable inclusions/exclusions,
 // embedded MCK signature, fixed clear signature
 // ═══════════════════════════════════════════════════════════
@@ -106,8 +106,8 @@ function initQuote() {
   initPaymentStages();
 
   if (document.getElementById('q-pricing-body').children.length === 0) {
-    addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
-    addQuoteLine('Micro Cement Application — Feature Walls', 0, 'sqm', 0);
+    addQuoteLine('Micro Cement Application - Floors', 0, 'sqm', 0);
+    addQuoteLine('Micro Cement Application - Feature Walls', 0, 'sqm', 0);
   }
 
   initSignature();
@@ -155,7 +155,7 @@ function addQuoteLine(desc = '', qty = 0, unit = 'sqm', rate = 0) {
       </select>
     </td>
     <td class="right"><input type="number" class="rate" value="${rate}" oninput="updateQuoteTotals()"></td>
-    <td class="right line-total">—</td>
+    <td class="right line-total">-</td>
     <td class="center no-print"><button class="btn-remove-line" onclick="this.parentElement.parentElement.remove(); updateQuoteTotals();">&times;</button></td>
   `;
 
@@ -183,7 +183,7 @@ function addVariationLine(desc = '', hrs = 0, matCost = 0) {
     <td class="right"><input type="number" class="var-hrs" value="${hrs}" min="0" step="0.5" oninput="updateVariationTotals()"></td>
     <td class="right"><input type="number" class="var-rate" value="${varRate}" oninput="updateVariationTotals()"></td>
     <td class="right"><input type="number" class="var-mat" value="${matCost}" min="0" step="1" oninput="updateVariationTotals()"></td>
-    <td class="right var-line-total">—</td>
+    <td class="right var-line-total">-</td>
     <td class="center no-print"><button class="btn-remove-line" onclick="this.parentElement.parentElement.remove(); updateVariationTotals();">&times;</button></td>
   `;
 
@@ -200,7 +200,7 @@ function updateVariationTotals() {
     const rate = parseFloat(row.querySelector('.var-rate')?.value) || 0;
     const mat = parseFloat(row.querySelector('.var-mat')?.value) || 0;
     const total = (hrs * rate) + mat;
-    row.querySelector('.var-line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    row.querySelector('.var-line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
     varTotal += total;
   });
 
@@ -224,7 +224,7 @@ function updateQuoteTotals() {
     const qty = parseFloat(line.querySelector('.qty').value) || 0;
     const rate = parseFloat(line.querySelector('.rate').value) || 0;
     const total = qty * rate;
-    line.querySelector('.line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+    line.querySelector('.line-total').textContent = total > 0 ? '$' + total.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2}) : '-';
     subtotal += total;
   });
 
@@ -353,7 +353,7 @@ function createPaymentStageRow(stage = {}) {
   const incGstAmt = amt + gstAmt;
 
   tr.innerHTML = `
-    <td class="stage-num">—</td>
+    <td class="stage-num">-</td>
     <td><input type="text" class="payment-stage-title" value="${escapeAttr(title)}" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="${escapeAttr(note)}" oninput="updatePaymentStageData()"></td>
     <td><input type="number" class="payment-stage-amount" value="${amt.toFixed(2)}" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
     <td class="payment-stage-gst right">${formatMoney(gstAmt)}</td>
@@ -509,13 +509,13 @@ function updatePaymentScheduleFromTotals(subtotal, defaultDepositPct, defaultMat
   const totalIncGst = totalExGst + totalGst;
 
   const totalExGstEl = document.getElementById('q-payment-total-exgst');
-  if (totalExGstEl) totalExGstEl.textContent = subtotal > 0 ? formatMoney(totalExGst) : '—';
+  if (totalExGstEl) totalExGstEl.textContent = subtotal > 0 ? formatMoney(totalExGst) : '-';
 
   const totalGstEl = document.getElementById('q-payment-total-gst');
-  if (totalGstEl) totalGstEl.textContent = subtotal > 0 ? formatMoney(totalGst) : '—';
+  if (totalGstEl) totalGstEl.textContent = subtotal > 0 ? formatMoney(totalGst) : '-';
 
   const totalEl = document.getElementById('q-payment-total');
-  if (totalEl) totalEl.textContent = subtotal > 0 ? formatMoney(totalIncGst) : '—';
+  if (totalEl) totalEl.textContent = subtotal > 0 ? formatMoney(totalIncGst) : '-';
 
   const pctTotalEl = document.getElementById('q-payment-pct-total');
   if (pctTotalEl) {
@@ -559,7 +559,7 @@ function updateAddPaymentButtonState() {
   }
   if (limit) {
     const totalPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);
-    limit.textContent = `${rows.length}/${PAYMENT_STAGE_MAX} stages. Total ${roundPct(totalPct)}% — edit amount or percentage as needed.`;
+    limit.textContent = `${rows.length}/${PAYMENT_STAGE_MAX} stages. Total ${roundPct(totalPct)}% - edit amount or percentage as needed.`;
     limit.style.color = Math.abs(totalPct - 100) < 0.01 ? '#888' : '#ff7777';
   }
   rows.forEach(row => {
@@ -708,7 +708,7 @@ function initEditableListItems() {
 function addInclusionItem() {
   const list = document.getElementById('q-inclusions');
   if (!list) return;
-  const li = createIeListItem('New inclusion — click to edit', true, 'inclusion');
+  const li = createIeListItem('New inclusion - click to edit', true, 'inclusion');
   list.appendChild(li);
   const text = li.querySelector('.ie-text');
   if (text) {
@@ -724,7 +724,7 @@ function addInclusionItem() {
 function addExclusionItem() {
   const list = document.getElementById('q-exclusions');
   if (!list) return;
-  const li = createIeListItem('New exclusion — click to edit', false, 'exclusion');
+  const li = createIeListItem('New exclusion - click to edit', false, 'exclusion');
   list.appendChild(li);
   const text = li.querySelector('.ie-text');
   if (text) {
@@ -738,7 +738,7 @@ function addExclusionItem() {
 }
 
 // ═══════════════════════════════════════════════════════════
-// SIGNATURE CANVAS — BOTH CLIENT AND MCK AUTHORISED
+// SIGNATURE CANVAS - BOTH CLIENT AND MCK AUTHORISED
 // ═══════════════════════════════════════════════════════════
 
 function initSignature() {
@@ -890,7 +890,7 @@ function acceptSigCanvas(canvasId, bannerId, imageId, label) {
   if (banner) {
     banner.style.display = 'block';
     const lbl = banner.querySelector('.acc-label');
-    if (lbl) lbl.textContent = label + ' SIGNATURE ACCEPTED — ' + new Date().toLocaleString();
+    if (lbl) lbl.textContent = label + ' SIGNATURE ACCEPTED - ' + new Date().toLocaleString();
   }
   const img = document.getElementById(imageId);
   if (img) {
@@ -905,7 +905,7 @@ function clearQuoteForm() {
   const varBody = document.getElementById('q-variation-body');
   if (varBody) varBody.innerHTML = '';
   document.querySelectorAll('#tab-quote .field-val').forEach(f => f.innerHTML = '&nbsp;');
-  addQuoteLine('Micro Cement Application — Floors', 0, 'sqm', 0);
+  addQuoteLine('Micro Cement Application - Floors', 0, 'sqm', 0);
   updateQuoteTotals();
   clearQuoteSig();
 }
@@ -1113,7 +1113,7 @@ function buildQuoteHTML(d, options = {}) {
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<title>MCK Quote — ${d.quoteNumber}</title>
+<title>MCK Quote - ${d.quoteNumber}</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after {
@@ -1394,7 +1394,7 @@ function generatePDFQuote() {
     const html = buildQuoteHTML(d);
     saveQuoteRevision(d);
 
-    // Use Blob URL to open the print window — avoids document.write() blocking in modern browsers
+    // Use Blob URL to open the print window - avoids document.write() blocking in modern browsers
     const blob = new Blob([html], { type: 'text/html' });
     const blobUrl = URL.createObjectURL(blob);
     const printWindow = window.open(blobUrl, '_blank');
@@ -1435,7 +1435,7 @@ async function generateShareableLink() {
   btns.forEach(btn => { origTexts.push(btn.textContent); btn.textContent = 'SAVING...'; btn.disabled = true; });
 
   try {
-    // Check if this quote already exists — if so, save as versioned file
+    // Check if this quote already exists - if so, save as versioned file
     const exists = await MCK_QUOTE_STORAGE.quoteExists(d.quoteNumber);
     if (exists) {
       // Find next version number
@@ -1474,7 +1474,7 @@ async function generateShareableLink() {
         savedAt: d.lastSavedAt,
         quoteUrl: result.success ? (result.urls && result.urls.internal) : null,
       }, 'https://mckquote.com');
-    } catch(e) { /* not in iframe — ignore */ }
+    } catch(e) { /* not in iframe - ignore */ }
     if (result.success) {
       showShareModal(result.urls, d.clientName, d.quoteNumber);
     } else {
@@ -1519,7 +1519,7 @@ function showShareModal(urls, clientName, quoteNumber) {
 
       <!-- CLIENT LINK -->
       <div style="margin-bottom:18px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="background:#27AE60;color:#fff;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px;">CLIENT</span><span style="color:#aaa;font-size:10px;">Quote + T&Cs — no internal data visible</span></div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;"><span style="background:#27AE60;color:#fff;padding:2px 8px;border-radius:3px;font-size:8px;font-weight:800;letter-spacing:1px;">CLIENT</span><span style="color:#aaa;font-size:10px;">Quote + T&Cs - no internal data visible</span></div>
         <div style="background:#0a0a0a;border:1px solid #333;border-radius:4px;padding:10px;display:flex;gap:8px;align-items:center;">
           <input type="text" id="share-url-client" value="${clientUrl}" readonly style="flex:1;background:transparent;border:none;color:#fff;font-family:monospace;font-size:10px;outline:none;">
           <button onclick="copyLink('share-url-client',this)" style="background:#27AE60;color:#fff;border:none;padding:8px 14px;font-family:inherit;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:1px;cursor:pointer;border-radius:3px;white-space:nowrap;">COPY</button>
@@ -1594,12 +1594,12 @@ function shareViaSMS(url, clientName) {
 
 function shareViaEmail(url, clientName, quoteNumber) {
   const name = clientName || 'there';
-  const subject = encodeURIComponent('Micro Cement King Quote' + (quoteNumber ? ' — ' + quoteNumber : ''));
+  const subject = encodeURIComponent('Micro Cement King Quote' + (quoteNumber ? ' - ' + quoteNumber : ''));
   const body = encodeURIComponent(`Hi ${name},\n\nPlease find your Micro Cement King quote here:\n${url}\n\nIf you have any questions, please don't hesitate to reach out.\n\nKind regards,\nMicro Cement King\n0468 053 819\nprojects@microcementking.au`);
   window.open('mailto:?subject=' + subject + '&body=' + body);
 }
 
-// Direct buttons from quote tab — always use CLIENT link
+// Direct buttons from quote tab - always use CLIENT link
 async function shareQuoteWhatsApp() {
   const d = extractQuoteData();
   saveQuoteRevision(d);
@@ -1754,7 +1754,7 @@ function reloadQuoteFromHistory(idx) {
 
   const banner = document.createElement('div');
   banner.className = 'auto-populate-banner';
-  banner.innerHTML = `<span class="apb-icon">&#9889;</span> QUOTE ${d.quoteNumber} (R${history[idx].revision}) RELOADED FROM HISTORY — REVIEW BEFORE SENDING`;
+  banner.innerHTML = `<span class="apb-icon">&#9889;</span> QUOTE ${d.quoteNumber} (R${history[idx].revision}) RELOADED FROM HISTORY - REVIEW BEFORE SENDING`;
   const existing = tab.querySelector('.auto-populate-banner');
   if (existing) existing.remove();
   tab.insertBefore(banner, tab.firstChild);
@@ -1769,7 +1769,7 @@ function clearQuoteHistory() {
 
 
 // ═══════════════════════════════════════════════════════════
-// EDIT MODE — Load quote from GitHub for editing
+// EDIT MODE - Load quote from GitHub for editing
 // ═══════════════════════════════════════════════════════════
 
 async function loadQuoteForEditing(quoteId) {
@@ -1886,7 +1886,7 @@ async function loadQuoteForEditing(quoteId) {
       if (existing) existing.remove();
       const banner = document.createElement('div');
       banner.className = 'auto-populate-banner';
-      banner.innerHTML = '<span class="apb-icon">&#9998;</span> EDITING QUOTE ' + d.quoteNumber + ' — CHANGES WILL SAVE TO THE SAME QUOTE ID';
+      banner.innerHTML = '<span class="apb-icon">&#9998;</span> EDITING QUOTE ' + d.quoteNumber + ' - CHANGES WILL SAVE TO THE SAME QUOTE ID';
       tab.insertBefore(banner, tab.firstChild);
     }
 
@@ -2017,12 +2017,12 @@ html, body {
 
 <div class="tc-section">
   <div class="tc-section-head"><div class="tc-section-num">03</div><h2>PAYMENT TERMS</h2></div>
-  <div class="clause"><span class="clause-num">3.1 — Booking Deposit</span><span class="clause-text">A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</span></div>
-  <div class="clause"><span class="clause-num">3.2 — Material Payment</span><span class="clause-text">50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</span></div>
-  <div class="clause"><span class="clause-num">3.3 — Final Claim</span><span class="clause-text">The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</span></div>
-  <div class="clause"><span class="clause-num">3.4 — Progress Claims</span><span class="clause-text">For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</span></div>
-  <div class="clause"><span class="clause-num">3.5 — Upfront Reduction</span><span class="clause-text">A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</span></div>
-  <div class="clause"><span class="clause-num">3.6 — Measure Fee</span><span class="clause-text">A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</span></div>
+  <div class="clause"><span class="clause-num">3.1 - Booking Deposit</span><span class="clause-text">A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</span></div>
+  <div class="clause"><span class="clause-num">3.2 - Material Payment</span><span class="clause-text">50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</span></div>
+  <div class="clause"><span class="clause-num">3.3 - Final Claim</span><span class="clause-text">The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</span></div>
+  <div class="clause"><span class="clause-num">3.4 - Progress Claims</span><span class="clause-text">For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</span></div>
+  <div class="clause"><span class="clause-num">3.5 - Upfront Reduction</span><span class="clause-text">A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</span></div>
+  <div class="clause"><span class="clause-num">3.6 - Measure Fee</span><span class="clause-text">A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</span></div>
 </div>
 
 <div class="tc-section">
@@ -2076,7 +2076,7 @@ html, body {
   <div class="clause"><span class="clause-num">11.1</span><span class="clause-text">This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</span></div>
 </div>
 
-<div class="end-marker">— END OF TERMS —</div>
+<div class="end-marker"> - END OF TERMS - </div>
 
 <div class="doc-footer">
   <span class="gold">MICRO CEMENT KING</span> &nbsp;|&nbsp; 0468 053 819 &nbsp;|&nbsp; projects@microcementking.au &nbsp;|&nbsp; microcementking.au<br>

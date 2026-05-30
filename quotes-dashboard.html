@@ -109,7 +109,7 @@ tr:hover td { background: #1a1a1a; }
 <div class="header">
   <div>
     <h1>Pipeline Dashboard</h1>
-    <div class="sub">MICRO CEMENT KING — QUOTE PIPELINE</div>
+    <div class="sub">MICRO CEMENT KING - QUOTE PIPELINE</div>
   </div>
   <div class="header-actions">
     <button class="btn btn-ghost" onclick="loadQuotes()">REFRESH</button>
@@ -119,11 +119,11 @@ tr:hover td { background: #1a1a1a; }
 
 <!-- STATS -->
 <div class="stats-grid" id="stats-grid">
-  <div class="stat-card gold"><div class="stat-label">Total Pipeline Value</div><div class="stat-value" id="stat-total">—</div><div class="stat-sub" id="stat-total-sub">Loading...</div></div>
-  <div class="stat-card green"><div class="stat-label">Accepted Value</div><div class="stat-value" id="stat-accepted">—</div><div class="stat-sub" id="stat-accepted-sub">—</div></div>
-  <div class="stat-card amber"><div class="stat-label">Pending Value</div><div class="stat-value" id="stat-pending">—</div><div class="stat-sub" id="stat-pending-sub">—</div></div>
-  <div class="stat-card blue"><div class="stat-label">Conversion Rate</div><div class="stat-value" id="stat-conversion">—</div><div class="stat-sub" id="stat-conversion-sub">—</div></div>
-  <div class="stat-card red"><div class="stat-label">Declined / Expired</div><div class="stat-value" id="stat-lost">—</div><div class="stat-sub" id="stat-lost-sub">—</div></div>
+  <div class="stat-card gold"><div class="stat-label">Total Pipeline Value</div><div class="stat-value" id="stat-total">-</div><div class="stat-sub" id="stat-total-sub">Loading...</div></div>
+  <div class="stat-card green"><div class="stat-label">Accepted Value</div><div class="stat-value" id="stat-accepted">-</div><div class="stat-sub" id="stat-accepted-sub">-</div></div>
+  <div class="stat-card amber"><div class="stat-label">Pending Value</div><div class="stat-value" id="stat-pending">-</div><div class="stat-sub" id="stat-pending-sub">-</div></div>
+  <div class="stat-card blue"><div class="stat-label">Conversion Rate</div><div class="stat-value" id="stat-conversion">-</div><div class="stat-sub" id="stat-conversion-sub">-</div></div>
+  <div class="stat-card red"><div class="stat-label">Declined / Expired</div><div class="stat-value" id="stat-lost">-</div><div class="stat-sub" id="stat-lost-sub">-</div></div>
 </div>
 
 <!-- FILTERS -->
@@ -280,10 +280,10 @@ function renderTable() {
     const viewerBase = BASE_URL + 'quote-viewer.html';
     return `<tr>
       <td style="font-weight:700;color:var(--gold);">${q.quoteNumber || qId}</td>
-      <td>${q.clientName || '—'}</td>
-      <td style="font-size:10px;">${q.projectAddress || '—'}</td>
+      <td>${q.clientName || '-'}</td>
+      <td style="font-size:10px;">${q.projectAddress || '-'}</td>
       <td class="right" style="font-weight:700;">${$(q.subtotal)}</td>
-      <td style="font-size:10px;color:var(--grey-light);">${q.dateIssued || '—'}</td>
+      <td style="font-size:10px;color:var(--grey-light);">${q.dateIssued || '-'}</td>
       <td><span class="status status-${q._effectiveStatus}">${q._effectiveStatus}</span></td>
       <td style="white-space:nowrap;">
         <a href="${viewerBase}?id=${encodeURIComponent(qId)}&view=client" target="_blank" class="action-link">Client</a>
