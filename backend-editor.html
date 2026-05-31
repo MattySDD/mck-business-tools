@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="en-AU">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>MCK BACKEND EDITOR</title>
+  <style>
+    :root { --gold:#C9A84C; --black:#0A0A0A; --white:#FFFFFF; --panel:#151515; --muted:rgba(255,255,255,.72); --line:rgba(201,168,76,.32); --danger:#FF6B6B; --amber:#FFCF66; --green:#79D28F; }
+    * { box-sizing:border-box; -webkit-print-color-adjust:exact; print-color-adjust:exact; }
+    html, body { margin:0; background:var(--black); color:var(--white); font-family:Arial, Helvetica, sans-serif; line-height:1.42; }
+    body { min-height:100vh; background:radial-gradient(circle at top right, rgba(201,168,76,.18), transparent 30%), var(--black); }
+    h1, h2, h3, label, th, button { text-transform:uppercase; letter-spacing:.055em; }
+    h1 { margin:0; font-size:clamp(34px, 7vw, 72px); line-height:.92; }
+    h2 { margin:0 0 14px; color:var(--gold); font-size:18px; }
+    h3 { color:var(--gold); font-size:13px; margin:18px 0 8px; }
+    p { color:var(--muted); margin:0 0 12px; }
+    .app { width:100%; max-width:1320px; margin:0 auto; padding:16px; }
+    .hero { border:1px solid var(--line); border-radius:24px; padding:26px; background:linear-gradient(145deg, #0A0A0A, #181818); margin-bottom:14px; }
+    .brand { color:var(--gold); font-weight:900; margin-bottom:22px; letter-spacing:.16em; }
+    .layout { display:grid; grid-template-columns:280px 1fr 360px; gap:14px; align-items:start; }
+    .card { border:1px solid var(--line); border-radius:18px; background:rgba(21,21,21,.95); padding:16px; overflow:hidden; }
+    .draft { width:100%; text-align:left; border:1px solid var(--line); background:transparent; color:var(--white); border-radius:12px; padding:12px; margin-bottom:10px; cursor:pointer; }
+    .draft.active { background:rgba(201,168,76,.16); color:var(--gold); }
+    label { display:block; color:var(--gold); font-size:11px; margin:12px 0 6px; }
+    input, textarea, select { width:100%; border:1px solid var(--line); border-radius:12px; background:#050505; color:var(--white); padding:10px; font:inherit; }
+    textarea { min-height:82px; resize:vertical; }
+    .grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:10px; }
+    .line-grid { display:grid; grid-template-columns:1.4fr 1fr 1fr .65fr .75fr .9fr auto; gap:8px; align-items:end; border-top:1px solid rgba(201,168,76,.18); padding-top:12px; margin-top:12px; }
+    button { border:1px solid var(--gold); border-radius:999px; background:var(--gold); color:var(--black); font-weight:900; padding:11px 14px; cursor:pointer; font-size:12px; }
+    button.secondary { background:transparent; color:var(--gold); }
+    button.danger { border-color:var(--danger); color:var(--danger); background:transparent; }
+    .button-row { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .metric { display:flex; justify-content:space-between; gap:12px; border-bottom:1px solid rgba(201,168,76,.18); padding:10px 0; }
+    .metric span { color:var(--muted); }
+    .metric strong { color:var(--gold); }
+    .badge { display:inline-flex; border:1px solid var(--line); border-radius:999px; padding:7px 10px; font-weight:900; font-size:11px; }
+    .PASS { color:var(--green); border-color:var(--green); }
+    .FLAG { color:var(--amber); border-color:var(--amber); }
+    .HARDSTOP { color:var(--danger); border-color:var(--danger); }
+    table { width:100%; border-collapse:collapse; }
+    th, td { border-bottom:1px solid rgba(201,168,76,.16); padding:8px; font-size:12px; text-align:left; vertical-align:top; }
+    th { color:var(--gold); }
+    td { color:var(--white); }
+    .scroll { max-height:300px; overflow:auto; border:1px solid var(--line); border-radius:12px; }
+    .preview { width:100%; height:520px; background:var(--white); border:1px solid var(--line); border-radius:12px; }
+    .notice { border:1px solid var(--amber); color:var(--amber); border-radius:12px; padding:12px; background:rgba(255,207,102,.07); }
+    @media (max-width:1100px) { .layout { grid-template-columns:1fr; } .line-grid { grid-template-columns:1fr 1fr; } }
+    @media (max-width:680px) { .app { padding:10px; } .hero, .card { border-radius:16px; padding:14px; } .grid, .line-grid { grid-template-columns:1fr; } }
+    @media print { body, .app, .hero, .card { background:#0A0A0A !important; color:#FFFFFF !important; } h1,h2,h3,label,th,.brand,.metric strong { color:#C9A84C !important; } .button-row, button, .preview { display:none !important; } }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="brand">MICRO CEMENT KING | BACKEND EDITOR</div>
+      <h1>SALES QUOTE CONTROL ROOM</h1>
+      <p>STEFI CAN EDIT DRAFTS, OVERRIDE PRICING WITH A LOGGED REASON, CHECK MARGIN, REVIEW MATERIALS AND LABOUR, THEN SUBMIT TO REGENERATE THE CLIENT QUOTE HTML.</p>
+    </section>
+
+    <section class="layout">
+      <aside class="card">
+        <h2>DRAFT QUOTES</h2>
+        <div id="draftList"></div>
+        <div class="button-row">
+          <button onclick="newDraft()">NEW DRAFT</button>
+          <button class="secondary" onclick="saveDrafts()">SAVE</button>
+        </div>
+        <label>EDITOR NAME</label>
+        <input id="editorName" value="Stefi" onchange="setEditor(this.value)">
+        <label>IMPORT QUOTE JSON</label>
+        <textarea id="importBox" placeholder="PASTE QUOTE JSON HERE"></textarea>
+        <button class="secondary" onclick="importJson()">IMPORT JSON</button>
+      </aside>
+
+      <section class="card">
+        <h2>EDIT QUOTE</h2>
+        <div id="form"></div>
+        <h3>LINE ITEMS</h3>
+        <div id="lineItems"></div>
+        <div class="button-row">
+          <button onclick="addLineItem()">ADD LINE ITEM</button>
+          <button onclick="submitQuote()">SUBMIT AND REGENERATE</button>
+          <button class="secondary" onclick="downloadQuoteHtml()">DOWNLOAD CLIENT HTML</button>
+        </div>
+        <h3>CLIENT QUOTE PREVIEW</h3>
+        <iframe id="preview" class="preview" title="CLIENT QUOTE PREVIEW"></iframe>
+      </section>
+
+      <aside class="card">
+        <h2>MARGIN AND ALLOWANCES</h2>
+        <div id="metrics"></div>
+        <h3>MATERIAL ORDER LIST</h3>
+        <div class="scroll"><table><thead><tr><th>ITEM</th><th>QTY</th></tr></thead><tbody id="materials"></tbody></table></div>
+        <h3>EDIT LOG</h3>
+        <div class="scroll"><table><thead><tr><th>WHEN</th><th>WHO</th><th>FIELD</th><th>CHANGE</th></tr></thead><tbody id="log"></tbody></table></div>
+      </aside>
+    </section>
+  </main>
+
+  <script>
+    const GST = 0.10;
+    const MIN = 2500;
+    const rateTable = [
+      ['Floors','Concrete (standard)',280], ['Floors','Existing tiles',350], ['Floors','Timber/plywood',320],
+      ['Walls','Plasterboard',260], ['Walls','Rendered/brick',300], ['Benchtops','Any',380],
+      ['Bathroom (wet area)','Any',350], ['Pool surrounds','Concrete',320], ['Stairs','Any',400],
+      ['Fireplace','Any',420], ['Commercial (one coat)','Any',180]
+    ];
+    let editor = 'Stefi';
+    let drafts = JSON.parse(localStorage.getItem('mckDrafts') || 'null') || seedDrafts();
+    let active = 0;
+    let lastHtml = '';
+
+    function seedDrafts() {
+      return [{ quoteNumber:'MCK-DRAFT-001', issueDate:new Date().toISOString(), client:{name:'NEW CLIENT', phone:'', email:''}, project:{address:'', colours:'', timeline:'', budget:'', specialNotes:''}, scopeSummary:'', lineItems:[], inclusions:[], exclusions:[], missingInfo:[], editLog:[] }];
+    }
+    function money(v) { return '$' + Number(v || 0).toLocaleString('en-AU', { minimumFractionDigits:2, maximumFractionDigits:2 }); }
+    function n(v) { return String(v || '').trim().toLowerCase(); }
+    function setEditor(value) { editor = value || 'Stefi'; }
+    function log(field, oldValue, newValue) {
+      const d = drafts[active];
+      if (String(oldValue) === String(newValue)) return;
+      d.editLog = d.editLog || [];
+      d.editLog.unshift({ field, oldValue:String(oldValue || ''), newValue:String(newValue || ''), who:editor, when:new Date().toLocaleString('en-AU') });
+    }
+    function getRate(item) {
+      if (item.rateOverride !== '' && item.rateOverride != null && !Number.isNaN(Number(item.rateOverride))) return Number(item.rateOverride);
+      const direct = rateTable.find(r => n(r[0]) === n(item.surfaceType) && n(r[1]) === n(item.substrate));
+      if (direct) return direct[2];
+      const any = rateTable.find(r => n(r[0]) === n(item.surfaceType) && n(r[1]) === 'any');
+      return any ? any[2] : 0;
+    }
+    function systemType(item) {
+      const s = n(item.surfaceType); const sub = n(item.substrate); const desc = n(item.description);
+      if (s.includes('commercial')) return 'commercial';
+      if (s.includes('bathroom') || desc.includes('bathroom')) return 'wet';
+      if (s.includes('benchtop') || desc.includes('bench') || desc.includes('counter')) return 'bench';
+      if (s.includes('pool')) return 'outdoor';
+      if (sub.includes('tile')) return 'tile';
+      return 'standard';
+    }
+    function calc() {
+      const d = drafts[active];
+      let raw = 0, materials = 0, labour = 0, hours = 0;
+      const lines = (d.lineItems || []).map(item => {
+        const sqm = Number(item.sqm || 0); const rate = getRate(item); const type = systemType(item);
+        const materialRate = type === 'commercial' ? 25 : type === 'wet' ? 60 : type === 'bench' ? 50 : type === 'outdoor' ? 55 : type === 'tile' ? 55 : 45;
+        const labourRate = n(item.surfaceType).includes('stairs') || n(item.surfaceType).includes('fireplace') ? 120 : type === 'commercial' ? 50 : type === 'wet' ? 100 : 80;
+        const hourRate = n(item.surfaceType).includes('stairs') || n(item.surfaceType).includes('fireplace') ? 1.5 : type === 'wet' ? 1.25 : type === 'commercial' ? .55 : type === 'bench' ? 1.1 : 1;
+        const total = sqm * rate;
+        raw += total; materials += sqm * materialRate; labour += sqm * labourRate; hours += sqm * hourRate;
+        return { ...item, sqm, rate, total, materialRate, labourRate, hours, type };
+      });
+      const minimumAdjustment = raw > 0 && raw < MIN ? MIN - raw : 0;
+      const revenue = raw + minimumAdjustment;
+      const cost = materials + labour;
+      const margin = revenue ? ((revenue - cost) / revenue) * 100 : 0;
+      const status = margin >= 40 ? 'PASS' : margin >= 35 ? 'FLAG' : 'HARD STOP';
+      return { lines, raw, minimumAdjustment, revenue, gst:revenue * GST, inc:revenue * 1.1, materials, labour, cost, margin, status, hours, days:hours / 16 };
+    }
+    function updateField(path, value) {
+      const d = drafts[active];
+      const parts = path.split('.');
+      let obj = d;
+      while (parts.length > 1) obj = obj[parts.shift()];
+      const key = parts[0]; const old = obj[key]; obj[key] = value; log(path, old, value); render();
+    }
+    function input(label, path, value, type='text') { return `<label>${label}</label><input type="${type}" value="${escapeAttr(value)}" onchange="updateField('${path}', this.value)">`; }
+    function textarea(label, path, value) { return `<label>${label}</label><textarea onchange="updateField('${path}', this.value)">${escapeHtml(value)}</textarea>`; }
+    function escapeHtml(v) { return String(v == null ? '' : v).replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;'); }
+    function escapeAttr(v) { return escapeHtml(v); }
+    function render() {
+      const d = drafts[active]; const c = calc();
+      document.getElementById('draftList').innerHTML = drafts.map((q,i) => `<button class="draft ${i===active?'active':''}" onclick="active=${i}; render()"><strong>${escapeHtml(q.quoteNumber)}</strong><br>${escapeHtml((q.client||{}).name || 'NO NAME')}</button>`).join('');
+      document.getElementById('form').innerHTML = `<div class="grid">${input('QUOTE NUMBER','quoteNumber',d.quoteNumber)}${input('ISSUE DATE','issueDate',d.issueDate)}${input('CLIENT NAME','client.name',d.client.name)}${input('PHONE','client.phone',d.client.phone)}${input('EMAIL','client.email',d.client.email)}${input('ADDRESS','project.address',d.project.address)}${input('COLOURS','project.colours',d.project.colours)}${input('TIMELINE','project.timeline',d.project.timeline)}${input('BUDGET','project.budget',d.project.budget)}${input('SPECIAL NOTES','project.specialNotes',d.project.specialNotes)}</div>${textarea('SCOPE SUMMARY','scopeSummary',d.scopeSummary || '')}`;
+      document.getElementById('lineItems').innerHTML = (d.lineItems || []).map((item,i) => lineEditor(item,i)).join('') || '<p>NO LINE ITEMS YET.</p>';
+      const cls = c.status.replace(' ', '');
+      document.getElementById('metrics').innerHTML = `<p><span class="badge ${cls}">${c.status}</span></p><div class="metric"><span>REVENUE EX GST</span><strong>${money(c.revenue)}</strong></div><div class="metric"><span>GST</span><strong>${money(c.gst)}</strong></div><div class="metric"><span>TOTAL INC GST</span><strong>${money(c.inc)}</strong></div><div class="metric"><span>MATERIAL COST</span><strong>${money(c.materials)}</strong></div><div class="metric"><span>LABOUR COST</span><strong>${money(c.labour)}</strong></div><div class="metric"><span>MARGIN</span><strong>${c.margin.toFixed(1)}%</strong></div><div class="metric"><span>LABOUR HOURS</span><strong>${c.hours.toFixed(1)}</strong></div><div class="metric"><span>LABOUR DAYS</span><strong>${c.days.toFixed(1)}</strong></div>${c.status === 'HARD STOP' ? '<div class="notice">HARD STOP: DO NOT SEND WITHOUT APPROVED OVERRIDE.</div>' : ''}`;
+      document.getElementById('materials').innerHTML = materialRows(c.lines);
+      document.getElementById('log').innerHTML = (d.editLog || []).map(row => `<tr><td>${escapeHtml(row.when)}</td><td>${escapeHtml(row.who)}</td><td>${escapeHtml(row.field)}</td><td>${escapeHtml(row.oldValue)} TO ${escapeHtml(row.newValue)}</td></tr>`).join('');
+      saveDrafts(false);
+    }
+    function lineEditor(item,i) {
+      return `<div class="line-grid"><div><label>DESCRIPTION</label><input value="${escapeAttr(item.description)}" onchange="lineChange(${i}, 'description', this.value)"></div><div><label>SURFACE</label><select onchange="lineChange(${i}, 'surfaceType', this.value)">${surfaceOptions(item.surfaceType)}</select></div><div><label>SUBSTRATE</label><input value="${escapeAttr(item.substrate)}" onchange="lineChange(${i}, 'substrate', this.value)"></div><div><label>SQM</label><input type="number" step="0.1" value="${escapeAttr(item.sqm)}" onchange="lineChange(${i}, 'sqm', this.value)"></div><div><label>OVERRIDE</label><input type="number" step="0.01" value="${escapeAttr(item.rateOverride || '')}" onchange="lineChange(${i}, 'rateOverride', this.value)"></div><div><label>REASON</label><input value="${escapeAttr(item.overrideReason || '')}" onchange="lineChange(${i}, 'overrideReason', this.value)"></div><button class="danger" onclick="removeLine(${i})">REMOVE</button></div>`;
+    }
+    function surfaceOptions(value) {
+      const options = ['Floors','Walls','Benchtops','Bathroom (wet area)','Pool surrounds','Stairs','Fireplace','Commercial (one coat)'];
+      return options.map(o => `<option ${o===value?'selected':''}>${o}</option>`).join('');
+    }
+    function lineChange(i, key, value) { const item = drafts[active].lineItems[i]; const old = item[key]; item[key] = value; log('lineItems.' + i + '.' + key, old, value); render(); }
+    function addLineItem() { drafts[active].lineItems.push({ description:'NEW AREA', surfaceType:'Floors', substrate:'Concrete (standard)', sqm:1, rateOverride:'', overrideReason:'' }); log('lineItems', '', 'ADDED LINE ITEM'); render(); }
+    function removeLine(i) { const old = JSON.stringify(drafts[active].lineItems[i]); drafts[active].lineItems.splice(i,1); log('lineItems.' + i, old, 'REMOVED'); render(); }
+    function materialRows(lines) {
+      const rows = [];
+      lines.forEach(line => {
+        const sqm = Math.ceil(line.sqm * 1.10);
+        rows.push(['MICROCEMENT SYSTEM', Math.ceil(sqm / 10) + ' PAILS']);
+        rows.push(['PRIMER', Math.ceil(sqm / 25) + ' UNITS']);
+        rows.push(['SEALER', Math.ceil(sqm / 20) + ' KITS']);
+        if (line.type === 'wet') rows.push(['WATERPROOFING MEMBRANE', Math.ceil(sqm / 12) + ' UNITS']);
+        if (line.type === 'tile') rows.push(['TILE BONDING AGENT', Math.ceil(sqm / 20) + ' UNITS']);
+      });
+      return rows.map(r => `<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('');
+    }
+    function submitQuote() { lastHtml = makeClientHtml(); const frame = document.getElementById('preview'); frame.srcdoc = lastHtml; log('submit', 'DRAFT', 'CLIENT HTML REGENERATED'); saveDrafts(); render(); }
+    function makeClientHtml() {
+      const d = drafts[active]; const c = calc();
+      const lineRows = c.lines.map(l => `<tr><td>${escapeHtml(l.description)}</td><td>${escapeHtml(l.surfaceType)}</td><td>${escapeHtml(l.substrate)}</td><td>${l.sqm}</td><td>${money(l.rate)}</td><td>${money(l.total)}</td></tr>`).join('');
+      return `<!doctype html><html lang="en-AU"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>${escapeHtml(d.quoteNumber)} CLIENT QUOTE</title><style>*{box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact}body{margin:0;background:#0A0A0A;color:#FFFFFF;font-family:Arial,Helvetica,sans-serif}.wrap{max-width:900px;margin:auto;padding:18px}h1,h2,h3{text-transform:uppercase;color:#C9A84C}table{width:100%;border-collapse:collapse}td,th{border-bottom:1px solid rgba(201,168,76,.3);padding:10px;text-align:left}button{background:#C9A84C;color:#0A0A0A;border:0;border-radius:999px;padding:12px 16px;font-weight:900;text-transform:uppercase}@media print{@page{size:A4;margin:8mm}body,.wrap{background:#0A0A0A!important;color:#FFFFFF!important}h1,h2,h3,th{color:#C9A84C!important}button{display:none!important}}</style></head><body><main class="wrap"><h1>CLIENT QUOTE</h1><p>MICRO CEMENT KING | projects@microcementking.au | 0468 053 819 | microcementking.au</p><h2>CLIENT DETAILS</h2><p>${escapeHtml(d.client.name)} | ${escapeHtml(d.client.phone)} | ${escapeHtml(d.client.email)} | ${escapeHtml(d.project.address)}</p><h2>SCOPE</h2><p>${escapeHtml(d.scopeSummary || 'SUPPLY AND APPLY MICRO CEMENT KING MICROCEMENT SYSTEM TO QUOTED AREAS.')}</p><table><thead><tr><th>DESCRIPTION</th><th>SURFACE</th><th>SUBSTRATE</th><th>SQM</th><th>RATE EX GST</th><th>TOTAL EX GST</th></tr></thead><tbody>${lineRows}${c.minimumAdjustment ? `<tr><td>MINIMUM CHARGE ADJUSTMENT</td><td>PROJECT MINIMUM</td><td>ANY</td><td>1</td><td>${money(c.minimumAdjustment)}</td><td>${money(c.minimumAdjustment)}</td></tr>` : ''}</tbody></table><h2>TOTALS</h2><p>SUBTOTAL EX GST: ${money(c.revenue)}<br>GST: ${money(c.gst)}<br>TOTAL INC GST: ${money(c.inc)}</p><h2>PAYMENT SCHEDULE</h2><p>DEPOSIT 10%: ${money(c.revenue*.1)} EX GST | MATERIALS & SCHEDULING 50%: ${money(c.revenue*.5)} EX GST | COMPLETION 40%: ${money(c.revenue*.4)} EX GST</p><label><input type="checkbox" id="ok"> I ACCEPT THE QUOTE AND TERMS.</label><br><button id="accept" disabled>ACCEPT QUOTE</button><button onclick="print()">PRINT OR SAVE PDF</button><script>const ok=document.getElementById('ok');const btn=document.getElementById('accept');ok.onchange=()=>btn.disabled=!ok.checked;btn.onclick=()=>location.href='mailto:projects@microcementking.au?subject=ACCEPT QUOTE ${encodeURIComponent(d.quoteNumber)}';<\/script></main></body></html>`;
+    }
+    function downloadQuoteHtml() { if (!lastHtml) submitQuote(); const blob = new Blob([lastHtml], {type:'text/html'}); const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = (drafts[active].quoteNumber || 'mck-quote') + '.html'; a.click(); URL.revokeObjectURL(a.href); }
+    function newDraft() { drafts.push({ quoteNumber:'MCK-DRAFT-' + String(drafts.length + 1).padStart(3,'0'), issueDate:new Date().toISOString(), client:{name:'NEW CLIENT', phone:'', email:''}, project:{address:'', colours:'', timeline:'', budget:'', specialNotes:''}, scopeSummary:'', lineItems:[], inclusions:[], exclusions:[], missingInfo:[], editLog:[] }); active = drafts.length - 1; render(); }
+    function saveDrafts(show=true) { localStorage.setItem('mckDrafts', JSON.stringify(drafts)); if (show) alert('DRAFTS SAVED'); }
+    function importJson() { try { const q = JSON.parse(document.getElementById('importBox').value); drafts.push(q); active = drafts.length - 1; render(); } catch(e) { alert('IMPORT FAILED. CHECK JSON.'); } }
+    render();
+  </script>
+</body>
+</html>
