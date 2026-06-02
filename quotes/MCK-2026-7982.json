@@ -1,0 +1,179 @@
+{
+  "quoteNumber": "MCK-2026-7982",
+  "dateIssued": "02 JUNE 2026",
+  "validityLabel": "48 Hours",
+  "validityHours": 48,
+  "validityBanner": "QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE",
+  "preparedBy": "King Mannion",
+  "clientName": "RSL Prize Homes",
+  "clientPhone": "0419 187 553",
+  "clientEmail": "sharon.whittam@rslqld.org",
+  "projectAddress": "237 Jefferson Lane, Palm Beach",
+  "siteContact": "Sharon Whittam",
+  "colourFinish": "",
+  "substrate": "",
+  "scope": "SUPPLY AND APPLY LABOUR AND MATERIALS for the protection and installation of seamless Microcement to measured surfaces as outlined in the line items below.Scope of Works : Supply and apply labour and materials for Microcement to nominated surfaces.Samples Approval : Samples will be provided and must be approved and signed off prior to commencement.Preparation : All preparation and prevention works are included.Site Requirements / Owner Responsibilities : Owner to supply power, water and a designated working zone for works to be completed.",
+  "startDate": "",
+  "duration": "",
+  "completion": "",
+  "lineItems": [
+    {
+      "desc": "Microcement Application - Kitchen Benchtops",
+      "qty": 11.8,
+      "unit": "sqm",
+      "rate": 450,
+      "total": 5310
+    },
+    {
+      "desc": "Microcement Application - Kitchen Splashback",
+      "qty": 5,
+      "unit": "sqm",
+      "rate": 450,
+      "total": 2250
+    }
+  ],
+  "variationItems": [],
+  "subtotal": 7560,
+  "gst": 756,
+  "grandTotal": 8316,
+  "baseSubtotal": 7560,
+  "varSubtotal": 0,
+  "depositPct": 10,
+  "depositAmt": 756,
+  "materialAmt": 3780,
+  "finalPct": 40,
+  "finalAmt": 3024,
+  "matPct": 50,
+  "progressPayments": [],
+  "paymentStages": [
+    {
+      "stage": 1,
+      "type": "deposit",
+      "title": "Booking Deposit",
+      "desc": "Booking Deposit",
+      "note": "Secures your place in the schedule",
+      "due": "On acceptance",
+      "pct": 10,
+      "amt": 756
+    },
+    {
+      "stage": 2,
+      "type": "material",
+      "title": "Material Payment",
+      "desc": "Material Payment",
+      "note": "Works do not start until paid",
+      "due": "Prior to start date",
+      "pct": 50,
+      "amt": 3780
+    },
+    {
+      "stage": 3,
+      "type": "final",
+      "title": "Final Claim",
+      "desc": "Final Claim",
+      "note": "On practical completion and sign-off",
+      "due": "Within 3 business days",
+      "pct": 40,
+      "amt": 3024
+    }
+  ],
+  "creditLimit": 10000,
+  "upfrontDiscPct": 5,
+  "upfrontDiscCap": 1000,
+  "upfrontDisc": 378,
+  "upfrontTotal": 7182,
+  "variationRate": 150,
+  "variationMinHrs": 2,
+  "variationMatAllowance": 500,
+  "overdueAdminFee": 220,
+  "overdueInterest": 3,
+  "measureFee": 220,
+  "inclusions": [
+    {
+      "text": "All microcement materials (Ideal Works / Solidro / supplier equivalent)",
+      "enabled": true
+    },
+    {
+      "text": "Professional surface preparation",
+      "enabled": true
+    },
+    {
+      "text": "PRIMER-RR application (where required per system rules)",
+      "enabled": true
+    },
+    {
+      "text": "WB Mesh Blocker + fibreglass mesh reinforcement (floors/wet areas/benchtops)",
+      "enabled": true
+    },
+    {
+      "text": "Base coat application (1 coat)",
+      "enabled": true
+    },
+    {
+      "text": "Finish coat application (2 coats)",
+      "enabled": true
+    },
+    {
+      "text": "PU100 polyurethane sealer (2 coats)",
+      "enabled": true
+    },
+    {
+      "text": "Micro Seal protective topcoat (floors/benchtops/wet areas)",
+      "enabled": true
+    },
+    {
+      "text": "Full clean-up and site protection",
+      "enabled": true
+    },
+    {
+      "text": "Workmanship warranty as per statutory requirements",
+      "enabled": true
+    },
+    {
+      "text": "Manufacturer product warranties passed through",
+      "enabled": true
+    }
+  ],
+  "exclusions": [
+    {
+      "text": "Structural repairs or substrate rectification",
+      "enabled": false
+    },
+    {
+      "text": "Waterproofing (unless specified in scope)",
+      "enabled": false
+    },
+    {
+      "text": "Plumbing, electrical, or other trade work",
+      "enabled": false
+    },
+    {
+      "text": "Furniture removal or storage",
+      "enabled": false
+    },
+    {
+      "text": "Floor levelling or grinding (unless specified)",
+      "enabled": false
+    },
+    {
+      "text": "Colour changes after application has commenced",
+      "enabled": false
+    },
+    {
+      "text": "Damage caused by other trades after completion",
+      "enabled": false
+    },
+    {
+      "text": "Ongoing maintenance products",
+      "enabled": false
+    }
+  ],
+  "sigDataURL": "",
+  "clientTypedName": "",
+  "clientPrintName": "",
+  "clientSigDate": "2026-06-02",
+  "attachments": [],
+  "specialConditions": [],
+  "createdAt": "2026-06-02T11:59:10.744Z",
+  "lastSavedAt": "2026-06-02T11:59:11.418Z"
+}
