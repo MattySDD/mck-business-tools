@@ -174,6 +174,8 @@
   "clientSigDate": "2026-06-02",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-06-02T11:59:10.744Z",
-  "lastSavedAt": "2026-06-02T11:59:11.418Z"
+  "createdAt": "2026-06-02T12:03:14.039Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-7982",
+  "lastSavedAt": "2026-06-02T12:03:16.856Z"
 }
