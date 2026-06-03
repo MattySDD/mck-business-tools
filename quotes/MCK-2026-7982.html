@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark light">
+<title>MCK-2026-7982 MICRO CEMENT KING QUOTE</title>
+<style>
+* {
+  -webkit-print-color-adjust: exact !important;
+  print-color-adjust: exact !important;
+  box-sizing: border-box;
+}
+:root {
+  color-scheme: dark;
+}
+html {
+  background: #0A0A0A;
+}
+body {
+  margin: 0;
+  background: #0A0A0A;
+  color: #FFFFFF;
+  font-family: Inter, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+}
+a {
+  color: #C9A84C;
+}
+.wrapper {
+  width: 100%;
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 18px;
+}
+.quote-card {
+  border: 1px solid rgba(201, 168, 76, 0.42);
+  border-radius: 24px;
+  overflow: hidden;
+  background: #101010;
+  box-shadow: 0 28px 100px rgba(0, 0, 0, 0.44);
+}
+.hero {
+  padding: 26px 20px;
+  background: linear-gradient(145deg, #0A0A0A 0%, #171717 58%, #211C0F 100%);
+  border-bottom: 1px solid rgba(201, 168, 76, 0.35);
+}
+.brand-row {
+  display: grid;
+  grid-template-columns: 70px 1fr;
+  gap: 16px;
+  align-items: center;
+}
+.logo-mark {
+  width: 70px;
+  height: 70px;
+  border: 2px solid #C9A84C;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  color: #C9A84C;
+  font-size: 21px;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.brand-label {
+  color: #C9A84C;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 2.4px;
+  text-transform: uppercase;
+}
+h1 {
+  margin: 4px 0 8px;
+  color: #FFFFFF;
+  font-size: 28px;
+  line-height: 1.05;
+  font-weight: 900;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+.tagline {
+  margin: 0;
+  color: #CFCFCF;
+  font-size: 14px;
+}
+.contact-strip {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 22px;
+}
+.contact-pill {
+  padding: 12px 14px;
+  background: rgba(255, 255, 255, 0.045);
+  border: 1px solid rgba(201, 168, 76, 0.28);
+  border-radius: 14px;
+  color: #EDEDED;
+  font-size: 13px;
+}
+.contact-pill strong {
+  display: block;
+  color: #C9A84C;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+.section {
+  padding: 22px 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.section:last-child {
+  border-bottom: 0;
+}
+.section-title {
+  margin: 0 0 16px;
+  color: #C9A84C;
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+.grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+.info-box {
+  padding: 14px;
+  background: #0A0A0A;
+  border: 1px solid rgba(201, 168, 76, 0.24);
+  border-radius: 16px;
+}
+.info-label {
+  margin-bottom: 5px;
+  color: #C9A84C;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  text-transform: uppercase;
+}
+.info-value {
+  color: #FFFFFF;
+  font-size: 15px;
+}
+.notice {
+  padding: 14px;
+  background: rgba(201, 168, 76, 0.12);
+  border: 1px solid rgba(201, 168, 76, 0.34);
+  border-radius: 16px;
+  color: #FFFFFF;
+  font-size: 14px;
+}
+.table-wrap {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid rgba(201, 168, 76, 0.24);
+  border-radius: 16px;
+}
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 680px;
+}
+th {
+  background: #C9A84C;
+  color: #0A0A0A;
+  padding: 12px 10px;
+  text-align: left;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+}
+td {
+  padding: 12px 10px;
+  background: #0A0A0A;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: #FFFFFF;
+  font-size: 14px;
+  vertical-align: top;
+}
+tr:nth-child(even) td {
+  background: #111111;
+}
+.money,
+.number {
+  text-align: right;
+  white-space: nowrap;
+}
+tfoot td {
+  background: #171717;
+  color: #C9A84C;
+  font-weight: 900;
+  border-top: 2px solid #C9A84C;
+}
+.total-row td {
+  font-size: 16px;
+}
+.list {
+  margin: 0;
+  padding-left: 20px;
+  color: #E9E9E9;
+}
+.list li {
+  margin-bottom: 8px;
+}
+.terms {
+  display: grid;
+  gap: 12px;
+}
+.term-box {
+  padding: 14px;
+  background: #0A0A0A;
+  border: 1px solid rgba(201, 168, 76, 0.24);
+  border-radius: 16px;
+  color: #EDEDED;
+  font-size: 14px;
+}
+.term-box strong {
+  display: block;
+  color: #C9A84C;
+  margin-bottom: 5px;
+  font-size: 12px;
+  letter-spacing: 1.3px;
+  text-transform: uppercase;
+}
+.accept-panel {
+  margin-top: 16px;
+  padding: 16px;
+  background: #FFFFFF;
+  border: 2px solid #C9A84C;
+  border-radius: 18px;
+  color: #0A0A0A;
+}
+.check-row {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: 10px;
+  align-items: start;
+  font-size: 14px;
+  font-weight: 700;
+}
+.check-row input {
+  width: 22px;
+  height: 22px;
+  accent-color: #C9A84C;
+}
+.actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 10px;
+  margin-top: 16px;
+}
+button,
+.button-link {
+  width: 100%;
+  border: 0;
+  border-radius: 14px;
+  padding: 15px 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 1.4px;
+  text-align: center;
+  text-transform: uppercase;
+  cursor: pointer;
+  text-decoration: none;
+}
+.primary-button {
+  background: #C9A84C;
+  color: #0A0A0A;
+}
+.primary-button:disabled {
+  background: #6B6B6B;
+  color: #DADADA;
+  cursor: not-allowed;
+}
+.secondary-button {
+  background: #0A0A0A;
+  color: #C9A84C;
+  border: 1px solid #C9A84C;
+}
+.footer {
+  padding: 20px;
+  background: #0A0A0A;
+  color: #BDBDBD;
+  text-align: center;
+  font-size: 13px;
+}
+.footer strong {
+  color: #C9A84C;
+}
+@media (min-width: 720px) {
+  .wrapper {
+    padding: 34px;
+  }
+  .hero,
+  .section {
+    padding: 32px;
+  }
+  .contact-strip {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .grid.two {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .grid.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .actions {
+    grid-template-columns: 1fr 1fr;
+  }
+  h1 {
+    font-size: 40px;
+  }
+}
+@page {
+  size: A4;
+  margin: 12mm;
+}
+@media print {
+  html, body, * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+  html,
+  body {
+    background: #FFFFFF !important;
+    color: #0A0A0A !important;
+    font-size: 11px !important;
+  }
+  .wrapper {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+  .quote-card {
+    border: 1px solid #C9A84C !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    background: #FFFFFF !important;
+  }
+  .hero {
+    background: #0A0A0A !important;
+    color: #FFFFFF !important;
+  }
+  .section {
+    page-break-inside: avoid;
+    padding: 18px !important;
+  }
+  .actions,
+  .accept-panel {
+    display: none !important;
+  }
+  .table-wrap {
+    overflow: visible !important;
+  }
+  table {
+    min-width: 0 !important;
+  }
+  a {
+    color: #C9A84C !important;
+    text-decoration: none !important;
+  }
+}
+</style>
+</head>
+<body>
+<div class="wrapper">
+  <article class="quote-card">
+    <header class="hero">
+      <div class="brand-row">
+        <div class="logo-mark">MCK</div>
+        <div>
+          <div class="brand-label">MICRO CEMENT KING</div>
+          <h1>CLIENT QUOTE</h1>
+          <p class="tagline">Premium architectural microcement finishes for luxury residential spaces.</p>
+        </div>
+      </div>
+      <div class="contact-strip">
+        <div class="contact-pill"><strong>PHONE</strong>0468 053 819</div>
+        <div class="contact-pill"><strong>EMAIL</strong>projects@microcementking.au</div>
+        <div class="contact-pill"><strong>DOMAIN</strong>microcementking.au</div>
+      </div>
+    </header>
+
+    <section class="section">
+      <h2 class="section-title">QUOTE DETAILS</h2>
+      <div class="grid two">
+        <div class="info-box"><div class="info-label">QUOTE NUMBER</div><div class="info-value">MCK-2026-7982</div></div>
+        <div class="info-box"><div class="info-label">DATE ISSUED</div><div class="info-value">03/06/2026</div></div>
+        <div class="info-box"><div class="info-label">CLIENT</div><div class="info-value">Sample Client</div></div>
+        <div class="info-box"><div class="info-label">PROJECT</div><div class="info-value">Gold Coast Residential Microcement Works</div></div>
+      </div>
+      <p class="notice"><strong>PRICE NOTE:</strong> All prices are ex GST unless stated otherwise. GST is shown separately in the payment schedule.</p>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">SCOPE OF WORKS</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>ITEM</th>
+              <th class="number">QTY</th>
+              <th>UNIT</th>
+              <th class="money">RATE EX GST</th>
+              <th class="money">TOTAL EX GST</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Kitchen floor micro cement supply and application</td>
+              <td class="number">15</td>
+              <td>sqm</td>
+              <td class="money">$280.00</td>
+              <td class="money">$4,200.00</td>
+            </tr>
+            <tr>
+              <td>Bathroom feature wall micro cement supply and application</td>
+              <td class="number">10</td>
+              <td>sqm</td>
+              <td class="money">$320.00</td>
+              <td class="money">$3,200.00</td>
+            </tr>
+            <tr>
+              <td>Protective sealer system and finish coat</td>
+              <td class="number">1</td>
+              <td>lot</td>
+              <td class="money">$890.00</td>
+              <td class="money">$890.00</td>
+            </tr>
+            <tr>
+              <td>Project setup, masking, protection and site preparation</td>
+              <td class="number">1</td>
+              <td>lot</td>
+              <td class="money">$650.00</td>
+              <td class="money">$650.00</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4">SUBTOTAL EX GST</td>
+              <td class="money">$8,940.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">PAYMENT SCHEDULE</h2>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>PAYMENT STAGE</th>
+              <th class="money">AMOUNT EX GST</th>
+              <th class="money">GST 10%</th>
+              <th class="money">TOTAL INC GST</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Booking deposit 10%</td>
+              <td class="money">$894.00</td>
+              <td class="money">$89.40</td>
+              <td class="money">$983.40</td>
+            </tr>
+            <tr>
+              <td>Material order and project mobilisation 60%</td>
+              <td class="money">$5,364.00</td>
+              <td class="money">$536.40</td>
+              <td class="money">$5,900.40</td>
+            </tr>
+            <tr>
+              <td>Completion payment 30%</td>
+              <td class="money">$2,682.00</td>
+              <td class="money">$268.20</td>
+              <td class="money">$2,950.20</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr class="total-row">
+              <td>TOTAL</td>
+              <td class="money">$8,940.00</td>
+              <td class="money">$894.00</td>
+              <td class="money">$9,834.00</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">INCLUSIONS</h2>
+      <ul class="list">
+        <li>Supply and application of selected microcement system.</li>
+        <li>Standard substrate preparation where the surface is sound, clean and suitable.</li>
+        <li>Protective sealer system suitable for residential internal surfaces.</li>
+        <li>Basic masking and protection to immediately adjacent work areas.</li>
+      </ul>
+    </section>
+
+    <section class="section">
+      <h2 class="section-title">TERMS & CONDITIONS</h2>
+      <div class="terms">
+        <div class="term-box"><strong>QUOTE VALIDITY</strong>This quote is valid for 48 hours from issue unless confirmed in writing by Micro Cement King.</div>
+        <div class="term-box"><strong>SUBSTRATE CONDITION</strong>Pricing assumes the substrate is structurally sound, dry, clean and ready for microcement preparation.</div>
+        <div class="term-box"><strong>EXCLUSIONS</strong>Tile removal, waterproofing, plumbing, electrical work, structural repairs and after hours access are excluded unless listed in the scope.</div>
+        <div class="term-box"><strong>PAYMENT</strong>Payments must be made according to the payment schedule. Work may pause if payments are overdue.</div>
+        <div class="term-box"><strong>VARIATIONS</strong>Any additional work, site delays, access changes or scope changes will be priced and approved before proceeding.</div>
+      </div>
+      <div class="accept-panel">
+        <label class="check-row" for="termsCheck">
+          <input type="checkbox" id="termsCheck">
+          <span>I have read and accepted the Terms & Conditions for quote MCK-2026-7982.</span>
+        </label>
+        <div class="actions">
+          <button class="primary-button" id="acceptButton" type="button" disabled>ACCEPT QUOTE BY EMAIL</button>
+          <button class="secondary-button" type="button" onclick="window.print()">PRINT OR SAVE PDF</button>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <strong>MICRO CEMENT KING</strong><br>
+      Phone: 0468 053 819 | Email: projects@microcementking.au | Domain: microcementking.au<br>
+      All prices are ex GST unless stated otherwise.
+    </footer>
+  </article>
+</div>
+<script>
+(function () {
+  var checkbox = document.getElementById('termsCheck');
+  var acceptButton = document.getElementById('acceptButton');
+  var subject = 'ACCEPTED QUOTE MCK-2026-7982';
+  var body = 'I accept quote MCK-2026-7982 from Micro Cement King. Please contact me to confirm the next steps.';
+  checkbox.addEventListener('change', function () {
+    acceptButton.disabled = !checkbox.checked;
+  });
+  acceptButton.addEventListener('click', function () {
+    if (!checkbox.checked) return;
+    window.location.href = 'mailto:projects@microcementking.au?subject=' + encodeURIComponent(subject) + '&body=' + encodeURIComponent(body);
+  });
+}());
+</script>
+</body>
+</html>

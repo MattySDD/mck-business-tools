@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="color-scheme" content="dark">
-<title>MCK QUOTE VIEWER</title>
+<title>QUOTE NOT FOUND</title>
 <style>
 *, *::before, *::after {
   -webkit-print-color-adjust: exact !important;
@@ -59,14 +59,9 @@ p {
   font-size: 15px;
   line-height: 1.6;
 }
-.small {
-  color: #8A8A8A;
-  font-size: 13px;
-}
 a {
   color: #C9A84C;
   font-weight: 800;
-  text-decoration: none;
 }
 .btn {
   display: inline-block;
@@ -78,6 +73,7 @@ a {
   font-size: 13px;
   font-weight: 900;
   letter-spacing: 1px;
+  text-decoration: none;
   text-transform: uppercase;
 }
 @media print {
@@ -97,30 +93,11 @@ a {
 </style>
 </head>
 <body>
-<main class="card" id="message">
+<main class="card">
   <div class="logo">MCK</div>
-  <h1>LOADING QUOTE</h1>
-  <p>Opening your static quote file now.</p>
-  <p class="small">If this page does not move automatically, contact <a href="mailto:projects@microcementking.au">projects@microcementking.au</a>.</p>
+  <h1>QUOTE NOT FOUND</h1>
+  <p>Quote not found - please contact <a href="mailto:projects@microcementking.au">projects@microcementking.au</a>.</p>
+  <a class="btn" href="https://mattysdd.github.io/mck-business-tools/index.html">OPEN QUOTE TOOLS</a>
 </main>
-<script>
-(function () {
-  var params = new URLSearchParams(window.location.search);
-  var quoteId = (params.get('id') || '').trim();
-  var message = document.getElementById('message');
-
-  function showError() {
-    message.innerHTML = '<div class="logo">MCK</div><h1>QUOTE NOT FOUND</h1><p>Quote not found - please contact <a href="mailto:projects@microcementking.au">projects@microcementking.au</a>.</p><a class="btn" href="https://microcementking.au">VISIT MICRO CEMENT KING</a>';
-  }
-
-  if (!quoteId || !/^MCK-2026-[A-Za-z0-9]+$/.test(quoteId)) {
-    showError();
-    return;
-  }
-
-  var target = new URL('quotes/' + encodeURIComponent(quoteId) + '.html', window.location.href);
-  window.location.replace(target.href);
-}());
-</script>
 </body>
 </html>
