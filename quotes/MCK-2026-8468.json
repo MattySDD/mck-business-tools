@@ -190,15 +190,7 @@
       "enabled": true
     },
     {
-      "text": "Wet areas system : basecoat, fibreglass mesh, topcoat, topcoat, sealer",
-      "enabled": true
-    },
-    {
-      "text": "Feature area walls : Primer, primer, coat, topcoat, sealer",
-      "enabled": true
-    },
-    {
-      "text": "Acro Blocka to begin on all",
+      "text": "Feature area walls :  Aqua Block primer, primer coat, finish coat, sealer",
       "enabled": true
     }
   ],
@@ -242,8 +234,8 @@
   "clientSigDate": "2026-06-15",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-06-15T05:36:11.442Z",
-  "version": 8,
+  "createdAt": "2026-06-15T06:10:52.551Z",
+  "version": 9,
   "parentQuoteId": "MCK-2026-8468",
-  "lastSavedAt": "2026-06-15T05:36:15.114Z"
+  "lastSavedAt": "2026-06-15T06:10:54.983Z"
 }
