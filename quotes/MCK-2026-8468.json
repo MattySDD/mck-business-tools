@@ -76,10 +76,21 @@
   "depositPct": 5,
   "depositAmt": 3698.05,
   "materialAmt": 36980.5,
-  "finalPct": 45,
-  "finalAmt": 33282.45,
+  "finalPct": 20,
+  "finalAmt": 14792.2,
   "matPct": 50,
-  "progressPayments": [],
+  "progressPayments": [
+    {
+      "stage": 3,
+      "type": "progress",
+      "title": "Progress Payment",
+      "desc": "Progress Payment",
+      "note": "Progress payment on milestone",
+      "due": "On milestone",
+      "pct": 25,
+      "amt": 18490.25
+    }
+  ],
   "paymentStages": [
     {
       "stage": 1,
@@ -103,13 +114,23 @@
     },
     {
       "stage": 3,
+      "type": "progress",
+      "title": "Progress Payment",
+      "desc": "Progress Payment",
+      "note": "Progress payment on milestone",
+      "due": "On milestone",
+      "pct": 25,
+      "amt": 18490.25
+    },
+    {
+      "stage": 4,
       "type": "final",
       "title": "Final Claim",
       "desc": "Final Claim",
       "note": "On practical completion and sign-off",
       "due": "Within 3 business days",
-      "pct": 45,
-      "amt": 33282.45
+      "pct": 20,
+      "amt": 14792.2
     }
   ],
   "creditLimit": 10000,
@@ -209,8 +230,8 @@
   "clientSigDate": "2026-06-15",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-06-15T00:47:43.996Z",
-  "version": 4,
+  "createdAt": "2026-06-15T01:04:00.313Z",
+  "version": 5,
   "parentQuoteId": "MCK-2026-8468",
-  "lastSavedAt": "2026-06-15T00:47:46.137Z"
+  "lastSavedAt": "2026-06-15T01:04:02.771Z"
 }
