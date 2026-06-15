@@ -188,6 +188,18 @@
     {
       "text": "Manufacturer product warranties passed through",
       "enabled": true
+    },
+    {
+      "text": "Wet areas system : basecoat, fibreglass mesh, topcoat, topcoat, sealer",
+      "enabled": true
+    },
+    {
+      "text": "Feature area walls : Primer, primer, coat, topcoat, sealer",
+      "enabled": true
+    },
+    {
+      "text": "Acro Blocka to begin on all",
+      "enabled": true
     }
   ],
   "exclusions": [
@@ -230,8 +242,8 @@
   "clientSigDate": "2026-06-15",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-06-15T03:25:30.978Z",
-  "version": 7,
+  "createdAt": "2026-06-15T05:36:11.442Z",
+  "version": 8,
   "parentQuoteId": "MCK-2026-8468",
-  "lastSavedAt": "2026-06-15T03:25:33.620Z"
+  "lastSavedAt": "2026-06-15T05:36:15.114Z"
 }
