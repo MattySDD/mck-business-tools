@@ -201,12 +201,139 @@ const MCK_AGENT_API = (() => {
     };
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // MULTI-QUOTE / CUSTOMER / PROJECT API (v2)
+  // Three-tier model: CUSTOMER ─▶ PROJECT ─▶ QUOTE(S)
+  // Requires customer-storage.js to be loaded alongside this file.
+  // ═══════════════════════════════════════════════════════════
+
+  function _cust() {
+    return (typeof MCK_CUSTOMER_STORAGE !== 'undefined') ? MCK_CUSTOMER_STORAGE : null;
+  }
+
+  async function createCustomer(data) {
+    const c = _cust();
+    if (!c) return { success: false, error: 'MCK_CUSTOMER_STORAGE not loaded. Include customer-storage.js.' };
+    return c.createCustomer(data);
+  }
+  async function getCustomer(customerId) {
+    const c = _cust(); if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    return c.getCustomer(customerId);
+  }
+  async function findCustomer(query) {
+    const c = _cust(); if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    return c.findCustomer(query || {});
+  }
+  async function createProject(customerId, data) {
+    const c = _cust(); if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    return c.createProject(customerId, data);
+  }
+  async function getProject(projectId) {
+    const c = _cust(); if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    return c.getProject(projectId);
+  }
+  async function exportCustomerBundle(customerId) {
+    const c = _cust(); if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    return c.exportCustomerBundle(customerId);
+  }
+
+  /**
+   * Create MANY distinct quotes under one project in a single call.
+   * This is the core "repeat job" / "block of units" entry point.
+   *
+   * @param {string} projectId
+   * @param {Array<object>} quotes - each is a normal quote object, PLUS
+   *        optional per-quote: jobName, endClientName, endClientEmail,
+   *        endClientPhone (the sub-customer for this specific quote).
+   * @param {object} [opts] - { customerId, brand } applied to every quote.
+   * @returns {Promise<{success, projectId, results:[{quoteId, urls, jobName, error?}]}>}
+   */
+  async function createQuotesForProject(projectId, quotes, opts) {
+    const c = _cust();
+    if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    if (!Array.isArray(quotes) || quotes.length === 0) {
+      return { success: false, error: 'Provide an array of at least one quote.' };
+    }
+    opts = opts || {};
+    const proj = await c.getProject(projectId);
+    if (!proj.success) return { success: false, error: 'Project not found: ' + projectId };
+    const customerId = opts.customerId || proj.data.customerId;
+    const brand = opts.brand || proj.data.brand || 'MCK';
+
+    const results = [];
+    for (const q of quotes) {
+      const linked = {
+        ...q,
+        customerId,
+        projectId,
+        brand,
+        projectName: proj.data.name || '',
+        projectAddress: q.projectAddress || proj.data.siteAddress || ''
+      };
+      const created = await createQuote(linked);
+      if (created.success) {
+        await c.attachQuoteToProject(projectId, created.data);
+        results.push({ quoteId: created.quoteId, urls: created.urls, jobName: q.jobName || '', endClientName: q.endClientName || '' });
+      } else {
+        results.push({ error: created.error, jobName: q.jobName || '' });
+      }
+    }
+    return { success: results.some(r => r.quoteId), projectId, customerId, results };
+  }
+
+  /**
+   * One-shot helper for an agent: create (or reuse) a customer, create a
+   * project, and generate all of its quotes — in a single call.
+   *
+   * @param {object} payload
+   *   { customer: {…}, project: {…}, quotes: [ {…}, … ],
+   *     reuseCustomerByEmail?: boolean }
+   */
+  async function createFullJob(payload) {
+    const c = _cust();
+    if (!c) return { success: false, error: 'customer-storage.js not loaded' };
+    payload = payload || {};
+    const custIn = payload.customer || {};
+    let customerId = custIn.customerId;
+
+    if (!customerId && payload.reuseCustomerByEmail !== false && (custIn.email || custIn.name)) {
+      const found = await c.findCustomer({ email: custIn.email, name: custIn.name, brand: custIn.brand });
+      if (found.success && found.found) customerId = found.customerId;
+    }
+    if (!customerId) {
+      const created = await c.createCustomer(custIn);
+      if (!created.success) return { success: false, error: 'createCustomer failed: ' + created.error };
+      customerId = created.customerId;
+    }
+
+    const projRes = await c.createProject(customerId, payload.project || {});
+    if (!projRes.success) return { success: false, error: 'createProject failed: ' + projRes.error };
+
+    const quotesRes = await createQuotesForProject(projRes.projectId, payload.quotes || [], { customerId });
+    return {
+      success: quotesRes.success,
+      customerId,
+      projectId: projRes.projectId,
+      quotes: quotesRes.results || [],
+      error: quotesRes.error
+    };
+  }
+
   return {
     createQuote,
     getQuote,
     updateQuote,
     quoteExists,
     generateId,
-    getSchema
+    getSchema,
+    // v2 multi-quote / customer / project
+    createCustomer,
+    getCustomer,
+    findCustomer,
+    createProject,
+    getProject,
+    createQuotesForProject,
+    createFullJob,
+    exportCustomerBundle
   };
 })();

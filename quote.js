@@ -1039,6 +1039,9 @@ function extractQuoteData() {
     attachments: window._quoteAttachments || [],
     specialConditions: getSpecialConditions(),
     createdAt: new Date().toISOString(),
+    // Customer ▶ Project ▶ Quote linkage + per-quote end-client, stamped
+    // from the dashboard via job-link.js (see window._mckJobContext).
+    ...(window._mckJobContext || {}),
   };
 }
 
@@ -1455,6 +1458,16 @@ async function generateShareableLink() {
     // Always save/update the main quote file
     d.lastSavedAt = new Date().toISOString();
     const result = await MCK_QUOTE_STORAGE.saveQuote(d.quoteNumber, d);
+
+    // If this quote belongs to a project (opened from the customer
+    // dashboard), file it under that project. Best-effort, non-blocking.
+    try {
+      if (d.projectId && typeof MCK_CUSTOMER_STORAGE !== 'undefined') {
+        await MCK_CUSTOMER_STORAGE.attachQuoteToProject(d.projectId, d);
+      }
+    } catch (linkErr) {
+      console.warn('Project link failed (quote still saved):', linkErr);
+    }
     // ── PostMessage bridge: notify parent dashboard (mckquote.com) ──
     try {
       window.parent.postMessage({
