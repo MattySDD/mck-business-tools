@@ -368,7 +368,8 @@ const MCK_QUOTE_STORAGE = (() => {
 
     // Ensure defaults
     d.depositPct = d.depositPct || 10;
-    d.matPct = d.matPct || 50;
+    d.commencementPct = d.commencementPct != null ? d.commencementPct : 40;
+    d.finalSealerPct = d.finalSealerPct != null ? d.finalSealerPct : 10;
     d.creditLimit = d.creditLimit || 10000;
     d.upfrontDiscPct = d.upfrontDiscPct || 5;
     d.upfrontDiscCap = d.upfrontDiscCap || 1000;
@@ -408,10 +409,13 @@ const MCK_QUOTE_STORAGE = (() => {
 
     // Payment calculations
     if (d.subtotal > 20000) d.depositPct = 5;
+    const totalProgressPct = (d.progressPayments || []).reduce((s, p) => s + (p.pct || 0), 0);
+    // Material payment is the balance after deposit, commencement and final sealer payments.
+    if (d.matPct == null) d.matPct = Math.max(0, 100 - d.depositPct - d.commencementPct - d.finalSealerPct - totalProgressPct);
     d.depositAmt = d.subtotal * (d.depositPct / 100);
     d.materialAmt = d.subtotal * (d.matPct / 100);
-    const totalProgressPct = (d.progressPayments || []).reduce((s, p) => s + (p.pct || 0), 0);
-    d.finalPct = Math.max(0, 100 - d.depositPct - d.matPct - totalProgressPct);
+    d.commencementAmt = d.subtotal * (d.commencementPct / 100);
+    d.finalPct = Math.max(0, 100 - d.depositPct - d.matPct - d.commencementPct - totalProgressPct);
     d.finalAmt = d.subtotal * (d.finalPct / 100);
     d.upfrontDisc = Math.min(d.subtotal * (d.upfrontDiscPct / 100), d.upfrontDiscCap);
     d.upfrontTotal = d.subtotal - d.upfrontDisc;
