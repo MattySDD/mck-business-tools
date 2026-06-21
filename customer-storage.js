@@ -88,6 +88,7 @@ const MCK_CUSTOMER_STORAGE = (() => {
   function _custIndexEntry(c) {
     return {
       id: c.customerId, name: c.name, type: c.type, brand: c.brand,
+      primaryEmail: (((c.contacts || [])[0] || {}).email || '').trim().toLowerCase(),
       projectCount: (c.projectIds || []).length, updatedAt: c.updatedAt
     };
   }
@@ -164,24 +165,15 @@ const MCK_CUSTOMER_STORAGE = (() => {
     if (!list.success) return { success: false, error: list.error };
     const wantEmail = (email || '').trim().toLowerCase();
     const wantName = (name || '').trim().toLowerCase();
-    // Index entries don't hold email, so for an email match we load candidates.
+    const ok = c => !brand || c.brand === brand;
+    // Match from the index in one pass (primaryEmail is denormalised there) —
+    // email takes priority as the more reliable de-dupe key.
     let match = null;
-    if (wantName) {
-      match = list.customers.find(c => (c.name || '').trim().toLowerCase() === wantName
-        && (!brand || c.brand === brand));
-    }
-    if (!match && wantEmail) {
-      for (const c of list.customers) {
-        if (brand && c.brand !== brand) continue;
-        const full = await getCustomer(c.id);
-        if (full.success && (full.data.contacts || []).some(ct => (ct.email || '').trim().toLowerCase() === wantEmail)) {
-          return { success: true, found: true, customerId: c.id, data: full.data };
-        }
-      }
-    }
+    if (wantEmail) match = list.customers.find(c => ok(c) && (c.primaryEmail || '') === wantEmail);
+    if (!match && wantName) match = list.customers.find(c => ok(c) && (c.name || '').trim().toLowerCase() === wantName);
     if (match) {
       const full = await getCustomer(match.id);
-      return { success: true, found: true, customerId: match.id, data: full.data };
+      return { success: true, found: full.success, customerId: match.id, data: full.success ? full.data : undefined };
     }
     return { success: true, found: false };
   }
@@ -254,7 +246,7 @@ const MCK_CUSTOMER_STORAGE = (() => {
     return {
       quoteId: q.quoteNumber,
       baseQuoteId: baseId,
-      jobName: q.jobName || q.scope ? (q.jobName || '') : '',
+      jobName: q.jobName || '',
       endClientName: q.endClientName || '',
       endClientEmail: q.endClientEmail || '',
       subtotal: q.subtotal || 0,

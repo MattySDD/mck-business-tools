@@ -292,7 +292,7 @@ function updateQuoteTotals() {
 // ═══════════════════════════════════════════════════════════
 
 const PAYMENT_STAGE_MIN = 2;
-const PAYMENT_STAGE_MAX = 5;
+const PAYMENT_STAGE_MAX = 6;
 
 function formatMoney(value) {
   const num = parseFloat(value) || 0;
@@ -391,7 +391,7 @@ function addProgressPaymentRow(pct, desc = 'Progress Payment', due = 'On milesto
   if (!body) return;
   const rows = body.querySelectorAll('.q-payment-stage-row');
   if (rows.length >= PAYMENT_STAGE_MAX) {
-    alert('Maximum 5 payment stages allowed.');
+    alert('Maximum 6 payment stages allowed.');
     updateAddPaymentButtonState();
     return;
   }
@@ -561,7 +561,7 @@ function updateAddPaymentButtonState() {
   const limit = document.getElementById('q-payment-stage-limit');
   if (addBtn) {
     addBtn.disabled = rows.length >= PAYMENT_STAGE_MAX;
-    addBtn.textContent = rows.length >= PAYMENT_STAGE_MAX ? 'MAX 5 PAYMENT STAGES' : '+ ADD PAYMENT STAGE';
+    addBtn.textContent = rows.length >= PAYMENT_STAGE_MAX ? 'MAX PAYMENT STAGES' : '+ ADD PAYMENT STAGE';
   }
   if (limit) {
     const totalPct = Array.from(rows).reduce((sum, row) => sum + (parseFloat(row.querySelector('.payment-stage-pct')?.value) || 0), 0);

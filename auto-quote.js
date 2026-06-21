@@ -159,8 +159,10 @@
       const lineCost = c.materialCost + c.labourCost;
       const share = totalCost > 0 ? lineCost / totalCost : (1 / costed.length);
       const lineSell = round2(sellTotal * share);
-      const rate = c.sqm > 0 ? Math.round(lineSell / c.sqm) : lineSell;
-      const total = c.sqm > 0 ? rate * c.sqm : lineSell;
+      // Round the per-sqm rate UP so the realised price never falls below the
+      // target — this keeps a floor-tier quote at/above the margin floor.
+      const rate = c.sqm > 0 ? Math.ceil(lineSell / c.sqm) : Math.ceil(lineSell);
+      const total = c.sqm > 0 ? rate * c.sqm : rate;
       return {
         desc: `Microcement Application${c.location ? ' - ' + c.location : ' - ' + c.surfaceType}`,
         qty: c.sqm, unit: 'sqm', rate, total
@@ -168,7 +170,9 @@
     });
 
     const realisedSubtotal = round2(lineItems.reduce((s, l) => s + l.total, 0));
-    const realisedMargin = realisedSubtotal > 0 ? round2((realisedSubtotal - totalCost) / realisedSubtotal) : 0;
+    // Compare the RAW margin against the floor — never the rounded value, or a
+    // 39.6% margin would round to 0.40 and falsely pass the 40% floor.
+    const realisedMargin = realisedSubtotal > 0 ? (realisedSubtotal - totalCost) / realisedSubtotal : 0;
 
     // Decision / guardrail
     let decision, reason;
