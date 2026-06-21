@@ -319,6 +319,44 @@ const MCK_AGENT_API = (() => {
     };
   }
 
+  // ═══════════════════════════════════════════════════════════
+  // AUTONOMOUS QUOTING (v3) — answers ▶ priced, margin-checked quote
+  // Requires auto-quote.js (and pricing-engine.js) to be loaded.
+  // ═══════════════════════════════════════════════════════════
+
+  function getAutoQuoteSchema() {
+    return (typeof MCK_AUTO_QUOTE !== 'undefined') ? MCK_AUTO_QUOTE.getIntakeSchema() : null;
+  }
+
+  /**
+   * Turn a job intake (set of answers) into a priced quote and — unless
+   * held by a guardrail — save it. Prices at the requested tier, default
+   * 'floor' (lowest compliant price), and never auto-saves below the
+   * margin floor unless allowReview is set.
+   *
+   * @param {object} answers - see getAutoQuoteSchema()
+   * @param {object} [opts] - { tier, dryRun, allowReview, projectId, customerId }
+   * @returns {Promise<object>} decision + economics + (saved) quote refs
+   */
+  async function autoQuote(answers, opts) {
+    opts = opts || {};
+    if (typeof MCK_AUTO_QUOTE === 'undefined') return { success: false, error: 'auto-quote.js not loaded' };
+    const built = MCK_AUTO_QUOTE.buildQuote(answers, opts);
+    if (!built.success) return built;
+    const { quote, decision, reason, economics } = built;
+
+    if (opts.dryRun) return { success: true, dryRun: true, decision, reason, economics, quote };
+    if (decision === 'HARD_STOP') return { success: false, held: true, decision, reason, economics, quote };
+    if (decision === 'REVIEW' && !opts.allowReview) return { success: false, held: true, decision, reason, economics, quote };
+
+    if (opts.projectId) {
+      const r = await createQuotesForProject(opts.projectId, [quote], { customerId: opts.customerId });
+      return { success: r.success, decision, reason, economics, projectId: opts.projectId, results: r.results };
+    }
+    const r = await createQuote(quote);
+    return { success: r.success, decision, reason, economics, quoteId: r.quoteId, urls: r.urls, error: r.error };
+  }
+
   return {
     createQuote,
     getQuote,
@@ -334,6 +372,9 @@ const MCK_AGENT_API = (() => {
     getProject,
     createQuotesForProject,
     createFullJob,
-    exportCustomerBundle
+    exportCustomerBundle,
+    // v3 autonomous quoting
+    getAutoQuoteSchema,
+    autoQuote
   };
 })();

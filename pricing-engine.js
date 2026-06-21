@@ -237,9 +237,10 @@ function calculateQuote(rawQuote) {
   const totalLabourHours = roundOne(labourDays * totalCrewHoursPerDay);
 
   const paymentSchedule = [
-    { stage: 'DEPOSIT', percent: 10, exGst: roundCurrency(subtotalExGst * 0.10) },
-    { stage: 'MATERIALS & SCHEDULING', percent: 50, exGst: roundCurrency(subtotalExGst * 0.50) },
-    { stage: 'COMPLETION', percent: 40, exGst: roundCurrency(subtotalExGst * 0.40) }
+    { stage: 'BOOKING DEPOSIT', percent: subtotalExGst > 20000 ? 5 : 10, exGst: roundCurrency(subtotalExGst * (subtotalExGst > 20000 ? 0.05 : 0.10)) },
+    { stage: 'MATERIAL PAYMENT', percent: subtotalExGst > 20000 ? 45 : 40, exGst: roundCurrency(subtotalExGst * (subtotalExGst > 20000 ? 0.45 : 0.40)) },
+    { stage: 'COMMENCEMENT', percent: 40, exGst: roundCurrency(subtotalExGst * 0.40) },
+    { stage: 'FINAL (SEALER)', percent: 10, exGst: roundCurrency(subtotalExGst * 0.10) }
   ].map(stage => ({
     ...stage,
     gst: roundCurrency(stage.exGst * GST_RATE),
@@ -293,7 +294,7 @@ function formatCalculationSummary(calculatedQuote) {
   ].join('\n');
 }
 
-module.exports = {
+const MCK_PRICING_ENGINE = {
   GST_RATE,
   MINIMUM_CHARGE_EX_GST,
   BRAND,
@@ -303,6 +304,14 @@ module.exports = {
   roundCurrency,
   roundOne,
   findRate,
+  systemTypeFor,
+  materialRateFor,
+  labourRateFor,
+  labourHoursPerSqm,
   calculateQuote,
   formatCalculationSummary
 };
+
+// UMD: usable from Node (agent) and the browser (static app)
+if (typeof module !== 'undefined' && module.exports) module.exports = MCK_PRICING_ENGINE;
+if (typeof window !== 'undefined') window.MCK_PRICING_ENGINE = MCK_PRICING_ENGINE;
