@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="color-scheme" content="dark">
+<title>MCK Customer Database</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; }
+:root { --bg:#0a0a0a; --card-bg:#111; --border:#333; --gold:#c9a84c; --green:#27AE60; --red:#ff4444; --amber:#f39c12; --blue:#3498DB; --grey-light:#aaa; --grey-mid:#666; }
+html,body { margin:0; padding:0; background:var(--bg); color:#fff; font-family:'Inter',sans-serif; font-size:13px; line-height:1.5; }
+.container { max-width:1200px; margin:0 auto; padding:20px; }
+.header { border-bottom:2px solid var(--gold); padding-bottom:16px; margin-bottom:24px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; }
+.header h1 { font-size:18px; color:var(--gold); letter-spacing:3px; text-transform:uppercase; margin:0; font-weight:800; }
+.header .sub { font-size:10px; color:var(--grey-light); letter-spacing:1px; }
+.header-actions { display:flex; gap:8px; }
+.btn { padding:8px 16px; font-family:inherit; font-size:10px; font-weight:700; letter-spacing:1px; text-transform:uppercase; border:none; border-radius:4px; cursor:pointer; text-decoration:none; display:inline-block; }
+.btn-gold { background:var(--gold); color:#000; }
+.btn-ghost { background:transparent; border:1px solid var(--border); color:var(--grey-light); }
+.btn-ghost:hover { border-color:var(--gold); color:var(--gold); }
+.btn-sm { padding:4px 10px; font-size:9px; }
+.auth-gate { display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px; }
+.auth-gate h2 { color:var(--gold); font-size:14px; letter-spacing:2px; text-transform:uppercase; }
+.auth-gate input { background:#1a1a1a; border:1px solid var(--border); color:#fff; padding:12px 16px; font-family:inherit; font-size:13px; border-radius:4px; width:280px; text-align:center; }
+.auth-gate input:focus { outline:none; border-color:var(--gold); }
+.auth-error { color:var(--red); font-size:11px; display:none; }
+.filters { display:flex; gap:8px; margin-bottom:16px; flex-wrap:wrap; align-items:center; }
+.search-input { background:#1a1a1a; border:1px solid var(--border); color:#fff; padding:6px 12px; font-family:inherit; font-size:11px; border-radius:3px; width:240px; }
+.search-input:focus { outline:none; border-color:var(--gold); }
+.brand-pill { padding:2px 8px; border-radius:3px; font-size:8px; font-weight:800; letter-spacing:1px; }
+.brand-MCK { background:var(--gold); color:#000; }
+.brand-RENDERKING { background:#8e44ad; color:#fff; }
+.cust-card { background:var(--card-bg); border:1px solid var(--border); border-radius:6px; margin-bottom:12px; overflow:hidden; }
+.cust-head { display:flex; align-items:center; gap:12px; padding:14px 16px; cursor:pointer; }
+.cust-head:hover { background:#161616; }
+.cust-name { font-size:14px; font-weight:700; color:#fff; }
+.cust-meta { font-size:10px; color:var(--grey-light); }
+.cust-body { padding:0 16px 14px 16px; border-top:1px solid var(--border); display:none; }
+.cust-card.open .cust-body { display:block; }
+.chev { color:var(--gold); transition:transform .15s; font-size:11px; }
+.cust-card.open .chev { transform:rotate(90deg); }
+.proj { border-left:3px solid var(--blue); background:#0d0d0d; border-radius:4px; margin:12px 0; padding:10px 12px; }
+.proj-head { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+.proj-name { font-size:12px; font-weight:700; color:var(--blue); }
+.proj-meta { font-size:10px; color:var(--grey-mid); }
+.quote-row { display:flex; align-items:center; gap:10px; padding:6px 8px; border-top:1px solid #1d1d1d; font-size:11px; flex-wrap:wrap; }
+.quote-row:first-of-type { border-top:none; }
+.qid { color:var(--gold); font-family:monospace; font-size:10px; }
+.status { display:inline-block; padding:1px 7px; border-radius:3px; font-size:8px; font-weight:800; letter-spacing:1px; text-transform:uppercase; }
+.status-PENDING { background:var(--gold); color:#000; } .status-ACCEPTED { background:var(--green); color:#fff; }
+.status-DECLINED { background:var(--red); color:#fff; } .status-EXPIRED { background:#666; color:#fff; }
+.action-link { color:var(--gold); text-decoration:none; font-size:9px; font-weight:700; }
+.action-link:hover { text-decoration:underline; } .action-link.blue { color:var(--blue); }
+.loading { text-align:center; padding:60px; color:var(--grey-mid); }
+.loading .spinner { display:inline-block; width:24px; height:24px; border:2px solid var(--border); border-top-color:var(--gold); border-radius:50%; animation:spin .8s linear infinite; margin-bottom:12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.empty-state { text-align:center; padding:60px; color:var(--grey-mid); }
+.empty-state h3 { color:var(--gold); font-size:14px; letter-spacing:2px; margin-bottom:8px; }
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.85); z-index:9999; display:flex; align-items:center; justify-content:center; padding:20px; }
+.modal { background:#111; border:1px solid var(--gold); border-radius:8px; padding:26px; max-width:520px; width:100%; max-height:90vh; overflow-y:auto; }
+.modal h3 { color:var(--gold); font-size:13px; letter-spacing:2px; text-transform:uppercase; margin:0 0 16px; }
+.field { margin-bottom:12px; } .field label { display:block; font-size:9px; color:var(--gold); letter-spacing:1px; text-transform:uppercase; margin-bottom:4px; }
+.field input, .field select, .field textarea { width:100%; background:#1a1a1a; border:1px solid var(--border); color:#fff; padding:9px 12px; font-family:inherit; font-size:12px; border-radius:3px; }
+.field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--gold); }
+.toast { position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:#111; border:1px solid var(--gold); color:#fff; padding:12px 22px; border-radius:6px; font-size:12px; z-index:10000; display:none; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<!-- AUTH GATE -->
+<div id="auth-gate" class="auth-gate">
+  <h2>Customer Database</h2>
+  <p style="color:#666;font-size:11px;">Enter the settings password to access the database.</p>
+  <input type="password" id="db-password" placeholder="Password" onkeydown="if(event.key==='Enter')unlockDb()">
+  <button class="btn btn-gold" onclick="unlockDb()">UNLOCK</button>
+  <div class="auth-error" id="db-error">INCORRECT PASSWORD</div>
+</div>
+
+<!-- DATABASE -->
+<div id="database" style="display:none;">
+  <div class="header">
+    <div>
+      <h1>Customer Database</h1>
+      <div class="sub">CUSTOMER ▸ PROJECT ▸ QUOTES &nbsp;·&nbsp; <span id="who"></span></div>
+    </div>
+    <div class="header-actions">
+      <button class="btn btn-gold" onclick="openNewCustomer()">+ NEW CUSTOMER</button>
+      <button class="btn btn-ghost" onclick="loadAll()">REFRESH</button>
+      <a href="quotes-dashboard.html" class="btn btn-ghost">PIPELINE</a>
+      <a href="index.html" class="btn btn-ghost">TOOLS</a>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input type="text" class="search-input" id="search-input" placeholder="Search customer / project..." oninput="renderTree()">
+    <select class="search-input" id="brand-filter" style="width:170px;" onchange="renderTree()">
+      <option value="">All brands</option>
+      <option value="MCK">Micro Cement King</option>
+      <option value="RENDERKING">Render King</option>
+    </select>
+  </div>
+
+  <div id="tree"><div class="loading"><div class="spinner"></div><br>Loading customers...</div></div>
+</div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="quote-storage.js?v=4"></script>
+<script src="customer-storage.js?v=1"></script>
+<script src="access-log.js?v=1"></script>
+<script>
+const DB_PASSWORD = 'MCK2026';
+let CUSTOMERS = [];           // index entries
+let PROJECTS_BY_CUST = {};    // customerId -> [project records]
+let LOADED_PROJECTS = {};     // customerId -> bool
+
+function unlockDb() {
+  const v = document.getElementById('db-password').value;
+  if (v === DB_PASSWORD) {
+    document.getElementById('auth-gate').style.display = 'none';
+    document.getElementById('database').style.display = 'block';
+    const who = MCK_ACCESS_LOG.ensureUser();
+    document.getElementById('who').textContent = 'Signed in as ' + who;
+    MCK_ACCESS_LOG.log({ action: 'open', target: 'customers.html' });
+    loadAll();
+  } else {
+    document.getElementById('db-error').style.display = 'block';
+  }
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.style.display = 'block';
+  clearTimeout(window._tt); window._tt = setTimeout(() => t.style.display = 'none', 3200);
+}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function money(n){ return '$' + (Number(n)||0).toLocaleString('en-AU'); }
+
+async function loadAll() {
+  document.getElementById('tree').innerHTML = '<div class="loading"><div class="spinner"></div><br>Loading customers...</div>';
+  const res = await MCK_CUSTOMER_STORAGE.listCustomers();
+  CUSTOMERS = (res.success ? res.customers : []) || [];
+  PROJECTS_BY_CUST = {}; LOADED_PROJECTS = {};
+  // Pre-load the project index once (cheap) and bucket by customer.
+  const projRes = await MCK_CUSTOMER_STORAGE.listProjects();
+  (projRes.projects || []).forEach(p => {
+    (PROJECTS_BY_CUST[p.customerId] = PROJECTS_BY_CUST[p.customerId] || []).push(p);
+  });
+  renderTree();
+}
+
+function renderTree() {
+  const term = (document.getElementById('search-input').value || '').toLowerCase();
+  const brand = document.getElementById('brand-filter').value;
+  const host = document.getElementById('tree');
+  let list = CUSTOMERS.slice();
+  if (brand) list = list.filter(c => c.brand === brand);
+  if (term) list = list.filter(c => (c.name || '').toLowerCase().includes(term)
+    || (PROJECTS_BY_CUST[c.id] || []).some(p => (p.name || '').toLowerCase().includes(term)));
+  list.sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || ''));
+
+  if (!list.length) {
+    host.innerHTML = '<div class="empty-state"><h3>No customers yet</h3><p>Create your first customer to start grouping repeat jobs.</p></div>';
+    return;
+  }
+  host.innerHTML = list.map(c => {
+    const projects = PROJECTS_BY_CUST[c.id] || [];
+    return `
+    <div class="cust-card" id="cust-${esc(c.id)}">
+      <div class="cust-head" onclick="toggleCust('${esc(c.id)}')">
+        <span class="chev">▶</span>
+        <div style="flex:1;">
+          <div class="cust-name">${esc(c.name || '(no name)')} <span class="brand-pill brand-${esc(c.brand||'MCK')}">${esc(c.brand||'MCK')}</span></div>
+          <div class="cust-meta">${esc(c.id)} · ${esc(c.type||'')} · ${projects.length} project(s)</div>
+        </div>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();openNewProject('${esc(c.id)}')">+ PROJECT</button>
+        <button class="btn btn-ghost btn-sm" onclick="event.stopPropagation();exportCust('${esc(c.id)}')">EXPORT</button>
+      </div>
+      <div class="cust-body" id="body-${esc(c.id)}">
+        ${projects.length ? '' : '<p style="color:#666;font-size:11px;">No projects yet. Add one to start quoting.</p>'}
+        <div id="projhost-${esc(c.id)}"></div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCust(id) {
+  const card = document.getElementById('cust-' + id);
+  card.classList.toggle('open');
+  if (card.classList.contains('open') && !LOADED_PROJECTS[id]) {
+    renderProjects(id);
+    LOADED_PROJECTS[id] = true;
+  }
+}
+
+async function renderProjects(custId) {
+  const host = document.getElementById('projhost-' + custId);
+  const projects = PROJECTS_BY_CUST[custId] || [];
+  if (!projects.length) { host.innerHTML = ''; return; }
+  host.innerHTML = '<div class="loading" style="padding:18px;"><div class="spinner"></div></div>';
+  const blocks = [];
+  for (const pi of projects) {
+    const full = await MCK_CUSTOMER_STORAGE.getProject(pi.id);
+    const p = full.success ? full.data : pi;
+    const refs = dedupeRefs(p.quoteRefs || []);
+    const total = refs.reduce((s, r) => s + (r.subtotal || 0), 0);
+    blocks.push(`
+      <div class="proj">
+        <div class="proj-head">
+          <div>
+            <div class="proj-name">${esc(p.name || '(unnamed project)')}</div>
+            <div class="proj-meta">${esc(p.projectId)} · ${esc(p.siteAddress||'')} · ${refs.length} quote(s) · ${money(total)} ex GST</div>
+          </div>
+          <button class="btn btn-gold btn-sm" onclick="newQuoteForProject('${esc(custId)}','${esc(p.projectId)}','${esc(p.name||'')}')">+ NEW QUOTE</button>
+        </div>
+        ${refs.length ? refs.map(r => `
+          <div class="quote-row">
+            <span class="qid">${esc(r.quoteId)}</span>
+            <span class="status status-${esc(r.status||'PENDING')}">${esc(r.status||'PENDING')}</span>
+            <span style="color:#aaa;">${esc(r.endClientName || r.jobName || '')}</span>
+            <span style="color:#fff;">${money(r.subtotal)}</span>
+            <span style="margin-left:auto;display:flex;gap:10px;">
+              <a class="action-link" target="_blank" href="quote-viewer.html?id=${encodeURIComponent(r.quoteId)}">INTERNAL</a>
+              <a class="action-link blue" target="_blank" href="quote-viewer.html?id=${encodeURIComponent(r.quoteId)}&view=client">CLIENT</a>
+              <a class="action-link" href="index.html?edit=${encodeURIComponent(r.quoteId)}">EDIT</a>
+            </span>
+          </div>`).join('') : '<div style="color:#666;font-size:10px;padding:6px 8px;">No quotes yet.</div>'}
+      </div>`);
+  }
+  host.innerHTML = blocks.join('');
+}
+
+// Show only the latest version of each base quote id
+function dedupeRefs(refs) {
+  const byBase = {};
+  refs.forEach(r => {
+    const base = r.baseQuoteId || r.quoteId.replace(/-v\d+$/, '');
+    if (!byBase[base] || (r.version || 1) >= (byBase[base].version || 1)) byBase[base] = r;
+  });
+  return Object.values(byBase);
+}
+
+function newQuoteForProject(custId, projId, projName) {
+  const endClient = prompt('End client / sub-customer for this quote (optional — e.g. unit owner). Leave blank for the main customer:', '') || '';
+  const params = new URLSearchParams({ customer: custId, project: projId, projectName: projName });
+  if (endClient) params.set('endClient', endClient);
+  window.location.href = 'index.html?' + params.toString();
+}
+
+// ── Create customer ──
+function openNewCustomer() {
+  showModal(`<h3>New Customer</h3>
+    <div class="field"><label>Business / Customer name</label><input id="nc-name" placeholder="ACME Builders Pty Ltd"></div>
+    <div class="field"><label>Type</label><select id="nc-type"><option value="business">Business</option><option value="individual">Individual</option></select></div>
+    <div class="field"><label>Brand</label><select id="nc-brand"><option value="MCK">Micro Cement King</option><option value="RENDERKING">Render King</option></select></div>
+    <div class="field"><label>Contact name</label><input id="nc-contact" placeholder="Primary contact"></div>
+    <div class="field"><label>Email</label><input id="nc-email" placeholder="name@example.com"></div>
+    <div class="field"><label>Phone</label><input id="nc-phone" placeholder="0400 000 000"></div>
+    <div class="field"><label>ABN (optional)</label><input id="nc-abn"></div>
+    <div class="field"><label>Billing address</label><input id="nc-addr"></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;">
+      <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button>
+      <button class="btn btn-gold" onclick="saveNewCustomer()">CREATE</button>
+    </div>`);
+}
+async function saveNewCustomer() {
+  const data = {
+    name: val('nc-name'), type: val('nc-type'), brand: val('nc-brand'),
+    contactName: val('nc-contact'), email: val('nc-email'), phone: val('nc-phone'),
+    abn: val('nc-abn'), billingAddress: val('nc-addr'), createdBy: MCK_ACCESS_LOG.getUser()
+  };
+  if (!data.name) { toast('Name is required'); return; }
+  busyModal('Creating customer...');
+  const res = await MCK_CUSTOMER_STORAGE.createCustomer(data);
+  if (res.success) {
+    MCK_ACCESS_LOG.log({ action: 'create', target: res.customerId, meta: { kind: 'customer' } });
+    closeModal(); toast('Customer ' + res.customerId + ' created'); await loadAll();
+  } else { toast('Error: ' + res.error); }
+}
+
+// ── Create project ──
+function openNewProject(custId) {
+  showModal(`<h3>New Project</h3>
+    <p style="color:#888;font-size:11px;margin-top:-8px;">Under customer <b>${esc(custId)}</b>. A project groups all quotes for one job/site (e.g. a block of units).</p>
+    <div class="field"><label>Project name</label><input id="np-name" placeholder="Teemangum St — 15 unit block"></div>
+    <div class="field"><label>Site address</label><input id="np-addr" placeholder="5/4 Teemangum Street, Tugun QLD"></div>
+    <div class="field"><label>Notes</label><textarea id="np-notes" rows="2"></textarea></div>
+    <div style="display:flex;gap:8px;justify-content:flex-end;margin-top:6px;">
+      <button class="btn btn-ghost" onclick="closeModal()">CANCEL</button>
+      <button class="btn btn-gold" onclick="saveNewProject('${esc(custId)}')">CREATE</button>
+    </div>`);
+}
+async function saveNewProject(custId) {
+  const data = { name: val('np-name'), siteAddress: val('np-addr'), notes: val('np-notes'), createdBy: MCK_ACCESS_LOG.getUser() };
+  if (!data.name) { toast('Project name is required'); return; }
+  busyModal('Creating project...');
+  const res = await MCK_CUSTOMER_STORAGE.createProject(custId, data);
+  if (res.success) {
+    MCK_ACCESS_LOG.log({ action: 'create', target: res.projectId, meta: { kind: 'project', customerId: custId } });
+    closeModal(); toast('Project ' + res.projectId + ' created'); await loadAll();
+    // re-open the customer so it's visible
+    setTimeout(() => { const card = document.getElementById('cust-' + custId); if (card && !card.classList.contains('open')) toggleCust(custId); }, 200);
+  } else { toast('Error: ' + res.error); }
+}
+
+// ── Export bundle for Google Drive backup ──
+async function exportCust(custId) {
+  toast('Building backup bundle...');
+  const res = await MCK_CUSTOMER_STORAGE.exportCustomerBundle(custId);
+  if (!res.success) { toast('Export failed: ' + res.error); return; }
+  const blob = new Blob([JSON.stringify(res.bundle, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = custId + '_backup_' + new Date().toISOString().slice(0, 10) + '.json';
+  a.click(); URL.revokeObjectURL(a.href);
+  MCK_ACCESS_LOG.log({ action: 'export', target: custId, meta: { kind: 'customer-bundle' } });
+  toast('Downloaded — drop this into the brand Google Drive folder.');
+}
+
+// ── tiny modal helpers ──
+function showModal(html) {
+  closeModal();
+  const bg = document.createElement('div'); bg.className = 'modal-bg'; bg.id = 'modal-bg';
+  bg.innerHTML = '<div class="modal">' + html + '</div>';
+  bg.addEventListener('click', e => { if (e.target === bg) closeModal(); });
+  document.body.appendChild(bg);
+}
+function busyModal(msg) { const m = document.querySelector('#modal-bg .modal'); if (m) m.innerHTML = '<div class="loading"><div class="spinner"></div><br>' + esc(msg) + '</div>'; }
+function closeModal() { const m = document.getElementById('modal-bg'); if (m) m.remove(); }
+function val(id) { const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+</script>
+</body>
+</html>

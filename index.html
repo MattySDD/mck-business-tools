@@ -249,22 +249,32 @@
             </tr>
             <tr id="q-pay-row-material" class="q-payment-stage-row" data-stage-type="material" data-auto-pct="material">
               <td class="stage-num">2</td>
-              <td><input type="text" class="payment-stage-title" value="Material Payment" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="Works do not start until paid" oninput="updatePaymentStageData()"></td>
-              <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
-              <td class="payment-stage-gst right">$0.00</td>
-              <td class="payment-stage-inc-gst right">$0.00</td>
-              <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="50" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
-              <td><input type="text" class="payment-stage-due" value="Prior to start date" oninput="updatePaymentStageData()"></td>
-              <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
-            </tr>
-            <tr id="q-pay-row-final" class="q-payment-stage-row" data-stage-type="final" data-auto-pct="final">
-              <td class="stage-num">3</td>
-              <td><input type="text" class="payment-stage-title" value="Final Claim" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="On practical completion and sign-off" oninput="updatePaymentStageData()"></td>
+              <td><input type="text" class="payment-stage-title" value="Material Payment" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="Non-refundable once materials are ordered" oninput="updatePaymentStageData()"></td>
               <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
               <td class="payment-stage-gst right">$0.00</td>
               <td class="payment-stage-inc-gst right">$0.00</td>
               <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="40" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
-              <td><input type="text" class="payment-stage-due" value="Within 3 business days" oninput="updatePaymentStageData()"></td>
+              <td><input type="text" class="payment-stage-due" value="Prior to commencement" oninput="updatePaymentStageData()"></td>
+              <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
+            </tr>
+            <tr id="q-pay-row-commencement" class="q-payment-stage-row" data-stage-type="commencement" data-auto-pct="commencement">
+              <td class="stage-num">3</td>
+              <td><input type="text" class="payment-stage-title" value="Commencement Payment" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="Payable within 24 hours of commencement" oninput="updatePaymentStageData()"></td>
+              <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+              <td class="payment-stage-gst right">$0.00</td>
+              <td class="payment-stage-inc-gst right">$0.00</td>
+              <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="40" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
+              <td><input type="text" class="payment-stage-due" value="Within 24 hrs of commencement" oninput="updatePaymentStageData()"></td>
+              <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
+            </tr>
+            <tr id="q-pay-row-final" class="q-payment-stage-row" data-stage-type="final" data-auto-pct="final">
+              <td class="stage-num">4</td>
+              <td><input type="text" class="payment-stage-title" value="Final Payment (Sealer)" oninput="updatePaymentStageData()"><input type="text" class="payment-stage-note" value="On first sealer coat application; warranties then commence" oninput="updatePaymentStageData()"></td>
+              <td><input type="number" class="payment-stage-amount" value="0" min="0" step="0.01" oninput="handlePaymentAmountInput(this)"></td>
+              <td class="payment-stage-gst right">$0.00</td>
+              <td class="payment-stage-inc-gst right">$0.00</td>
+              <td><div class="payment-pct-wrap"><input type="number" class="payment-stage-pct" value="10" min="0" max="100" step="0.01" oninput="handlePaymentPctInput(this)"><span>%</span></div></td>
+              <td><input type="text" class="payment-stage-due" value="On first sealer coat" oninput="updatePaymentStageData()"></td>
               <td class="center no-print"><button class="btn-remove-line payment-stage-remove" onclick="removePaymentStage(this)">&times;</button></td>
             </tr>
           </tbody>
@@ -273,7 +283,7 @@
 
         <div id="q-add-progress-wrap" class="payment-add-wrap no-print">
           <button class="btn-add-line" id="q-add-progress-btn" onclick="addProgressPaymentRow()" style="font-size:11px;padding:6px 16px;">+ ADD PAYMENT STAGE</button>
-          <span id="q-payment-stage-limit" class="payment-help-text">2 to 5 payment stages supported. Edit either amount or percentage; the other value recalculates.</span>
+          <span id="q-payment-stage-limit" class="payment-help-text">2 to 6 payment stages supported. Edit either amount or percentage; the other value recalculates.</span>
         </div>
       </div>
 
@@ -298,12 +308,13 @@
           <div class="tc-item"><div class="tc-head">Variations</div>All variations must be agreed in writing before work commences. Rate: <strong>$150/hr (2-hour minimum)</strong> plus materials at cost + 20%.</div>
           <div class="tc-item"><div class="tc-head">Workmanship Warranty</div>All workmanship is covered under statutory warranties as required by Queensland law.</div>
           <div class="tc-item"><div class="tc-head">Product Warranty</div>Manufacturer warranties on all products are passed through to the client in full.</div>
-          <div class="tc-item"><div class="tc-head">Payment Disputes</div>No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties.</div>
+          <div class="tc-item"><div class="tc-head">Dispute Resolution</div>Concerns must be raised with MCK in writing, with MCK given a fair opportunity to inspect and rectify. No third party may be engaged while a dispute is on foot — doing so voids all warranties. Undisputed amounts remain payable. Refusal to engage is a breach of contract.</div>
           <div class="tc-item"><div class="tc-head">Overdue Payments</div>Invoices overdue by 3+ days incur a $220 admin fee. Interest accrues at <strong>3% per week</strong> from Day 4. External recovery at Day 30.</div>
           <div class="tc-item"><div class="tc-head">Credit Limit</div>A maximum credit limit of <strong>$10,000</strong> applies. Progress claims will be issued when this threshold is exceeded.</div>
           <div class="tc-item"><div class="tc-head">Site Access</div>The client must ensure unobstructed access to the work area for the full project duration. Restricted access may incur additional charges.</div>
-          <div class="tc-item"><div class="tc-head">Termination</div>Micro Cement King reserves the right to terminate if payment terms are repeatedly breached. All work completed to date is invoiced and immediately payable.</div>
-          <div class="tc-item"><div class="tc-head">Colour &amp; Finish</div>Microcement colour and finish may vary from samples due to substrate, lighting, and application conditions. Samples are indicative only.</div>
+          <div class="tc-item"><div class="tc-head">Termination &amp; Non-Compliance</div>On termination or non-compliance, the site must be made ready for completion within 14 days, or the full final invoice — including admin fee and weekly interest — becomes immediately payable. Materials are non-refundable; warranties do not commence until final payment is received.</div>
+          <div class="tc-item"><div class="tc-head">Natural Finish &amp; Samples</div>Microcement is a uniquely natural, hand-applied finish; variation in tone, mottling, and movement over the natural contour is inherent and not a defect. Physical samples are charged at $330 ex GST each.</div>
+          <div class="tc-item"><div class="tc-head">Confidentiality &amp; IP</div>This quote, its pricing, and methodology are the confidential intellectual property of Micro Cement King, to be held between the client and MCK only. Sharing or distributing it, using it to quote against MCK, or using it to build or train any template or AI system may result in recovery of MCK's costs plus liquidated damages of up to $30,000 (see full Terms &amp; Conditions).</div>
         </div>
         <div class="callout callout-gold" style="margin-top:12px;">
           <strong>FULL TERMS &amp; CONDITIONS:</strong> The above is a summary only. Full Payment Terms &amp; Conditions are set out in the companion document. Click the <strong>Terms &amp; Conditions</strong> tab above to view the full document. By signing below, the client acknowledges they have read, understood, and agree to the full terms.
@@ -654,12 +665,13 @@
 
       <div class="section">
         <div class="section-hd"><div class="sec-num">03</div><h2>PAYMENT TERMS</h2></div>
-        <div class="tc-section"><div class="tc-head">3.1 - Booking Deposit</div><div class="tc-text">A non-refundable booking deposit is required to secure the project start date. Deposit is 5% of contract value for contracts exceeding $20,000, or 10% for contracts under $20,000.</div></div>
-        <div class="tc-section"><div class="tc-head">3.2 - Material Payment</div><div class="tc-text">50% of the remaining contract value (after deposit) is due as a material payment prior to the scheduled start date. Works will not commence until this payment is received as cleared funds.</div></div>
-        <div class="tc-section"><div class="tc-head">3.3 - Final Claim</div><div class="tc-text">The remaining balance is due within 3 business days of practical completion and client sign-off. Practical completion is defined as the point at which the works are substantially complete and fit for intended use.</div></div>
-        <div class="tc-section"><div class="tc-head">3.4 - Progress Claims</div><div class="tc-text">For contracts exceeding the credit limit ($10,000), MCK reserves the right to issue progress claims at reasonable intervals. Progress claims are payable within 3 business days of issue.</div></div>
+        <div class="tc-section"><div class="tc-head">3.1 - Booking Deposit</div><div class="tc-text">A non-refundable booking deposit of 5% to 10% of the contract value is required to secure the project start date (5% for contracts exceeding $20,000, or 10% for contracts of $20,000 or under). The deposit is non-refundable as it secures the client's place in the schedule.</div></div>
+        <div class="tc-section"><div class="tc-head">3.2 - Material Payment</div><div class="tc-text">A material payment of 40% to 45% of the contract value is due prior to the scheduled start date so that materials can be ordered and purchased. Once materials have been ordered or purchased this payment is non-refundable, including if the project is subsequently cancelled, as the materials are procured specifically for the client. Works will not commence until this payment is received as cleared funds.</div></div>
+        <div class="tc-section"><div class="tc-head">3.3 - Commencement Payment</div><div class="tc-text">A commencement payment of 40% of the contract value is due and payable within 24 hours of works commencing on site.</div></div>
+        <div class="tc-section"><div class="tc-head">3.4 - Final Payment &amp; Sealer</div><div class="tc-text">The final 10% of the contract value is due upon application of the first sealer coat. The final application of sealer is completed only after the final 10% has been received as cleared funds. Upon receipt of the final payment and application of the final sealer coat, all workmanship warranties and manufacturer guarantees commence.</div></div>
         <div class="tc-section"><div class="tc-head">3.5 - Upfront Payment Reduction</div><div class="tc-text">A 5% reduction (capped at $1,000) is available for clients who pay the full contract amount upfront prior to commencement. This reduction is applied to the total contract value (ex GST).</div></div>
         <div class="tc-section"><div class="tc-head">3.6 - On-Site Measure Fee</div><div class="tc-text">A non-refundable on-site measure fee of $220 (ex GST) applies where a site visit is required prior to quoting. This fee is credited in full against the contract upon acceptance.</div></div>
+        <div class="tc-section"><div class="tc-head">3.7 - Samples</div><div class="tc-text">Microcement is a uniquely natural finish. Where physical samples are requested, they are charged at $330 (ex GST) per sample. Sample fees are non-refundable and are not credited against the contract.</div></div>
       </div>
 
       <div class="section">
@@ -686,8 +698,11 @@
 
       <div class="section">
         <div class="section-hd"><div class="sec-num">07</div><h2>DISPUTE RESOLUTION</h2></div>
-        <div class="tc-section"><div class="tc-head">7.1</div><div class="tc-text">No third-party contractors may be engaged to rectify alleged defects until a written resolution is agreed upon by both parties. Engaging third parties without prior written consent voids all warranties.</div></div>
-        <div class="tc-section"><div class="tc-head">7.2</div><div class="tc-text">Any disputes shall first be addressed through direct negotiation. If unresolved within 14 days, the matter may be referred to mediation in accordance with Queensland law.</div></div>
+        <div class="tc-section"><div class="tc-head">7.1</div><div class="tc-text">Both parties agree to engage in good faith to resolve any dispute. Any concern with the works must be raised with MCK in writing, with specific detail and photographs where relevant, and MCK must be given reasonable access and a fair opportunity to inspect and rectify before any other action is taken.</div></div>
+        <div class="tc-section"><div class="tc-head">7.2</div><div class="tc-text">No third-party contractors may be engaged to inspect, alter, or rectify the works while a dispute is on foot or until a written resolution is agreed by both parties. Engaging third parties, or altering the works, without MCK's prior written consent immediately and permanently voids all warranties and releases MCK from all liability in respect of the affected works.</div></div>
+        <div class="tc-section"><div class="tc-head">7.3</div><div class="tc-text">Payment may not be withheld, reduced, or delayed on account of minor, cosmetic, or natural-finish characteristics (see Natural Finish &amp; Design), or while a dispute is being worked through in good faith. Undisputed amounts remain due in accordance with the Payment Terms.</div></div>
+        <div class="tc-section"><div class="tc-head">7.4</div><div class="tc-text">Unreasonable refusal or unwillingness to engage in this dispute process — including failure to respond in writing within 7 days, denying MCK access to inspect or rectify, or engaging third parties — is a breach of contract. In such circumstances MCK is entitled to treat the works as accepted, render the full final invoice as immediately due and payable, and recover all resulting costs, including the administration fee, weekly interest, and recovery costs.</div></div>
+        <div class="tc-section"><div class="tc-head">7.5</div><div class="tc-text">If a dispute remains unresolved after good-faith negotiation, it may be referred to mediation in Queensland before either party commences legal proceedings.</div></div>
       </div>
 
       <div class="section">
@@ -697,20 +712,31 @@
       </div>
 
       <div class="section">
-        <div class="section-hd"><div class="sec-num">09</div><h2>COLOUR &amp; FINISH DISCLAIMER</h2></div>
-        <div class="tc-section"><div class="tc-head">9.1</div><div class="tc-text">Microcement colour and finish may vary from samples due to substrate conditions, ambient lighting, humidity, and application technique. Samples are indicative only and do not guarantee an exact colour match.</div></div>
-        <div class="tc-section"><div class="tc-head">9.2</div><div class="tc-text">Colour changes requested after application has commenced will be treated as a variation and charged accordingly.</div></div>
+        <div class="section-hd"><div class="sec-num">09</div><h2>NATURAL FINISH &amp; DESIGN</h2></div>
+        <div class="tc-section"><div class="tc-head">9.1</div><div class="tc-text">Microcement is a uniquely natural, hand-applied finish. Variation in tone, shading, mottling, trowel movement, and texture — and the way the finish follows the natural contour of the substrate — is an inherent and intended characteristic of the product and is not a defect.</div></div>
+        <div class="tc-section"><div class="tc-head">9.2</div><div class="tc-text">Final design, layout, trowel direction, and finish decisions are made on site by MCK's tradesmen and microcement experts, applied over the natural contour of the surface. Where the client has specific preferences these should be discussed and agreed in writing prior to application.</div></div>
+        <div class="tc-section"><div class="tc-head">9.3</div><div class="tc-text">Colour and finish may vary from samples due to substrate conditions, ambient lighting, humidity, and application technique. Samples are indicative only and do not guarantee an exact colour match. Physical samples are charged at $330 (ex GST) per sample.</div></div>
+        <div class="tc-section"><div class="tc-head">9.4</div><div class="tc-text">Colour or finish changes requested after application has commenced will be treated as a variation and charged accordingly.</div></div>
       </div>
 
       <div class="section">
-        <div class="section-hd"><div class="sec-num">10</div><h2>TERMINATION</h2></div>
-        <div class="tc-section"><div class="tc-head">10.1</div><div class="tc-text">MCK reserves the right to terminate the contract if payment terms are repeatedly breached or if site conditions present an unreasonable risk to workers or materials.</div></div>
-        <div class="tc-section"><div class="tc-head">10.2</div><div class="tc-text">Upon termination, all work completed to date is invoiced at the agreed rates and is immediately payable. Materials ordered or delivered are non-refundable.</div></div>
+        <div class="section-hd"><div class="sec-num">10</div><h2>TERMINATION &amp; NON-COMPLIANCE</h2></div>
+        <div class="tc-section"><div class="tc-head">10.1</div><div class="tc-text">MCK reserves the right to suspend or terminate the contract where payment terms are breached, where site conditions present an unreasonable risk to workers or materials, or where the client fails to comply with, or refuses to engage with, the Dispute Resolution process.</div></div>
+        <div class="tc-section"><div class="tc-head">10.2</div><div class="tc-text">Where the contract is terminated, or where a final sealer coat or other works remain outstanding due to the client's non-compliance, non-payment, or refusal to engage with or comprehend the Dispute Resolution process, the situation must be resolved and the site made ready for completion within 14 days. If it is not, the full and final invoice for the contract becomes immediately due and payable in full, including the administration fee and weekly interest set out in these terms.</div></div>
+        <div class="tc-section"><div class="tc-head">10.3</div><div class="tc-text">Upon termination, all work completed to date is invoiced at the agreed contract rates and is immediately payable. Materials ordered or delivered are non-refundable. Warranties and manufacturer guarantees do not commence on any works for which final payment has not been received.</div></div>
       </div>
 
       <div class="section">
-        <div class="section-hd"><div class="sec-num">11</div><h2>GOVERNING LAW</h2></div>
-        <div class="tc-section"><div class="tc-head">11.1</div><div class="tc-text">This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</div></div>
+        <div class="section-hd"><div class="sec-num">11</div><h2>CONFIDENTIALITY, INTELLECTUAL PROPERTY &amp; NON-DISTRIBUTION</h2></div>
+        <div class="tc-section"><div class="tc-head">11.1</div><div class="tc-text">This quotation and all of its contents — including pricing, rates, pricing scaffolds, cost structures, methodology, scope, inclusions, system specifications, and these Terms &amp; Conditions — are the confidential information and intellectual property of Micro Cement King, developed over many years at significant cost. They are provided to the Owner/Client in confidence and are to be held strictly private and confidential between the Owner/Client and Micro Cement King only.</div></div>
+        <div class="tc-section"><div class="tc-head">11.2</div><div class="tc-text">This quotation must not be shared, disclosed, published, forwarded, distributed, reproduced, or copied to any third party (including other contractors, suppliers, or competitors), nor used to quote against, benchmark, or undercut Micro Cement King, nor used to train, build, populate, or reverse-engineer any template, database, or artificial-intelligence system, without the prior written consent of Micro Cement King.</div></div>
+        <div class="tc-section"><div class="tc-head">11.3</div><div class="tc-text">Any unauthorised sharing, distribution, or use of this quotation or its contents will result in the recovery of MCK's operational expenses and the time invested in preparing it, plus liquidated damages of up to $30,000 to account for the compromise and devaluation of MCK's pricing structures, procedures, and intellectual property — including any use to build out or train quoting templates or AI systems. Micro Cement King reserves the right to recover any and all losses arising from the compromise of the procedures and pricing scaffolds it has spent years creating.</div></div>
+        <div class="tc-section"><div class="tc-head">11.4</div><div class="tc-text">This clause survives the completion, expiry, or termination of the contract.</div></div>
+      </div>
+
+      <div class="section">
+        <div class="section-hd"><div class="sec-num">12</div><h2>GOVERNING LAW</h2></div>
+        <div class="tc-section"><div class="tc-head">12.1</div><div class="tc-text">This agreement is governed by the laws of Queensland, Australia. Any legal proceedings shall be conducted in the courts of Queensland.</div></div>
       </div>
 
       <div style="margin-top:24px;padding:14px 18px;background:var(--panel);border:1px solid var(--border);font-size:11px;color:var(--grey-mid);text-align:center;line-height:1.9;border-radius:4px;">
@@ -1137,7 +1163,11 @@
 <script src="settings.js"></script>
 <script src="calculator.js"></script>
 <script src="quote.js"></script>
-<script src="quote-storage.js?v=3"></script>
+<script src="quote-storage.js?v=4"></script>
+<script src="customer-storage.js?v=1"></script>
+<script src="pricing-engine.js?v=1"></script>
+<script src="auto-quote.js?v=1"></script>
+<script src="job-link.js?v=1"></script>
 <script>
 // ── TAB SWITCHING ────────────────────────────────────────
 function switchTab(tabId) {

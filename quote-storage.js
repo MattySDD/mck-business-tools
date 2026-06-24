@@ -368,7 +368,8 @@ const MCK_QUOTE_STORAGE = (() => {
 
     // Ensure defaults
     d.depositPct = d.depositPct || 10;
-    d.matPct = d.matPct || 50;
+    d.commencementPct = d.commencementPct != null ? d.commencementPct : 40;
+    d.finalSealerPct = d.finalSealerPct != null ? d.finalSealerPct : 10;
     d.creditLimit = d.creditLimit || 10000;
     d.upfrontDiscPct = d.upfrontDiscPct || 5;
     d.upfrontDiscCap = d.upfrontDiscCap || 1000;
@@ -408,10 +409,13 @@ const MCK_QUOTE_STORAGE = (() => {
 
     // Payment calculations
     if (d.subtotal > 20000) d.depositPct = 5;
+    const totalProgressPct = (d.progressPayments || []).reduce((s, p) => s + (p.pct || 0), 0);
+    // Material payment is the balance after deposit, commencement and final sealer payments.
+    if (d.matPct == null) d.matPct = Math.max(0, 100 - d.depositPct - d.commencementPct - d.finalSealerPct - totalProgressPct);
     d.depositAmt = d.subtotal * (d.depositPct / 100);
     d.materialAmt = d.subtotal * (d.matPct / 100);
-    const totalProgressPct = (d.progressPayments || []).reduce((s, p) => s + (p.pct || 0), 0);
-    d.finalPct = Math.max(0, 100 - d.depositPct - d.matPct - totalProgressPct);
+    d.commencementAmt = d.subtotal * (d.commencementPct / 100);
+    d.finalPct = Math.max(0, 100 - d.depositPct - d.matPct - d.commencementPct - totalProgressPct);
     d.finalAmt = d.subtotal * (d.finalPct / 100);
     d.upfrontDisc = Math.min(d.subtotal * (d.upfrontDiscPct / 100), d.upfrontDiscCap);
     d.upfrontTotal = d.subtotal - d.upfrontDisc;
@@ -421,6 +425,121 @@ const MCK_QUOTE_STORAGE = (() => {
     if (!d.dateIssued) d.dateIssued = new Date().toLocaleDateString('en-AU');
 
     return d;
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // GENERIC REPO-ROOT FILE HELPERS
+  // Used by customer-storage.js and access-log.js so the GitHub
+  // token lives in ONE place only. `path` is relative to repo root,
+  // e.g. "customers/CUST-AB12CD.json".
+  // ═══════════════════════════════════════════════════════════
+
+  function _rootApi(path) {
+    return `https://api.github.com/repos/${OWNER}/${REPO}/contents/${path}`;
+  }
+
+  /**
+   * Read + parse a JSON file anywhere in the repo.
+   * @returns {Promise<{success:boolean, data?:object, sha?:string, notFound?:boolean, error?:string}>}
+   */
+  async function ghGetFile(path) {
+    try {
+      const resp = await fetch(_rootApi(path), {
+        headers: { 'Authorization': `token ${GH_TOKEN}` }
+      });
+      if (resp.status === 404) return { success: false, notFound: true };
+      if (!resp.ok) return { success: false, error: 'GitHub read error ' + resp.status };
+      const fileData = await resp.json();
+      const jsonStr = decodeURIComponent(escape(atob(fileData.content)));
+      return { success: true, data: JSON.parse(jsonStr), sha: fileData.sha };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  /**
+   * Write (create or overwrite) a JSON file anywhere in the repo.
+   * Pass knownSha when you already hold it (avoids an extra read);
+   * pass undefined to auto-resolve.
+   */
+  async function ghPutFile(path, dataObj, message, knownSha) {
+    const jsonStr = JSON.stringify(dataObj, null, 2);
+    const contentBase64 = btoa(unescape(encodeURIComponent(jsonStr)));
+    let sha = knownSha;
+    if (sha === undefined) {
+      const existing = await ghGetFile(path);
+      sha = existing.success ? existing.sha : null;
+    }
+    const body = {
+      message: message || ('update: ' + path),
+      content: contentBase64,
+      branch: BRANCH
+    };
+    if (sha) body.sha = sha;
+    try {
+      const resp = await fetch(_rootApi(path), {
+        method: 'PUT',
+        headers: { 'Authorization': `token ${GH_TOKEN}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      if (!resp.ok) {
+        const err = await resp.json().catch(() => ({}));
+        return { success: false, error: err.message || ('GitHub write error ' + resp.status), status: resp.status };
+      }
+      const result = await resp.json();
+      return { success: true, sha: result.content && result.content.sha };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  }
+
+  /**
+   * Safe read-modify-write with conflict retry. `mutator(current)` must
+   * return the new object. Creates the file from defaultValue if missing.
+   * This is the SAFEGUARD against two staff/agents clobbering each other.
+   */
+  async function ghUpdateFile(path, mutator, message, opts) {
+    const { createIfMissing = true, defaultValue = () => ({}), retries = 4 } = (opts || {});
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      const existing = await ghGetFile(path);
+      let current, sha;
+      if (existing.success) {
+        current = existing.data; sha = existing.sha;
+      } else if (existing.notFound && createIfMissing) {
+        current = (typeof defaultValue === 'function') ? defaultValue() : defaultValue;
+        sha = null;
+      } else {
+        return { success: false, error: existing.error || 'read failed' };
+      }
+      const next = mutator(current);
+      const put = await ghPutFile(path, next, message, sha);
+      if (put.success) return { success: true, data: next };
+      // Conflict (someone else wrote first) → re-read and retry with backoff
+      if (put.status === 409 || /sha|conflict/i.test(put.error || '')) {
+        await new Promise(r => setTimeout(r, 200 * (attempt + 1)));
+        continue;
+      }
+      return { success: false, error: put.error };
+    }
+    return { success: false, error: 'Write conflict: exceeded retries' };
+  }
+
+  /**
+   * List *.json files in any repo directory. Returns [] if dir missing.
+   */
+  async function ghListDir(path) {
+    try {
+      const resp = await fetch(_rootApi(path), {
+        headers: { 'Authorization': `token ${GH_TOKEN}` }
+      });
+      if (resp.status === 404) return { success: true, files: [] };
+      if (!resp.ok) return { success: false, files: [], error: 'list error ' + resp.status };
+      const items = await resp.json();
+      if (!Array.isArray(items)) return { success: true, files: [] };
+      return { success: true, files: items.filter(f => f.name && f.name.endsWith('.json')).map(f => f.name) };
+    } catch (e) {
+      return { success: false, files: [], error: e.message };
+    }
   }
 
   return {
@@ -433,6 +552,11 @@ const MCK_QUOTE_STORAGE = (() => {
     getQuoteEditUrl,
     quoteExists,
     generateQuoteId,
-    enrichQuoteData
+    enrichQuoteData,
+    // generic helpers
+    ghGetFile,
+    ghPutFile,
+    ghUpdateFile,
+    ghListDir
   };
 })();
