@@ -44,6 +44,8 @@
   "finalPct": 40,
   "finalAmt": 4600,
   "matPct": 50,
+  "commencementPct": 40,
+  "commencementAmt": 4600,
   "progressPayments": [],
   "paymentStages": [
     {
@@ -171,9 +173,11 @@
   "sigDataURL": "",
   "clientTypedName": "",
   "clientPrintName": "",
-  "clientSigDate": "2026-06-02",
+  "clientSigDate": "2026-06-25",
   "attachments": [],
   "specialConditions": [],
-  "createdAt": "2026-06-02T16:10:14.485Z",
-  "lastSavedAt": "2026-06-02T16:10:16.007Z"
+  "createdAt": "2026-06-25T11:27:52.604Z",
+  "version": 2,
+  "parentQuoteId": "MCK-2026-7756",
+  "lastSavedAt": "2026-06-25T11:27:55.551Z"
 }
