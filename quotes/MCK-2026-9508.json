@@ -1,0 +1,191 @@
+{
+  "quoteNumber": "MCK-2026-9508",
+  "dateIssued": "25 JUNE 2026",
+  "validityLabel": "48 Hours",
+  "validityHours": 48,
+  "validityBanner": "QUOTE VALID FOR 48 HOURS FROM DATE OF ISSUE",
+  "preparedBy": "King Mannion",
+  "clientName": "TEST STEFI DEE",
+  "clientPhone": "0407286149",
+  "clientEmail": "STEFIDEE@SUNNYDAYSDEVELOPMENTS.COM.AU",
+  "projectAddress": "PARADISE POINT",
+  "siteContact": "",
+  "colourFinish": "TBD",
+  "substrate": "TILES",
+  "scope": "",
+  "startDate": "",
+  "duration": "",
+  "completion": "",
+  "lineItems": [
+    {
+      "desc": "Micro Cement Application - Floors",
+      "qty": 10,
+      "unit": "sqm",
+      "rate": 400,
+      "total": 4000
+    },
+    {
+      "desc": "Micro Cement Application - Feature Walls",
+      "qty": 15,
+      "unit": "sqm",
+      "rate": 500,
+      "total": 7500
+    }
+  ],
+  "variationItems": [],
+  "subtotal": 11500,
+  "gst": 1150,
+  "grandTotal": 12650,
+  "baseSubtotal": 11500,
+  "varSubtotal": 0,
+  "depositPct": 10,
+  "depositAmt": 1150,
+  "materialAmt": 4600,
+  "finalPct": 10,
+  "finalAmt": 1150,
+  "matPct": 40,
+  "commencementPct": 40,
+  "commencementAmt": 4600,
+  "progressPayments": [],
+  "paymentStages": [
+    {
+      "stage": 1,
+      "type": "deposit",
+      "title": "Booking Deposit",
+      "desc": "Booking Deposit",
+      "note": "Secures your place in the schedule",
+      "due": "On acceptance",
+      "pct": 10,
+      "amt": 1150
+    },
+    {
+      "stage": 2,
+      "type": "material",
+      "title": "Material Payment",
+      "desc": "Material Payment",
+      "note": "Non-refundable once materials are ordered",
+      "due": "Prior to commencement",
+      "pct": 40,
+      "amt": 4600
+    },
+    {
+      "stage": 3,
+      "type": "commencement",
+      "title": "Commencement Payment",
+      "desc": "Commencement Payment",
+      "note": "Payable within 24 hours of commencement",
+      "due": "Within 24 hrs of commencement",
+      "pct": 40,
+      "amt": 4600
+    },
+    {
+      "stage": 4,
+      "type": "final",
+      "title": "Final Payment (Sealer)",
+      "desc": "Final Payment (Sealer)",
+      "note": "On first sealer coat application; warranties then commence",
+      "due": "On first sealer coat",
+      "pct": 10,
+      "amt": 1150
+    }
+  ],
+  "creditLimit": 10000,
+  "upfrontDiscPct": 5,
+  "upfrontDiscCap": 1000,
+  "upfrontDisc": 575,
+  "upfrontTotal": 10925,
+  "variationRate": 150,
+  "variationMinHrs": 2,
+  "variationMatAllowance": 500,
+  "overdueAdminFee": 220,
+  "overdueInterest": 3,
+  "measureFee": 220,
+  "inclusions": [
+    {
+      "text": "All microcement materials (Ideal Works / Solidro / supplier equivalent)",
+      "enabled": true
+    },
+    {
+      "text": "Professional surface preparation",
+      "enabled": true
+    },
+    {
+      "text": "PRIMER-RR application (where required per system rules)",
+      "enabled": true
+    },
+    {
+      "text": "WB Mesh Blocker + fibreglass mesh reinforcement (floors/wet areas/benchtops)",
+      "enabled": true
+    },
+    {
+      "text": "Base coat application (1 coat)",
+      "enabled": true
+    },
+    {
+      "text": "Finish coat application (2 coats)",
+      "enabled": true
+    },
+    {
+      "text": "PU100 polyurethane sealer (2 coats)",
+      "enabled": true
+    },
+    {
+      "text": "Micro Seal protective topcoat (floors/benchtops/wet areas)",
+      "enabled": true
+    },
+    {
+      "text": "Full clean-up and site protection",
+      "enabled": true
+    },
+    {
+      "text": "Workmanship warranty as per statutory requirements",
+      "enabled": true
+    },
+    {
+      "text": "Manufacturer product warranties passed through",
+      "enabled": true
+    }
+  ],
+  "exclusions": [
+    {
+      "text": "Structural repairs or substrate rectification",
+      "enabled": false
+    },
+    {
+      "text": "Waterproofing (unless specified in scope)",
+      "enabled": false
+    },
+    {
+      "text": "Plumbing, electrical, or other trade work",
+      "enabled": false
+    },
+    {
+      "text": "Furniture removal or storage",
+      "enabled": false
+    },
+    {
+      "text": "Floor levelling or grinding (unless specified)",
+      "enabled": false
+    },
+    {
+      "text": "Colour changes after application has commenced",
+      "enabled": false
+    },
+    {
+      "text": "Damage caused by other trades after completion",
+      "enabled": false
+    },
+    {
+      "text": "Ongoing maintenance products",
+      "enabled": false
+    }
+  ],
+  "sigDataURL": "",
+  "clientTypedName": "",
+  "clientPrintName": "",
+  "clientSigDate": "2026-06-25",
+  "attachments": [],
+  "specialConditions": [],
+  "createdAt": "2026-06-25T11:31:21.716Z",
+  "lastSavedAt": "2026-06-25T11:31:22.380Z"
+}
